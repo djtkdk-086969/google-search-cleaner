@@ -7,7 +7,7 @@ Googleの検索結果から特定のページを非表示にするGreasemonkey�
 
 Google掃除機(仮称)は、Googleの検索結果から特定のページを非表示にするGreasemonkey用ユーザースクリプトです。現在ウェブ検索結果・画像検索結果に対応しています。
 
-![Demonstration](wiki/img/demo.png "Demonstration")
+![Demonstration](https://github.com/djtkdk-086969/google-search-cleaner/wiki/img/demo.png "Demonstration")
 
 ## 機能
 

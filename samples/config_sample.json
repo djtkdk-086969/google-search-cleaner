@@ -1,0 +1,30 @@
+{
+    "config": {
+        "quick_block": true,
+        "check_for_image": true,
+        "ruleset_name_with_comment": true,
+        "fix_missing": true,
+        "hide_moshikashite": true,
+        "force_keyword_exclusion_on_suggestion": true,
+        "float": true,
+        "animation": true,
+        "verbose": false
+    },
+    "rulesets": {
+        "SMPL": {
+            "name": "サンプル",
+            "enabled": true,
+            "rules": [
+                {
+                    "target": "url",
+                    "type": "domain",
+                    "action": "info",
+                    "level": 0,
+                    "criteria": "example.com",
+                    "comment": "入力したコメント",
+                    "enabled": false
+                }
+            ]
+        }
+    }
+}

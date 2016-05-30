@@ -1,0 +1,137 @@
+[
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "oshiete.goo.ne.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "m.oshiete1.goo.ne.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "oshiete.homes.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "oshiete.nikkeibp.co.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "questionbox.jp.msn.com",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "qanda.rakuten.ne.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "soudan1.biglobe.ne.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "oshiete1.watch.impress.co.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "ziddy.japan.zdnet.com",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "qa.cyzo.com",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "oshiete1.nifty.com",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "qa.jiji.com",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "qa.itmedia.co.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "itmedia.co.jp/qa/",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "str"
+    },
+    {
+        "action": "hide",
+        "comment": "",
+        "criteria": "soudan.qa.excite.co.jp",
+        "enabled": true,
+        "level": 0,
+        "target": "url",
+        "type": "domain"
+    }
+]

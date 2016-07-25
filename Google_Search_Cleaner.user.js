@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.0.1.051
+// @version        1.0.1.061
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -252,7 +252,25 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
                    "suggest": "関連語句",
                    "suggest_excl": "関連(-除外)",
                    "autocomplete": "検索語句予測"};
+    var row_style = 0;
     
+    if(table.find("tr").size() >= 1) {
+        if(table.find("tr:last").attr("data-last-rule") === undefined) {
+            if(table.find("tr:last").hasClass("gso_log_a")){            
+                row_style = 0;
+            } else {
+                row_style = 1;
+            }
+        } else {
+            if(table.find("tr:last").hasClass("gso_log_a")){            
+                row_style = 1;
+            } else {
+                row_style = 0;
+            }
+        }
+    } else {
+        row_style = 0;        
+    }
     table.append(
         "<tr><td>" + type_res[type] +
             "</td><td>" +
@@ -262,22 +280,28 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
             "</td><td>" +
             "</td><td>" +
             "</td></tr>");
+    if(row_style == 0) {
+        table.find("tr:last").addClass("gso_log_a");
+    } else {
+        table.find("tr:last").addClass("gso_log_b");
+    }
+
     if(override) {
-        table.find("tr:last").css("text-decoration", "line-through");
+        table.find("tr:last").addClass("gso_log_overridden");
     }
     if(action_effective == "hide_absolutely") {
         if(ruleset !== null) {
             table.find("tr:last td:eq(2)")
-                .append("<div style='width: 100%; color: silver;'>(「完全に非表示」動作のため表示できません)</div>");
+                .append("<div style='width: 100%; color: silver;' title='「完全に非表示」動作のため表示できません'>表示不可</div>");
         }
         if(ruleset !== null) {
             table.find("tr:last td:eq(5)")
                 .append("<div title='[" + ruleset + "]" + config.rulesets[ruleset].name +
-                        "' style='width: 100%; background-color: silver;'>…</div>");
+                        "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("▶ " + cat.full.action[action]);
+                .append("&gt;&gt; " + cat.full.action[action]);
         }
         table.find("tr:last td:eq(4)").remove();
         table.find("tr:last td:eq(3)").remove();
@@ -289,20 +313,20 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         }
         if(title !== null) {
             table.find("tr:last td:eq(3)")
-                .append("<div title='" + title + "' style='width: 100%; background-color: silver;'>…</div>");
+                .append("<div title='" + title + "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
         }
         if(url !== null) {
             table.find("tr:last td:eq(4)")
-                .append("<div title='" + decodeURI_s(url) + "' style='width: 100%; background-color: silver;'>…</div>");
+                .append("<div title='" + decodeURI_s(url) + "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
         }
         if(ruleset !== null) {
             table.find("tr:last td:eq(5)")
                 .append("<div title='[" + ruleset + "]" + config.rulesets[ruleset].name +
-                        "' style='width: 100%; background-color: silver;'>…</div>");
+                        "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("▶ " + cat.full.action[action]);
+                .append("&gt;&gt; " + cat.full.action[action]);
         }
     }
 
@@ -313,7 +337,14 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         table.find("tr:last td:eq(1)").text(cat.abbrev.target[target]);
     }
 }
-
+function gso_log_setBoundary() {
+    /*
+      ログにおける検索結果の境界を設定
+      複数のルールにマッチした際などにどのルールがどの検索結果にマッチしたか
+      わかりやすくする
+    */
+    $("#gso_log_table table tbody").find("tr:last").attr("data-last-rule", "last-rule");
+}
 function gso_rseditor_toggle() {
     $("#gso_config").toggle();
 }
@@ -534,6 +565,9 @@ var config_default = {
     GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
     GM_addStyle("tr.gso_rule_selected {background-color: pink;}");
     GM_addStyle("tr.gso_rule_disabled {text-decoration: line-through;}");
+    GM_addStyle("tr.gso_log_a {background-color: inherit;}");
+    GM_addStyle("tr.gso_log_b {background-color: whitesmoke;}");
+    GM_addStyle("*.gso_log_overridden {text-decoration: line-through; color: silver;}");
 
     var selector_SERP =
         "div.rc:has(h3.r > a)," +
@@ -837,7 +871,7 @@ var config_default = {
                           '</thead>' +
                           '</table>' +
                           '<div id="gso_log_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;">' +
-                          '<table style="width:440px; border-spacing: 0px 2px;">' +
+                          '<table style="width:440px; border-spacing: 0px 0px;">' +
                           '<colgroup>' +
                           '<col style="width: 4em; min-width: 4em;">' +
                           '<col style="width: 3em; min-width: 3em;">' +
@@ -852,7 +886,9 @@ var config_default = {
                           '</table>' +
                           '</div>' +
                           '</div>' +
-                          '<button type="button" id="gso_log_clear" class="gso_control_buttons">クリア</button> <span  style="background-color: silver;">…</span> をポイントすると詳細が表示されます。' +
+                          '<button type="button" id="gso_log_clear" class="gso_control_buttons">クリア</button><br>' +
+                          '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。<br>' +
+                          '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>' +
                           '</div>' +
                           '</fieldset>' +
                           '<fieldset>' +
@@ -886,7 +922,7 @@ var config_default = {
                           'Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>' +
                           '作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">@djtkdk_086969</a><br>' +
                           'ライセンス: GPL v3<br>' +
-                          '本スクリプトはjQueryを利用しています。' +
+                          '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery</a>を利用しています。' +
                           '</div>' +
                           '</fieldset>' +
                           '<button type="button" id="gso_save" class="gso_control_buttons">変更を保存</button>' +
@@ -1546,7 +1582,6 @@ var config_default = {
                                        !(e.effective !== undefined && e.effective));
                     });
                 });
-
                 if(applied_rule.rule.action == "hide") {
                     $(node).hide();
                     $(node).find("div._S6c").insertAfter($(node)); /* 「詳細を見る」を外に出す */
@@ -1724,6 +1759,8 @@ var config_default = {
             }
         }
         $(node).addClass("gso_checked");
+        
+        gso_log_setBoundary();
         update_gso_control_msg();
         update_serp();
 
@@ -1807,6 +1844,7 @@ var config_default = {
                 }
             }
             $(node).addClass("gso_checked");
+            gso_log_setBoundary();
             update_gso_control_msg();
         }
         update_img();
@@ -1904,6 +1942,7 @@ var config_default = {
                 }
             }
             $(node).addClass("gso_checked");
+            gso_log_setBoundary();
         }
         update_gso_control_msg();
     }
@@ -1954,6 +1993,7 @@ var config_default = {
                                         config.rulesets[applied_rule.ruleset_id].name +
                                         '</span></span>');
                 }
+                gso_log_setBoundary();
                 update_kw();
                 update_gso_control_msg();
                 return (applied_rule.rule.action != "allow");
@@ -2012,6 +2052,7 @@ var config_default = {
                     });
                 });
                 if(matched_rules_exclusion.length > 0) {
+                    gso_log_setBoundary();
                     $(node).hide();
                 }
             }
@@ -2058,6 +2099,7 @@ var config_default = {
                 $(this).removeClass("gso_killed_kw_autocomplete");
             }
         });
+        gso_log_setBoundary();
         
         mo_autocomplete.observe(document.getElementById("sbtc"),
                                 {attributes: true, childList: true, characterData: true, subtree: true});

@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.0.2.071
+// @version        1.1.0.078
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -19,6 +19,7 @@
 // @license        GPL v3; http://www.gnu.org/copyleft/gpl.html
 // @homepage       https://twitter.com/djtkdk_086969
 // @compatible     firefox
+// @compatible     chrome
 // ==/UserScript==
 
 /* Utility functions */
@@ -28,7 +29,7 @@ function escapeRegexp(string) {
 }
 function chk_str(target, ref, method) {
     /*
-      条件に合致した場合、マッチした文字列を含む配列を返す。
+      条件に合致した場合、合致した文字列を含む配列を返す。
       そうでない場合は null を返す。
       target: 対象の文字列
       ref:    検索文字列
@@ -340,7 +341,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
 function gso_log_setBoundary() {
     /*
       ログにおける検索結果の境界を設定
-      複数のルールにマッチした際などにどのルールがどの検索結果にマッチしたか
+      複数のルールに合致した際などにどのルールがどの検索結果に合致したか
       わかりやすくする
     */
     $("#gso_log_table table tbody").find("tr:last").attr("data-last-rule", "last-rule");
@@ -358,6 +359,7 @@ function gso_save() {
     GM_setValue("fix_missing", config.config.fix_missing);
     GM_setValue("hide_moshikashite", config.config.hide_moshikashite);
     GM_setValue("force_keyword_exclusion_on_suggestion", config.config.force_keyword_exclusion_on_suggestion);
+    GM_setValue("always_log_checked_entries", config.config.always_log_checked_entries);
     GM_setValue("float", config.config.float);
     GM_setValue("animation", config.config.animation);
     GM_setValue("verbose", config.config.verbose);
@@ -381,6 +383,7 @@ function gso_load() {
     config.config.fix_missing = GM_getValue("fix_missing", config_default.config.fix_missing);
     config.config.hide_moshikashite = GM_getValue("hide_moshikashite", config_default.config.hide_moshikashite);
     config.config.force_keyword_exclusion_on_suggestion = GM_getValue("force_keyword_exclusion_on_suggestion", config_default.config.force_keyword_exclusion_on_suggestion);
+    config.config.always_log_checked_entries = GM_getValue("always_log_checked_entries", config_default.config.always_log_checked_entries);
     config.config.float = GM_getValue("float", config_default.config.float);
     config.config.animation = GM_getValue("animation", config_default.config.animation);
     config.config.verbose = GM_getValue("verbose", config_default.config.verbose);
@@ -531,6 +534,7 @@ var config_default = {
         'fix_missing': true,
         'hide_moshikashite': true,
         'force_keyword_exclusion_on_suggestion': false,
+        'always_log_checked_entries': false,
         'float': true,
         'animation': true,
         'verbose': false
@@ -688,10 +692,12 @@ var config_default = {
                 '<em>GSC</em>' +
                 '<div id="gso_results_msg_eff"></div>' +
                 '<div id="gso_results_msg_top"></div>' +
-                '<button type="button" id="gso_killed_count_s" class="gso_control_buttons" style="display:none">R</button>' +
-                '<button type="button" id="gso_killed_count_si" class="gso_control_buttons" style="display:none">I</button>' +
-                '<button type="button" id="gso_killed_count_k" class="gso_control_buttons" style="display:none">S</button>' +
-                '<div id="gso_results_msg_bottom"></div>' +
+                '<ul style="list-style-type: none;">' +
+                '<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>' +
+                '<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>' +
+                '<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>' +
+                '<li id="gso_count_ik" style="display:none">検索語句無視!</li>' +
+                '</ul>' +
                 '</div>'
             
 
@@ -859,7 +865,7 @@ var config_default = {
                           '<tr style="font-weight: bold; background-color: lightgray;">' +
                           '<td>種類</td>' +
                           '<td>対象</td>' +
-                          '<td>マッチした文字列</td>' +
+                          '<td>合致した文字列</td>' +
                           '<td>T/KW</td>' +
                           '<td>URL</td>' +
                           '<td>RS</td>' +
@@ -898,6 +904,7 @@ var config_default = {
                           '<input type="checkbox" value="fix_missing">検索語句無視対策機能を有効にする<br>' +
                           '<input type="checkbox" value="hide_moshikashite">2ページ目以降「もしかして：」を隠す<br>' +
                           '<input type="checkbox" value="force_keyword_exclusion_on_suggestion">サジェストに「マイナス検索」を適用<br>' +
+                          '<input type="checkbox" value="always_log_checked_entries">合致したルールが存在しなくてもチェックされた項目を全て記録する<br>' +
                           '<input type="checkbox" value="float">スクロールに追従する<br>' +
                           '<input type="checkbox" value="animation">アニメーション<br>' +
                           '</div>' +
@@ -917,9 +924,9 @@ var config_default = {
                           '<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>バージョン情報</legend>' +
                           '<div id="gso_about" style="display: none;">' +
                           'Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>' +
-                          '作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">@djtkdk_086969</a><br>' +
+                          '作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/ja/users/29445-%E3%81%9F%E3%81%8B%E3%81%A0%E3%81%8B-takadaka" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>' +
                           'ライセンス: GPL v3<br>' +
-                          '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery</a>を利用しています。' +
+                          '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。' +
                           '</div>' +
                           '</fieldset>' +
                           '<button type="button" id="gso_save" class="gso_control_buttons">変更を保存</button>' +
@@ -1169,6 +1176,7 @@ var config_default = {
                 GM_deleteValue("fix_missing");
                 GM_deleteValue("hide_moshikashite");
                 GM_deleteValue("force_keyword_exclusion_on_suggestion");
+                GM_deleteValue("always_log_checked_entries");
                 GM_deleteValue("float");
                 GM_deleteValue("animation");
                 GM_deleteValue("verbose");
@@ -1689,7 +1697,7 @@ var config_default = {
                     }
                     new_desc.insertBefore(original_desc);
                 }
-            } else {
+            } else if(config.config.always_log_checked_entries) {
                 gso_log_append("page",
                                null,
                                null,
@@ -1865,7 +1873,7 @@ var config_default = {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
                         }
                     }
-                } else {
+                } else if(config.config.always_log_checked_entries) {
                     gso_log_append("img",
                                    null,
                                    null,
@@ -1973,7 +1981,7 @@ var config_default = {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
                         }
                     }
-                } else {
+                } else if(config.config.always_log_checked_entries) {
                     gso_log_append("img",
                                    null,
                                    null,
@@ -2041,7 +2049,7 @@ var config_default = {
                 update_kw();
                 update_gso_control_msg();
                 return (applied_rule.rule.action != "allow");
-            } else {
+            } else if(config.config.always_log_checked_entries) {
                 gso_log_append("suggest",
                                null,
                                null,
@@ -2206,30 +2214,36 @@ var config_default = {
         $("#gso_killed_count_k").html("関連語句: " + count_totalKW);
 
         if(count_totalSERP > 0 || count_totalSERPdesc > 0) {
-            $("#gso_killed_count_s").show();
+            $("#gso_killed_count_s").parent().show();
         } else {
-            $("#gso_killed_count_s").hide();
+            $("#gso_killed_count_s").parent().hide();
         }
         if(count_totalSERPimg > 0) {
-            $("#gso_killed_count_si").show();
+            $("#gso_killed_count_si").parent().show();
         } else {
-            $("#gso_killed_count_si").hide();
+            $("#gso_killed_count_si").parent().hide();
         }
         if(count_totalKW > 0) {
-            $("#gso_killed_count_k").show();
+            $("#gso_killed_count_k").parent().show();
         } else {
-            $("#gso_killed_count_k").hide();
-        }
-        if(count_totalSERP === 0 && count_totalSERPdesc === 0 && count_totalSERPimg === 0 && count_totalKW === 0) {
-            $("#gso_results_msg_top").html("検索結果に問題なし");
-        } else {
-            $("#gso_results_msg_top").html("検索結果を処理済<br>(クリックで切替)");
+            $("#gso_killed_count_k").parent().hide();
         }
         if(count_totalIK > 0) {
-            $("#gso_results_msg_bottom").html("検索語句無視! [" + count_totalIK + "]<br>" +
-                                              "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+            $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "]<br>" +
+                                    "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+            $("#gso_count_ik").show();
         } else {
-            $("#gso_results_msg_bottom").html("");
+            $("#gso_count_ik").hide();
+        }
+        if(count_totalSERP > 0 ||
+           count_totalSERPdesc > 0 ||
+           count_totalSERPimg > 0 ||
+           count_totalKW > 0) {
+            $("#gso_results_msg_top").html("検索結果を処理済<br>(クリックで切替)");
+        } else if(count_totalIK > 0) {
+            $("#gso_results_msg_top").html("検索結果を処理済");
+        } else {
+            $("#gso_results_msg_top").html("検索結果に問題なし");
         }
     }
 

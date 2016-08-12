@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.0.1.061
+// @version        1.0.2.067
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1437,13 +1437,16 @@ var config_default = {
 
                     /* すでに存在する要素について直ちにチェック */
                     $(node_search).find(selector_KW).not("*.gso_checked").each( function() {
+                        console.log("check_elem_kw() called in mo_serp");
                         check_elem_kw(this);
                     });
                     if(location.href.search("&tbm=isch&") == -1){
                         $(node_search).find(selector_SERP).not("*.gso_checked").each( function() {
+                            console.log("check_elem_serp() called in mo_serp");
                             check_elem_serp(this);
                         });
                         $(node_search).find(selector_IMG).not("*.gso_checked").each( function() {
+                            console.log("check_elem_img() called in mo_serp");
                             check_elem_img(this);
                         });
                     }
@@ -1460,10 +1463,27 @@ var config_default = {
                 var node_topstuff = mutation.target.querySelector("div#topstuff");
                 if (node_topstuff) {
                     /* 'div#topstuff' が挿入された */
+                    console.log("div#topstaff inserted");
                     mo_serp.disconnect();
 
                     /* すでに存在する要素について直ちにチェック */
                     $(node_topstuff).find(selector_KW).not("*.gso_checked").each( function() {
+                        check_elem_kw(this);
+                    });
+                    hide_moshikashite();
+                    mo_link.observe(node_topstuff, {childList: true, subtree: true});
+                    mo_serp.observe(document.body, {childList: true, subtree: true});  
+                }
+
+                /* その中に 'div#taw'があるか？ */
+                var node_taw = mutation.target.querySelector("div#taw");
+                if (node_taw) {
+                    /* 'div#taw' が挿入された */
+                    console.log("div#taw inserted");
+                    mo_serp.disconnect();
+
+                    /* すでに存在する要素について直ちにチェック */
+                    $(node_taw).find(selector_KW).not("*.gso_checked").each( function() {
                         check_elem_kw(this);
                     });
                     hide_moshikashite();
@@ -1495,14 +1515,17 @@ var config_default = {
                 [].slice.call(mutation.addedNodes).forEach(function(node) {
                     /* 最初に目に入る「関連キーワード」を最初に処理 */
                     $(node).find(selector_KW).not("*.gso_checked").each(function() {
+                        console.log("check_elem_kw() called in mo_link");
                         check_elem_kw(this);
                     });
                     /* SERPを探して処理 */
                     if(location.href.search("&tbm=isch&") == -1){
                         $(node).find(selector_SERP).not("*.gso_checked").each(function() {
+                            console.log("check_elem_serp() called in mo_link");
                             check_elem_serp(this);
                         });
                         $(node).find(selector_IMG).not("*.gso_checked").each(function() {
+                            console.log("check_elem_img() called in mo_link");
                             check_elem_img(this);
                         });
                     }
@@ -1675,6 +1698,16 @@ var config_default = {
                     }
                     new_desc.insertBefore(original_desc);
                 }
+            } else {
+                gso_log_append("page",
+                               null,
+                               null,
+                               context.title,
+                               context.target,
+                               null,
+                               "allow",
+                               "allow",
+                               true);
             }
             /* ---------- 「未指定：○○○」を処理 ---------- */
             if(config.config.fix_missing) {
@@ -1841,6 +1874,16 @@ var config_default = {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
                         }
                     }
+                } else {
+                    gso_log_append("img",
+                                   null,
+                                   null,
+                                   null,
+                                   context.target,
+                                   null,
+                                   "allow",
+                                   "allow",
+                                   true);
                 }
             }
             $(node).addClass("gso_checked");
@@ -1939,6 +1982,16 @@ var config_default = {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
                         }
                     }
+                } else {
+                    gso_log_append("img",
+                                   null,
+                                   null,
+                                   context.title,
+                                   context.target,
+                                   null,
+                                   "allow",
+                                   "allow",
+                                   true);
                 }
             }
             $(node).addClass("gso_checked");
@@ -1997,6 +2050,16 @@ var config_default = {
                 update_kw();
                 update_gso_control_msg();
                 return (applied_rule.rule.action != "allow");
+            } else {
+                gso_log_append("suggest",
+                               null,
+                               null,
+                               context.related_kw,
+                               null,
+                               null,
+                               "allow",
+                               "allow",
+                               true);
             }
             if(config.config.force_keyword_exclusion_on_suggestion) {
                 var keywords = [];
@@ -2195,6 +2258,7 @@ var config_default = {
         
         if(location.href.search("&tbm=isch&") == -1){
             $(selector_SERP).not("*.gso_checked").each(function () {
+                console.log("check_elem_serp() called in check_elem_all()");
                 check_elem_serp(this);
             });
             
@@ -2204,6 +2268,7 @@ var config_default = {
             /* 隠す対象となりうる要素 */
             var entries = $(selector_IMG).not("*.gso_checked");
             entries.each(function() {
+                console.log("check_elem_img() called in check_elem_all()");
                 check_elem_img(this);
             });
             

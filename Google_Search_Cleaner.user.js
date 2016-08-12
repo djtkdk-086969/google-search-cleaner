@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.0.2.070
+// @version        1.0.2.071
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -732,7 +732,6 @@ var config_default = {
                           '<div>' +
                           '<table style="width:440px; border-spacing: 0px 2px;">' +
                           '<colgroup>' +
-                          '<col style="width: 0em;">' +
                           '<col style="width: 3em; min-width: 3em;">' +
                           '<col style="width: 4.5em; min-width: 4.5em;">' +
                           '<col style="width: 3em; min-width: 3em;">' +
@@ -742,7 +741,6 @@ var config_default = {
                           '</colgroup>' +
                           '<thead>' +
                           '<tr style="font-weight: bold; background-color: lightgray;">' +
-                          '<td></td>' +
                           '<td>対象</td>' +
                           '<td>検索方法</td>' +
                           '<td>動作</td>' +
@@ -755,7 +753,6 @@ var config_default = {
                           '<div id="gso_ruleset_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;">' +
                           '<table style="width:440px; border-spacing: 0px 2px;">' +
                           '<colgroup>' +
-                          '<col style="width: 0em;">' +
                           '<col style="width: 3em; min-width: 3em;">' +
                           '<col style="width: 4.5em; min-width: 4.5em;">' +
                           '<col style="width: 3em; min-width: 3em;">' +
@@ -986,8 +983,8 @@ var config_default = {
             var ruleset = config.rulesets[$("#gso_ruleset_select").val()];
             jQuery.each(ruleset.rules, function(i) {
                 var table = $("#gso_ruleset_table table tbody").append(
-                    "<tr data-idx='" + i +"'><td style='position: relative;'>" +
-                        "</td><td>" + cat.abbrev.target[this.target] +
+                    "<tr data-idx='" + i +"'>" +
+                        "<td>" + cat.abbrev.target[this.target] +
                         "</td><td>" + cat.abbrev.type[this.type] +
                         "</td><td><div title='" + cat.full.action[this.action] +
                         "' style='width: 100%;'>" + cat.abbrev.action[this.action] +
@@ -996,7 +993,7 @@ var config_default = {
                         "</td><td>" +
                         "</td></tr>");
                 if(this.comment !== "") {
-                    table.find("tr:last td:eq(6)")
+                    table.find("tr:last td:eq(5)")
                         .append("<div title='" + this.comment + "' style='width: 100%; background-color: silver;'>…</div>");
                 }
                 if(!this.enabled) {

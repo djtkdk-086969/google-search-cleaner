@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.0.2.067
+// @version        1.0.2.068
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1431,6 +1431,8 @@ var config_default = {
             if (mutation.addedNodes && (mutation.addedNodes.length > 0)) {
                 /* その中に 'div#search'があるか？ */
                 var node_search = mutation.target.querySelector("div#search");
+                if (!node_search) node_search = mutation.target.querySelector("div#rhs");
+                /* 右側「他の人はこちらを検索」とか */
                 if (node_search) {
                     /* 'div#search' が挿入された */
                     mo_serp.disconnect();
@@ -1487,7 +1489,7 @@ var config_default = {
                         check_elem_kw(this);
                     });
                     hide_moshikashite();
-                    mo_link.observe(node_topstuff, {childList: true, subtree: true});
+                    mo_link.observe(node_taw, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});  
                 }
 

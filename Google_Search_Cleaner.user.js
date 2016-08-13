@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.0.085
+// @version        1.1.1.086
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2250,16 +2250,10 @@ var config_default = {
     }
 
     function check_elem_all() {
-        var count_SERP = 0; /* ブラックリストに該当したサイトの数 */
-        var count_SERPimg = 0; /* ブラックリストに該当した画像の数 */
-        var count_KW = 0; /* ブラックリストに該当した関連KWの数 */
-        
         if(location.href.search("&tbm=isch&") == -1){
             $(selector_SERP).not("*.gso_checked").each(function () {
                 check_elem_serp(this);
             });
-            
-            count_SERP = $("*.gso_killed_serp").size();
 
             /* ---------- 画像検索結果(リンク外す) ---------- */
             /* 隠す対象となりうる要素 */
@@ -2267,8 +2261,6 @@ var config_default = {
             entries.each(function() {
                 check_elem_img(this);
             });
-            
-            count_SERPimg = $("*.gso_killed_serpimg").size();
         }
         /* ---------- 関連キーワード ---------- */
         
@@ -2276,7 +2268,7 @@ var config_default = {
            bottom: div.brs_col > p._e4b > a */
 
         $(selector_KW).not("*.gso_checked").each(function() {
-            if(check_elem_kw(this)) count_KW++;
+            check_elem_kw(this);
         });
 
         /* ---------- [画像]モードの検索結果 ---------- */

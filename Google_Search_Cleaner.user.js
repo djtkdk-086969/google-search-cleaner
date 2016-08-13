@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.0.078
+// @version        1.1.0.084
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -511,14 +511,10 @@ var action_priority = {
     "undef": -1
 };
 
-
-/* ブロック対象を指定したルールセット */
-/*
-  外部ファイルに記述しておいてそれを読み込むようにしたい。
-  ルールセットは JSON 形式で、GM_setValue()を用いて保存する。
-  GM_setValue("rulesets", JSON.stringify(rulesets));
-*/
+/* 現在の設定 */
 var config = null;
+
+/* デフォルトの設定 */
 var config_default = {
     "rulesets": {
         "default": {
@@ -2028,20 +2024,17 @@ var config_default = {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_bad gso_serp_description_b">' +
                                         context.related_kw +
+                                        ' <span style="background-color: silver; color: dimgray;" title="' +
+                                        config.rulesets[applied_rule.ruleset_id].name + '">×</span>' +
                                         '</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_a">Blocked</span></span>');
+                                        '<span class="gso_serp_description_a" style="opacity: 0;">***</span></span>');
                 } else if(applied_rule.rule.action == "warn") {
-                    $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
-                                        context.related_kw +
-                                        '</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_a">' +
-                                        config.rulesets[applied_rule.ruleset_id].name +
-                                        '</span></span>');
+                    $(node).after(' <span style="background-color: silver; color: dimgray;" title="' +
+                                        config.rulesets[applied_rule.ruleset_id].name + '">&#x26A0;</span>');
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_bad gso_serp_description_a" style="opacity: 0;">***</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
+                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
                                         config.rulesets[applied_rule.ruleset_id].name +
                                         '</span></span>');
                 }

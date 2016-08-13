@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.0.078
+// @version        1.1.1.086
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -511,14 +511,10 @@ var action_priority = {
     "undef": -1
 };
 
-
-/* ブロック対象を指定したルールセット */
-/*
-  外部ファイルに記述しておいてそれを読み込むようにしたい。
-  ルールセットは JSON 形式で、GM_setValue()を用いて保存する。
-  GM_setValue("rulesets", JSON.stringify(rulesets));
-*/
+/* 現在の設定 */
 var config = null;
+
+/* デフォルトの設定 */
 var config_default = {
     "rulesets": {
         "default": {
@@ -551,7 +547,7 @@ var config_default = {
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
     GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
     GM_addStyle("span.gso_killed_kw_bad { color: silver; text-decoration: line-through; white-space: nowrap;}");
-    GM_addStyle("span.gso_killed_kw_placeholder { background: silver; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_placeholder {border: 1px solid; white-space: nowrap;}");
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
     GM_addStyle("#gso_control { left: 0px; z-index: 999; width: 120px; background-color: white; border: 1px solid black; text-align: center; }");
@@ -2028,20 +2024,17 @@ var config_default = {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_bad gso_serp_description_b">' +
                                         context.related_kw +
+                                        ' <span style="background-color: silver; color: dimgray;" title="' +
+                                        config.rulesets[applied_rule.ruleset_id].name + '">×</span>' +
                                         '</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_a">Blocked</span></span>');
+                                        '<span class="gso_serp_description_a" style="opacity: 0;">***</span></span>');
                 } else if(applied_rule.rule.action == "warn") {
-                    $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
-                                        context.related_kw +
-                                        '</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_a">' +
-                                        config.rulesets[applied_rule.ruleset_id].name +
-                                        '</span></span>');
+                    $(node).after(' <span style="background-color: silver; color: dimgray;" title="' +
+                                        config.rulesets[applied_rule.ruleset_id].name + '">&#x26A0;</span>');
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_bad gso_serp_description_a" style="opacity: 0;">***</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
+                                        '<span class="gso_killed_kw_placeholder gso_killed_kw_bad gso_serp_description_b">' +
                                         config.rulesets[applied_rule.ruleset_id].name +
                                         '</span></span>');
                 }
@@ -2257,16 +2250,10 @@ var config_default = {
     }
 
     function check_elem_all() {
-        var count_SERP = 0; /* ブラックリストに該当したサイトの数 */
-        var count_SERPimg = 0; /* ブラックリストに該当した画像の数 */
-        var count_KW = 0; /* ブラックリストに該当した関連KWの数 */
-        
         if(location.href.search("&tbm=isch&") == -1){
             $(selector_SERP).not("*.gso_checked").each(function () {
                 check_elem_serp(this);
             });
-            
-            count_SERP = $("*.gso_killed_serp").size();
 
             /* ---------- 画像検索結果(リンク外す) ---------- */
             /* 隠す対象となりうる要素 */
@@ -2274,8 +2261,6 @@ var config_default = {
             entries.each(function() {
                 check_elem_img(this);
             });
-            
-            count_SERPimg = $("*.gso_killed_serpimg").size();
         }
         /* ---------- 関連キーワード ---------- */
         
@@ -2283,7 +2268,7 @@ var config_default = {
            bottom: div.brs_col > p._e4b > a */
 
         $(selector_KW).not("*.gso_checked").each(function() {
-            if(check_elem_kw(this)) count_KW++;
+            check_elem_kw(this);
         });
 
         /* ---------- [画像]モードの検索結果 ---------- */

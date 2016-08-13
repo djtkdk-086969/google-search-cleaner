@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.0.084
+// @version        1.1.0.085
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -547,7 +547,7 @@ var config_default = {
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
     GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
     GM_addStyle("span.gso_killed_kw_bad { color: silver; text-decoration: line-through; white-space: nowrap;}");
-    GM_addStyle("span.gso_killed_kw_placeholder { background: silver; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_placeholder {border: 1px solid; white-space: nowrap;}");
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
     GM_addStyle("#gso_control { left: 0px; z-index: 999; width: 120px; background-color: white; border: 1px solid black; text-align: center; }");
@@ -2034,7 +2034,7 @@ var config_default = {
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_bad gso_serp_description_a" style="opacity: 0;">***</span>' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
+                                        '<span class="gso_killed_kw_placeholder gso_killed_kw_bad gso_serp_description_b">' +
                                         config.rulesets[applied_rule.ruleset_id].name +
                                         '</span></span>');
                 }

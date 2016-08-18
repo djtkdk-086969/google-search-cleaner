@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.1.088
+// @version        1.1.1.090
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -147,7 +147,7 @@ function check_config(config_json) {
     if(valid) {
         Object.keys(config_default.config).forEach(function (k) {
             if (config_json.config[k] === null || config_json.config[k] === undefined) {
-                console.log('config.json.' + k + ' defaults to ' + config_default.config[k]);
+                console.log('config_json.' + k + ' defaults to ' + config_default.config[k]);
                 config_json.config[k] = config_default.config[k];
             }
         });
@@ -374,6 +374,7 @@ function gso_save() {
     GM_setValue("float", config.config.float);
     GM_setValue("animation", config.config.animation);
     GM_setValue("verbose", config.config.verbose);
+    GM_setValue("version", config.config.version);
 
     GM_setValue("rulesets", JSON.stringify(config.rulesets));
     console.log("saved configuration");
@@ -398,6 +399,7 @@ function gso_load() {
     config.config.float = GM_getValue("float", config_default.config.float);
     config.config.animation = GM_getValue("animation", config_default.config.animation);
     config.config.verbose = GM_getValue("verbose", config_default.config.verbose);
+    config.config.version = GM_getValue("version", config_default.config.version);
 
     config.rulesets = JSON.parse(GM_getValue("rulesets", '{"default":{"name":"既定のルールセット","enabled":true,"rules":[{"action":"hide","comment":"","criteria":"example.com","enabled":false,"level":0,"target":"url","type":"domain"}]}}'));
     console.log("loaded configuration");
@@ -544,7 +546,8 @@ var config_default = {
         'always_log_checked_entries': false,
         'float': true,
         'animation': true,
-        'verbose': false
+        'verbose': false,
+        'version': GM_info.script.version
     }
 };
 

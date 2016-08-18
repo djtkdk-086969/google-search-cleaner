@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.1.086
+// @version        1.1.1.088
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -136,10 +136,21 @@ function check_rule(rule) {
 }
 
 function check_config(config_json) {
+    /* オブジェクト config_json を設定が格納されたオブジェクトとして
+       正常なデータかどうかチェックする。
+       同時に実装済だがconfig_jsonには定義されていない設定値については
+       デフォルト値を設定する。
+       (config_jsonの内容は変化する) */
     var valid = true;
     valid = (typeof config_json.config == "object" &&
              typeof config_json.rulesets == "object");
     if(valid) {
+        Object.keys(config_default.config).forEach(function (k) {
+            if (config_json.config[k] === null || config_json.config[k] === undefined) {
+                console.log('config.json.' + k + ' defaults to ' + config_default.config[k]);
+                config_json.config[k] = config_default.config[k];
+            }
+        });
         jQuery.each(config_json.rulesets, function(id) {
             if(valid &&
                typeof this.name == "string" &&

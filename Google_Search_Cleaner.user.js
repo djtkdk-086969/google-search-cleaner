@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.1.090
+// @version        1.1.2.102
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -364,17 +364,10 @@ function gso_rseditor_toggle() {
 /* GM_setValue / GM_getValue */
 function gso_save() {
     /* GM_setValue で現在の設定値(config)を保存する */
-    GM_setValue("quick_block", config.config.quick_block);
-    GM_setValue("check_for_image", config.config.check_for_image);
-    GM_setValue("ruleset_name_with_comment", config.config.ruleset_name_with_comment);
-    GM_setValue("fix_missing", config.config.fix_missing);
-    GM_setValue("hide_moshikashite", config.config.hide_moshikashite);
-    GM_setValue("force_keyword_exclusion_on_suggestion", config.config.force_keyword_exclusion_on_suggestion);
-    GM_setValue("always_log_checked_entries", config.config.always_log_checked_entries);
-    GM_setValue("float", config.config.float);
-    GM_setValue("animation", config.config.animation);
-    GM_setValue("verbose", config.config.verbose);
-    GM_setValue("version", config.config.version);
+    Object.keys(config_default.config).forEach(function (k) {
+        GM_setValue(k, config.config[k]);
+    });
+    GM_setValue("version", GM_info.script.version);
 
     GM_setValue("rulesets", JSON.stringify(config.rulesets));
     console.log("saved configuration");
@@ -389,17 +382,9 @@ function gso_load() {
     config.config = {};
     config.rulesets = {};
     
-    config.config.quick_block = GM_getValue("quick_block", config_default.config.quick_block);
-    config.config.check_for_image = GM_getValue("check_for_image", config_default.config.check_for_image);
-    config.config.ruleset_name_with_comment = GM_getValue("ruleset_name_with_comment", config_default.config.ruleset_name_with_comment);
-    config.config.fix_missing = GM_getValue("fix_missing", config_default.config.fix_missing);
-    config.config.hide_moshikashite = GM_getValue("hide_moshikashite", config_default.config.hide_moshikashite);
-    config.config.force_keyword_exclusion_on_suggestion = GM_getValue("force_keyword_exclusion_on_suggestion", config_default.config.force_keyword_exclusion_on_suggestion);
-    config.config.always_log_checked_entries = GM_getValue("always_log_checked_entries", config_default.config.always_log_checked_entries);
-    config.config.float = GM_getValue("float", config_default.config.float);
-    config.config.animation = GM_getValue("animation", config_default.config.animation);
-    config.config.verbose = GM_getValue("verbose", config_default.config.verbose);
-    config.config.version = GM_getValue("version", config_default.config.version);
+    Object.keys(config_default.config).forEach(function (k) {
+        config.config[k] = GM_getValue(k, config_default.config[k]);
+    });
 
     config.rulesets = JSON.parse(GM_getValue("rulesets", '{"default":{"name":"既定のルールセット","enabled":true,"rules":[{"action":"hide","comment":"","criteria":"example.com","enabled":false,"level":0,"target":"url","type":"domain"}]}}'));
     console.log("loaded configuration");
@@ -451,12 +436,16 @@ function gso_config_rseditor_init() {
     $("#gso_ruleset_select").change();
 
     $("#gso_ruleset_remove").prop("disabled", $("#gso_ruleset_select option").size() <= 1);
+    $("#gso_rule_enabled").prop("checked", true);
 }
 
 function gso_config_init() {
     gso_config_rseditor_init();
     $("#gso_config_misc input").each(function() {
         $(this).prop("checked", config.config[$(this).val()]);
+    });
+    $("#gso_config_misc select").each(function() {
+        $(this).val(config.config[this.name]);
     });
 }
 
@@ -537,6 +526,7 @@ var config_default = {
             ]},
     },
     'config': {
+        'message_location': 'page',
         'quick_block': false,
         'check_for_image': true,
         'ruleset_name_with_comment': false,
@@ -695,49 +685,11 @@ var config_default = {
         return context;
     }
 
-    if($("#gso_control").size() === 0) {
-        /* 結果表示 */
-        $("body").prepend(
-            '<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;">' +
-                '<em>GSC</em>' +
-                '<div id="gso_results_msg_eff"></div>' +
-                '<div id="gso_results_msg_top"></div>' +
-                '<ul style="list-style-type: none;">' +
-                '<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>' +
-                '<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>' +
-                '<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>' +
-                '<li id="gso_count_ik" style="display:none">検索語句無視!</li>' +
-                '</ul>' +
-                '</div>'
-            
-
-        );
-        $("#gso_killed_count_s").click(function () {
-            if(status.show_serp) {
-                status.show_serp = false;
-            } else {
-                status.show_serp = true;
-            }
-            update_serp();
-        });
-        $("#gso_killed_count_si").click(function () {
-            if(status.show_img) {
-                status.show_img = false;
-            } else {
-                status.show_img = true;
-            }
-            update_img();
-        });
-        $("#gso_killed_count_k").click(function () {
-            if(status.show_kw) {
-                status.show_kw = false;
-            } else {
-                status.show_kw = true;
-            }
-            update_kw();
-        });
+    if($("#gso_config").size() === 0) {
+        /* 設定画面 */
         $("body").prepend('<form id="gso_config" class="gso_config_embedded">' +
-                          '<button type="button" id="gso_config_close" class="gso_control_buttons">閉じる</button>' +
+                          '<span style="display: block; text-align: right">' +
+                          '<button type="button" id="gso_config_close" class="gso_control_buttons" title="閉じる">×</button></span>' +
                           '<fieldset>' +
                           '<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>ルールセットの編集</legend>' +
                           '<div id="gso_ruleset_editor">' +
@@ -907,6 +859,10 @@ var config_default = {
                           '<fieldset>' +
                           '<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>その他の設定</legend>' +
                           '<div id="gso_config_misc" style="display: none;">' +
+                          'メッセージの場所: <select id="message_location" name="message_location">' +
+                          '<option value="page">ページ左上</option>' +
+                          '<option value="config">設定画面</option>' +
+                          '</select><br>' +
                           '<input type="checkbox" value="quick_block">検索結果にクイックブロックボタンを表示<br>' +
                           '<input type="checkbox" value="check_for_image">画像検索のチェック<br>' +
                           '<input type="checkbox" value="ruleset_name_with_comment">プレースホルダにコメントを表示する<br>'+
@@ -915,7 +871,7 @@ var config_default = {
                           '<input type="checkbox" value="hide_moshikashite">2ページ目以降「もしかして：」を隠す<br>' +
                           '<input type="checkbox" value="force_keyword_exclusion_on_suggestion">サジェストに「マイナス検索」を適用<br>' +
                           '<input type="checkbox" value="always_log_checked_entries">合致したルールが存在しなくてもチェックされた項目を全て記録する<br>' +
-                          '<input type="checkbox" value="float">スクロールに追従する<br>' +
+                          '<input type="checkbox" value="float">メッセージ・設定画面をスクロールに追従させる<br>' +
                           '<input type="checkbox" value="animation">アニメーション<br>' +
                           '</div>' +
                           '</fieldset>' +
@@ -943,8 +899,53 @@ var config_default = {
                           '<button type="button" id="gso_revert" class="gso_control_buttons">変更を破棄</button>' +
                           '<span id="gso_status">[変更を保存]をクリックするまで設定は保存されません</span>' +
                           '</form>');
+        /* 結果表示 */
+        if(config.config.message_location == "page") {
+            var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;"></div>');
+            msg_elem.append('<em>GSC</em>');
+            msg_elem.append('<div id="gso_results_msg_eff"></div>');
+            msg_elem.append('<div id="gso_results_msg_top"></div>');
+            msg_elem.append('<ul style="list-style-type: none;"></ul>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
+            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">検索語句無視!</li>');
+            msg_elem.prependTo("body");
+        } else {
+            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
+            $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
+            $("#gso_results_msg_top + ul")
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
+                .append('<li id="gso_count_ik" style="display:none">検索語句無視!</li>');
 
+        }
         /* Event handlers */
+        $("#gso_killed_count_s").click(function () {
+            if(status.show_serp) {
+                status.show_serp = false;
+            } else {
+                status.show_serp = true;
+            }
+            update_serp();
+        });
+        $("#gso_killed_count_si").click(function () {
+            if(status.show_img) {
+                status.show_img = false;
+            } else {
+                status.show_img = true;
+            }
+            update_img();
+        });
+        $("#gso_killed_count_k").click(function () {
+            if(status.show_kw) {
+                status.show_kw = false;
+            } else {
+                status.show_kw = true;
+            }
+            update_kw();
+        });
 
         $("#gso_config_close").click(function () {
             $("#gso_config").toggle();
@@ -1321,6 +1322,9 @@ var config_default = {
 
         $("#gso_config_misc input").change(function() {
             config.config[$(this).val()] = $(this).prop("checked");
+        });
+        $("#gso_config_misc select").change(function() {
+            config.config[this.name] = $(this).val();
         });
 
         $("#gso_ruleset_editor_toggle").click(function() {
@@ -2236,8 +2240,13 @@ var config_default = {
             $("#gso_killed_count_k").parent().hide();
         }
         if(count_totalIK > 0) {
-            $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "]<br>" +
-                                    "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+            if(config.config.message_location == "page") {
+                $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "]<br>" +
+                                        "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+            } else {
+                $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "] " +
+                                        "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+            }
             $("#gso_count_ik").show();
         } else {
             $("#gso_count_ik").hide();
@@ -2246,7 +2255,11 @@ var config_default = {
            count_totalSERPdesc > 0 ||
            count_totalSERPimg > 0 ||
            count_totalKW > 0) {
-            $("#gso_results_msg_top").html("検索結果を処理済<br>(クリックで切替)");
+            if(config.config.message_location == "page") {
+                $("#gso_results_msg_top").html("検索結果を処理済<br>(クリックで切替)");
+            } else {
+                $("#gso_results_msg_top").html("検索結果を処理済(クリックで切替)");
+            }
         } else if(count_totalIK > 0) {
             $("#gso_results_msg_top").html("検索結果を処理済");
         } else {

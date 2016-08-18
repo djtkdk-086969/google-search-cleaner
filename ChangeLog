@@ -1,3 +1,11 @@
+2016-08-19  djtkdk-086969  <djtkdk-086969@users.noreply.github.com>
+
+	* Google_Search_Cleaner.user.js: Ver. 1.1.2.102
+	結果表示画面(「検索結果に問題なし」など)を表示する場所を
+	「画面左上に小ウィンドウ」と「設定画面上部」から選べるようにした。
+	設定ファイルに必要な設定値が不足していた場合、デフォルト値を補うようにした。
+	新規ルール作成時に「有効」にデフォルトでチェックを入れるようにした。
+
 2016-08-13  djtkdk-086969  <djtkdk-086969@users.noreply.github.com>
 
 	* Google_Search_Cleaner.user.js: Ver. 1.1.1.086

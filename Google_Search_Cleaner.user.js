@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.2.102
+// @version        1.1.2.104
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -563,7 +563,7 @@ var config_default = {
     //GM_addStyle("div.gso_killed_count { display: inline-block; padding: 8px; }");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
     GM_addStyle("*.gso_float { position: fixed; top: 0px; }");
-    GM_addStyle("*.gso_control_embedded { position: absolute; top: 110px; }");
+    GM_addStyle("*.gso_control_embedded { position: absolute; top: 60px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_serp_description_info { display: block; background: lightgray; }");
     GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
@@ -1392,7 +1392,7 @@ var config_default = {
             /* 表示を追従させる */
             var ctl = $("#gso_control");
             var cfg = $("#gso_config");
-            var minimum_top = 110;
+            var minimum_top = 60;
             var minimum_top_cfg = 0;
 
             if(config.config.float) {

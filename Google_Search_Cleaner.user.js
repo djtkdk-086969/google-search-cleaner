@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.1.2.102
+// @version        1.2.0.128
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -563,7 +563,7 @@ var config_default = {
     //GM_addStyle("div.gso_killed_count { display: inline-block; padding: 8px; }");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
     GM_addStyle("*.gso_float { position: fixed; top: 0px; }");
-    GM_addStyle("*.gso_control_embedded { position: absolute; top: 110px; }");
+    GM_addStyle("*.gso_control_embedded { position: absolute; top: 60px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_serp_description_info { display: block; background: lightgray; }");
     GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
@@ -687,218 +687,218 @@ var config_default = {
 
     if($("#gso_config").size() === 0) {
         /* 設定画面 */
-        $("body").prepend('<form id="gso_config" class="gso_config_embedded">' +
-                          '<span style="display: block; text-align: right">' +
-                          '<button type="button" id="gso_config_close" class="gso_control_buttons" title="閉じる">×</button></span>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>ルールセットの編集</legend>' +
-                          '<div id="gso_ruleset_editor">' +
-                          '<label for="gso_ruleset_select">ルールセット:</label>' +
-                          '<select id="gso_ruleset_select" name="gso_ruleset_select"></select>' +
-                          '<input id="gso_ruleset_enabled" type="checkbox" value="gso_ruleset_enabled">有効' +
-                          '<hr>' +
-                          '<div>' +
-                          '<table style="width:440px; border-spacing: 0px 2px;">' +
-                          '<colgroup>' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 4.5em; min-width: 4.5em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 2em; min-width: 2em;">' +
-                          '<col style="width: 248px;">' +
-                          '<col style="width: 1em; min-width: 1em;">' +
-                          '</colgroup>' +
-                          '<thead>' +
-                          '<tr style="font-weight: bold; background-color: lightgray;">' +
-                          '<td>対象</td>' +
-                          '<td>検索方法</td>' +
-                          '<td>動作</td>' +
-                          '<td>Lv</td>' +
-                          '<td>条件文字列</td>' +
-                          '<td>C</td>' +
-                          '</tr>' +
-                          '</thead>' +
-                          '</table>' +
-                          '<div id="gso_ruleset_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;">' +
-                          '<table style="width:440px; border-spacing: 0px 2px;">' +
-                          '<colgroup>' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 4.5em; min-width: 4.5em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 2em; min-width: 2em;">' +
-                          '<col style="width: 248px;">' +
-                          '<col style="width: 1em; min-width: 1em;">' +
-                          '</colgroup>' +
-                          '<tbody>' +
-                          '</tbody>' +
-                          '</table>' +
-                          '</div>' +
-                          '<button type="button" id="gso_ruleset_selectAll" class="gso_control_buttons">全選択</button>' +
-                          '<button type="button" id="gso_ruleset_unselectAll" class="gso_control_buttons">全解除</button>' +
-                          '<button type="button" id="gso_ruleset_selectToggle" class="gso_control_buttons">選択の切替</button>' +
-                          '<span id="gso_rule_count"></span><br>' +
-                          '選択されたルールを移動' +
-                          '<button type="button" id="gso_rule_moveup" class="gso_control_buttons">▲</button>' +
-                          '<button type="button" id="gso_rule_movedown" class="gso_control_buttons">▼</button>' +
-                          '選択されたルールを<button type="button" id="gso_rule_remove" class="gso_control_buttons">削除</button>' +
-                          '<hr>' +
-                          '<div style="width:100%;">' +
-                          '<div style="display: inline-block;">' +
-                          '有効<br>' +
-                          '<input id="gso_rule_enabled" type="checkbox" value="gso_rule_enabled">' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          '対象:<br>' +
-                          '<select id="gso_rule_target" name="gso_rule_target">' +
-                          '<option value="url">URL</option>' +
-                          '<option value="description">説明文</option>' +
-                          '<option value="title">タイトル</option>' +
-                          '<option value="suggest">サジェスト</option>' +
-                          '</select>' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          '検索方法:<br>' +
-                          '<select id="gso_rule_type" name="gso_rule_type">' +
-                          '<option value="domain">ドメイン</option>' +
-                          '<option value="str">文字列</option>' +
-                          '<option value="str_head">文字列(先頭一致)</option>' +
-                          '<option value="word">ワード</option>' +
-                          '<option value="regexp">正規表現</option>' +
-                          '</select>' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          '動作:<br>' +
-                          '<select id="gso_rule_action" name="gso_rule_action">' +
-                          '<option value="hide_absolutely">完全に非表示</option>' +
-                          '<option value="hide">非表示</option>' +
-                          '<option value="hide_description_warn">説明文非表示+警告</option> ' +
-                          '<option value="hide_description">説明文非表示+通知</option>' +
-                          '<option value="warn">警告</option>' +
-                          '<option value="info">通知</option>' +
-                          '<option value="allow">許可</option>' +
-                          '</select>' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          'レベル:<br>' +
-                          '<input type="text" id="gso_rule_level" name="gso_rule_level" placeholder="0" style="width: 2em;">' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          '条件文字列:<br>' +
-                          '<textarea type="text" id="gso_rule_criteria" name="gso_rule_criteria" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
-                          '</div>' +
-                          '<div style="display: inline-block;">' +
-                          'コメント:<br>' +
-                          '<textarea type="text" id="gso_rule_comment" name="gso_rule_comment" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
-                          '</div>' +
-                          '</div>' +
-                          '<button type="button" id="gso_rule_add" class="gso_control_buttons">末尾に挿入</button>' +
-                          '<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">上書</button>' +
-                          '</div>' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_ruleset_manager_toggle" class="gso_control_buttons">▼</button>ルールセットの管理</legend>' +
-                          '<div id="gso_ruleset_manager" style="display: none;">' +
-                          '現在のルールセットの表示名:<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="表示名" style="width: auto;"><br>' +
-                          '<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">現在のルールセットを削除</button><br>' +
-                          '<input type="text" id="gso_new_ruleset_key" name="gso_new_ruleset_key" placeholder="キー" style="width: 6em;">' +
-                          '<button type="button" id="gso_ruleset_add" class="gso_control_buttons">新規ルールセット追加</button><hr>' +
-                          'ファイルからインポートして現在のルールセットに追加' +
-                          '<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>' +
-                          '選択範囲をエクスポート<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>' +
-                          '<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">URLリスト(不完全)</button>' +
-                          '<a id="gso_ruleset_export_dllink" style="display: none;">.</a>' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_log_toggle" class="gso_control_buttons">▼</button>活動ログ</legend>' +
-                          '<div id="gso_log" style="display: none;">' +
-                          '<div>' +
-                          '<table style="width:440px; border-spacing: 0px 2px;">' +
-                          '<colgroup>' +
-                          '<col style="width: 4em; min-width: 4em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 175px;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 11em; min-width: 11em;">' +
-                          '</colgroup>' +
-                          '<thead>' +
-                          '<tr style="font-weight: bold; background-color: lightgray;">' +
-                          '<td>種類</td>' +
-                          '<td>対象</td>' +
-                          '<td>合致した文字列</td>' +
-                          '<td>T/KW</td>' +
-                          '<td>URL</td>' +
-                          '<td>RS</td>' +
-                          '<td>動作</td>' +
-                          '</tr>' +
-                          '</thead>' +
-                          '</table>' +
-                          '<div id="gso_log_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;">' +
-                          '<table style="width:440px; border-spacing: 0px 0px;">' +
-                          '<colgroup>' +
-                          '<col style="width: 4em; min-width: 4em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 175px;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 3em; min-width: 3em;">' +
-                          '<col style="width: 11em; min-width: 11em;">' +
-                          '</colgroup>' +
-                          '<tbody>' +
-                          '</tbody>' +
-                          '</table>' +
-                          '</div>' +
-                          '</div>' +
-                          '<button type="button" id="gso_log_clear" class="gso_control_buttons">クリア</button><br>' +
-                          '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。<br>' +
-                          '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>その他の設定</legend>' +
-                          '<div id="gso_config_misc" style="display: none;">' +
-                          'メッセージの場所: <select id="message_location" name="message_location">' +
-                          '<option value="page">ページ左上</option>' +
-                          '<option value="config">設定画面</option>' +
-                          '</select><br>' +
-                          '<input type="checkbox" value="quick_block">検索結果にクイックブロックボタンを表示<br>' +
-                          '<input type="checkbox" value="check_for_image">画像検索のチェック<br>' +
-                          '<input type="checkbox" value="ruleset_name_with_comment">プレースホルダにコメントを表示する<br>'+
-                          '(「#」で始まるコメントはこの設定を有効にしても表示されません)<br>' +
-                          '<input type="checkbox" value="fix_missing">検索語句無視対策機能を有効にする<br>' +
-                          '<input type="checkbox" value="hide_moshikashite">2ページ目以降「もしかして：」を隠す<br>' +
-                          '<input type="checkbox" value="force_keyword_exclusion_on_suggestion">サジェストに「マイナス検索」を適用<br>' +
-                          '<input type="checkbox" value="always_log_checked_entries">合致したルールが存在しなくてもチェックされた項目を全て記録する<br>' +
-                          '<input type="checkbox" value="float">メッセージ・設定画面をスクロールに追従させる<br>' +
-                          '<input type="checkbox" value="animation">アニメーション<br>' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_backup_toggle" class="gso_control_buttons">▼</button>バックアップ/復元/初期化</legend>' +
-                          '<div id="gso_backup" style="display: none;">' +
-                          '<button type="button" id="gso_exportAllJSON" class="gso_control_buttons">ファイルにバックアップ</button><br>' +
-                          '全設定をファイルから復元' +
-                          '<input type="file" id="gso_importAllJSON" name="rulesetJSON[]"><br><br>' +
-                          '<div style="text-align: right;">' +
-                          '<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">全設定を初期化(元に戻せません!)</button>' +
-                          '</div>' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<fieldset>' +
-                          '<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>バージョン情報</legend>' +
-                          '<div id="gso_about" style="display: none;">' +
-                          'Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>' +
-                          '作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/ja/users/29445-%E3%81%9F%E3%81%8B%E3%81%A0%E3%81%8B-takadaka" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>' +
-                          'ライセンス: GPL v3<br>' +
-                          '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。' +
-                          '</div>' +
-                          '</fieldset>' +
-                          '<button type="button" id="gso_save" class="gso_control_buttons">変更を保存</button>' +
-                          '<button type="button" id="gso_revert" class="gso_control_buttons">変更を破棄</button>' +
-                          '<span id="gso_status">[変更を保存]をクリックするまで設定は保存されません</span>' +
-                          '</form>');
+        var cfg_elem = $('<form id="gso_config" class="gso_config_embedded"></form>');
+        cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="閉じる">×</button></span>');
+        
+        var fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>ルールセットの編集</legend>');
+        fieldset.append('<div id="gso_ruleset_editor"></div>');
+        fieldset.find('#gso_ruleset_editor')
+            .append('<label for="gso_ruleset_select">ルールセット:</label>')
+            .append('<select id="gso_ruleset_select" name="gso_ruleset_select"></select>')
+            .append('<input id="gso_ruleset_enabled" type="checkbox" value="gso_ruleset_enabled">有効<hr>')
+            .append('<div></div>');
+        fieldset.find('#gso_ruleset_editor > div:last')
+            .append('<table style="width:440px; border-spacing: 0px 2px;"></table>')
+            .append('<div id="gso_ruleset_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;"></div>')
+            .append('<button type="button" id="gso_ruleset_selectAll" class="gso_control_buttons">全選択</button>')
+            .append('<button type="button" id="gso_ruleset_unselectAll" class="gso_control_buttons">全解除</button>')
+            .append('<button type="button" id="gso_ruleset_selectToggle" class="gso_control_buttons">選択の切替</button>')
+            .append('<span id="gso_rule_count"></span><br>')
+            .append('選択されたルールを移動')
+            .append('<button type="button" id="gso_rule_moveup" class="gso_control_buttons">▲</button>')
+            .append('<button type="button" id="gso_rule_movedown" class="gso_control_buttons">▼</button> ')
+            .append('<span style="display: block; text-align: right"><button type="button" id="gso_rule_remove" class="gso_control_buttons">選択されたルールを削除</button></span>')
+            .append('<hr>')
+            .append('<div style="width:100%;"></div>')
+            .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">末尾に挿入</button>')
+            .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">上書</button>');
+        fieldset.find('#gso_ruleset_editor > div:last > table:first')
+            .append('<colgroup>' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 4.5em; min-width: 4.5em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 2em; min-width: 2em;">' +
+                    '<col style="width: 248px;">' +
+                    '<col style="width: 1em; min-width: 1em;">' +
+                    '</colgroup>')
+            .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
+                    '<td>対象</td>' +
+                    '<td>検索方法</td>' +
+                    '<td>動作</td>' +
+                    '<td>Lv</td>' +
+                    '<td>条件文字列</td>' +
+                    '<td>C</td>' +
+                    '</tr></thead>');
+        fieldset.find('#gso_ruleset_table')
+            .append('<table style="width:440px; border-spacing: 0px 2px;">' +
+                    '<colgroup>' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 4.5em; min-width: 4.5em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 2em; min-width: 2em;">' +
+                    '<col style="width: 248px;">' +
+                    '<col style="width: 1em; min-width: 1em;">' +
+                    '</colgroup>' +
+                    '<tbody></tbody>' +
+                    '</table>');
+        fieldset.find('#gso_ruleset_editor > div:last > div:last')
+            .append('<div style="display: inline-block;">' +
+                    '有効<br>' +
+                    '<input id="gso_rule_enabled" type="checkbox" value="gso_rule_enabled">' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    '対象:<br>' +
+                    '<select id="gso_rule_target" name="gso_rule_target">' +
+                    '<option value="url">URL</option>' +
+                    '<option value="description">説明文</option>' +
+                    '<option value="title">タイトル</option>' +
+                    '<option value="suggest">サジェスト</option>' +
+                    '</select>' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    '検索方法:<br>' +
+                    '<select id="gso_rule_type" name="gso_rule_type">' +
+                    '<option value="domain">ドメイン</option>' +
+                    '<option value="str">文字列</option>' +
+                    '<option value="str_head">文字列(先頭一致)</option>' +
+                    '<option value="word">ワード</option>' +
+                    '<option value="regexp">正規表現</option>' +
+                    '</select>' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    '動作:<br>' +
+                    '<select id="gso_rule_action" name="gso_rule_action">' +
+                    '<option value="hide_absolutely">完全に非表示</option>' +
+                    '<option value="hide">非表示</option>' +
+                    '<option value="hide_description_warn">説明文非表示+警告</option> ' +
+                    '<option value="hide_description">説明文非表示+通知</option>' +
+                    '<option value="warn">警告</option>' +
+                    '<option value="info">通知</option>' +
+                    '<option value="allow">許可</option>' +
+                    '</select>' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    'レベル:<br>' +
+                    '<input type="text" id="gso_rule_level" name="gso_rule_level" placeholder="0" style="width: 2em;">' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    '条件文字列:<br>' +
+                    '<textarea type="text" id="gso_rule_criteria" name="gso_rule_criteria" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
+                    '</div>')
+            .append('<div style="display: inline-block;">' +
+                    'コメント:<br>' +
+                    '<textarea type="text" id="gso_rule_comment" name="gso_rule_comment" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
+                    '</div>');
+        fieldset.appendTo(cfg_elem);
+
+        fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_ruleset_manager_toggle" class="gso_control_buttons">▼</button>ルールセットの管理</legend>');
+        fieldset.append('<div id="gso_ruleset_manager" style="display: none;"></div>');
+        fieldset.find('#gso_ruleset_manager')
+            .append('現在のルールセットの表示名:<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="表示名" style="width: auto;"><br>')
+            .append('<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">現在のルールセットを削除</button><br>')
+            .append('<input type="text" id="gso_new_ruleset_key" name="gso_new_ruleset_key" placeholder="キー" style="width: 6em;">')
+            .append('<button type="button" id="gso_ruleset_add" class="gso_control_buttons">新規ルールセット追加</button><hr>')
+            .append('ファイルからインポートして現在のルールセットに追加')
+            .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>')
+            .append('選択範囲をエクスポート<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
+            .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">URLリスト(不完全)</button>')
+            .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>');
+        fieldset.appendTo(cfg_elem);
+
+        fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_log_toggle" class="gso_control_buttons">▼</button>活動ログ</legend>');
+        fieldset.append('<div id="gso_log" style="display: none;"></div>');
+        fieldset.find('#gso_log')
+            .append('<div></div>')
+            .append('<button type="button" id="gso_log_clear" class="gso_control_buttons">クリア</button><br>')
+            .append('<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。<br>')
+            .append('<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>');
+        fieldset.find('#gso_log > div:first')
+            .append('<table style="width:440px; border-spacing: 0px 2px;"></table>')
+            .append('<div id="gso_log_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;"></div>');
+        fieldset.find('#gso_log > div:first > table')
+            .append('<colgroup>' +
+                    '<col style="width: 4em; min-width: 4em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 175px;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 11em; min-width: 11em;">' +
+                    '</colgroup>')
+            .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
+                    '<td>種類</td>' +
+                    '<td>対象</td>' +
+                    '<td>合致した文字列</td>' +
+                    '<td>T/KW</td>' +
+                    '<td>URL</td>' +
+                    '<td>RS</td>' +
+                    '<td>動作</td>' +
+                    '</tr></thead>');
+        fieldset.find('#gso_log_table')
+            .append('<table style="width:440px; border-spacing: 0px 0px;">' +
+                    '<colgroup>' +
+                    '<col style="width: 4em; min-width: 4em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 175px;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 3em; min-width: 3em;">' +
+                    '<col style="width: 11em; min-width: 11em;">' +
+                    '</colgroup>' +
+                    '<tbody>' +
+                    '</tbody>');
+        fieldset.appendTo(cfg_elem);
+
+        fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>その他の設定</legend>');
+        fieldset.append('<div id="gso_config_misc" style="display: none;"></div>');
+        fieldset.find('#gso_config_misc')
+            .append('メッセージの場所: <select id="message_location" name="message_location"></select><br>')
+            .append('<input type="checkbox" value="quick_block">検索結果にクイックブロックボタンを表示<br>')
+            .append('<input type="checkbox" value="check_for_image">画像検索のチェック<br>')
+            .append('<input type="checkbox" value="ruleset_name_with_comment">プレースホルダにコメントを表示する<br>')
+            .append('(「#」で始まるコメントはこの設定を有効にしても表示されません)<br>')
+            .append('<input type="checkbox" value="fix_missing">検索語句無視対策機能を有効にする<br>')
+            .append('<input type="checkbox" value="hide_moshikashite">2ページ目以降「もしかして：」を隠す<br>')
+            .append('<input type="checkbox" value="force_keyword_exclusion_on_suggestion">サジェストに「マイナス検索」を適用<br>')
+            .append('<input type="checkbox" value="always_log_checked_entries">合致したルールが存在しなくてもチェックされた項目を全て記録する<br>')
+            .append('<input type="checkbox" value="float">メッセージ・設定画面をスクロールに追従させる<br>')
+            .append('<input type="checkbox" value="animation">アニメーション<br>');
+        fieldset.find('#message_location')
+            .append('<option value="page">ページ左上</option>')
+            .append('<option value="config">設定画面</option>');
+        fieldset.appendTo(cfg_elem);
+
+        fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_backup_toggle" class="gso_control_buttons">▼</button>バックアップ/復元/初期化</legend>');
+        fieldset.append('<div id="gso_backup" style="display: none;"></div>');
+        fieldset.find('#gso_backup')
+            .append('<button type="button" id="gso_exportAllJSON" class="gso_control_buttons">ファイルにバックアップ</button><hr>')
+            .append('全設定をファイルから復元<br>')
+            .append('<input type="file" id="gso_importAllJSON" name="rulesetJSON[]"><br><br>')
+            .append('<div style="text-align: right;"></div>');
+        fieldset.find('#gso_backup > div:first').append('<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">全設定を初期化(元に戻せません!)</button>');
+        fieldset.appendTo(cfg_elem);
+        
+        fieldset = $('<fieldset></fieldset>');
+        fieldset.append('<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>バージョン情報</legend>');
+        fieldset.append('<div id="gso_about" style="display: none;"></div>');
+        fieldset.find("#gso_about")
+            .append('Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>')
+            .append('作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
+            .append('ライセンス: GPL v3<br>')
+            .append('本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。');
+        fieldset.appendTo(cfg_elem);
+        
+        cfg_elem
+            .append('<button type="button" id="gso_save" class="gso_control_buttons">変更を保存</button>')
+            .append('<button type="button" id="gso_revert" class="gso_control_buttons">変更を破棄</button>')
+            .append('<span id="gso_status">[変更を保存]をクリックするまで設定は保存されません</span>');
+
+        cfg_elem.prependTo("body");
         /* 結果表示 */
         if(config.config.message_location == "page") {
             var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;"></div>');
@@ -1392,7 +1392,7 @@ var config_default = {
             /* 表示を追従させる */
             var ctl = $("#gso_control");
             var cfg = $("#gso_config");
-            var minimum_top = 110;
+            var minimum_top = 60;
             var minimum_top_cfg = 0;
 
             if(config.config.float) {

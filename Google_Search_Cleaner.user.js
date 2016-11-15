@@ -3,14 +3,14 @@
 // @name           Google掃除機(仮称)
 // @namespace      https://twitter.com/djtkdk_086969
 // @description    Googleの検索結果に出て欲しくないページを、条件を指定して非表示にします。
-// @require        https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
+// @require        https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js
 // @include        *://www.google.*/
 // @include        *://www.google.*/?*
 // @include        *://www.google.*/search*
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.2.0.128
+// @version        1.2.0.154
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -21,6 +21,365 @@
 // @compatible     firefox
 // @compatible     chrome
 // ==/UserScript==
+
+/* Message Catalog */
+var cat = {
+    "ja": {
+        "langName": {
+            "en": "Japanese",
+            "ja": "日本語"
+        },
+        "abbrev": {
+            "table": {
+                "target": "対象",
+                "type": "検索方法",
+                "action": "動作",
+                "criteria": "条件文字列",
+                "contentType": "種類",
+                "matchedString": "合致した文字列"
+            },
+            "target": {
+                "url": "URL",
+                "description": "説明",
+                "title": "題名",
+                "suggest": "関連"
+            },
+            "type": {
+                "domain": "ドメイン",
+                "str": "文字列",
+                "str_head": "頭文字列",
+                "word": "ワード",
+                "regexp": "正規表現",
+            },
+            "action": {
+                "hide_absolutely": "禁止",
+                "hide": "隠す",
+                "hide_description_warn": "⚠縮",
+                "warn": "⚠",
+                "hide_description": "縮小",
+                "info": "通知",
+                "allow": "許可"
+            }
+        },
+        "full": {
+            "target": {
+                "url": "URL",
+                "description": "説明文",
+                "title": "タイトル",
+                "suggest": "サジェスト"
+            },
+            "type": {
+                "domain": "ドメイン",
+                "str": "文字列",
+                "str_head": "文字列(先頭一致)",
+                "word": "ワード",
+                "regexp": "正規表現",
+            },
+            "action": {
+                "hide_absolutely": "完全に非表示",
+                "hide": "非表示",
+                "hide_description_warn": "警告+説明文非表示",
+                "warn": "警告",
+                "hide_description": "通知+説明文非表示",
+                "info": "通知",
+                "allow": "許可"
+            },
+            "results": {
+                "page": "ページ",
+                "missing": "検索語句無視",
+                "img": "画像",
+                "suggest": "関連語句",
+                "suggest_excl": "関連(-除外)",
+                "autocomplete": "検索語句予測"
+            },
+            "msg": {
+                "addLast": "末尾に挿入",
+                "addNextToSelection": "選択されたルールの次に挿入",
+                "overwrite": "上書",
+                "noChange": "変更しない",
+                "rules": "個のルール",
+                "rules_selected": "個選択済",
+                "enabled": "有効",
+                "disabled": "無効",
+                "hidAbsolutely": "「完全に非表示」動作のため表示できません",
+                "hidAbsolutelyB": "表示不可",
+                "defaultRuleset": "既定のルールセット",
+                "GscConfigMenu": "Google掃除機 設定",
+                "close": "閉じる",
+                "ruleset": "ルールセット",
+                "rulesetEdit": "ルールセットの編集",
+                "selectAll": "全選択",
+                "unselectAll": "全解除",
+                "toggleSelection": "選択の切替",
+                "moveSelected": "選択されたルールを移動",
+                "deleteSelected": "選択されたルールを削除",
+                "target": "対象",
+                "type": "検索方法",
+                "action": "動作",
+                "criteria": "条件文字列",
+                "level": "レベル",
+                "comment": "コメント",
+                "manageRuleset": "ルールセットの管理",
+                "friendlyNameForCurrentRuleset": "現在のルールセットの表示名",
+                "friendlyName": "表示名",
+                "deleteCurrentRuleset": "現在のルールセットを削除",
+                "key": "キー",
+                "addRuleset": "新規ルールセット追加",
+                "importFromFile": "ファイルからインポートして現在のルールセットに追加",
+                "exportSelected": "選択範囲をエクスポート",
+                "urlList": "URLリスト(不完全)",
+                "activityLog": "活動ログ",
+                "clear": "クリア",
+                "pointForDetails": '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。',
+                "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
+                "configMisc": "その他の設定",
+                "configLang": "言語",
+                "configMessageLocation": "メッセージの場所",
+                "configQuickBlock": "検索結果にクイックブロックボタンを表示",
+                "configCheckForImage": "画像検索のチェック",
+                "configRSNameWithComment": "プレースホルダにコメントを表示する",
+                "configRSNameWithCommentB": "「#」で始まるコメントはこの設定を有効にしても表示されません",
+                "configFixMissing": "検索語句無視対策機能を有効にする",
+                "configHideMoshikashite": "2ページ目以降「もしかして：」を隠す",
+                "configForceKWExcl": "サジェストに「マイナス検索」を適用",
+                "configAlwaysLog": "合致したルールが存在しなくてもチェックした項目を全て記録する(デバッグ用)",
+                "configFloat": "メッセージ・設定画面をスクロールに追従させる",
+                "configAnimation": "アニメーション",
+                "configMessageLocationPage": "ページ左上",
+                "configMessageLocationConfig": "設定画面",
+                "backupRestoreInit": "バックアップ/復元/初期化",
+                "backupToFile": "ファイルにバックアップ",
+                "restoreAll": "全設定をファイルから復元",
+                "init": "全設定を初期化(元に戻せません!)",
+                "initConfirm": "後悔しませんね?",
+                "initialized": "全ての設定を初期化しました。",
+                "about": "バージョン情報",
+                "aboutAuthor": "作者",
+                "aboutLicense": "ライセンス",
+                "aboutJQ": '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
+                "saveChange": "変更を保存",
+                "discardChange": "変更を破棄",
+                "changeNotSaved": "[変更を保存]をクリックするまで設定は保存されません",
+                "reloadToTakeEffect": "設定を反映させるには再読み込みを行ってください",
+                "lastRulesetCannotBeDeleted": "最後のルールセットは削除できません",
+                "untitled": "(無題)",
+                "invalidJSON": "有効なJSONではないため、インポートに失敗しました。詳細はコンソールを参照してください。",
+                "invalidConfig": "不正な設定ファイルです。詳細はコンソールを参照してください。",
+                "ignoredKeywords": "無視されたキーワード",
+                "searchAllIncluded": "全部含めて再検索",
+                "block": "ブロック",
+                "domain": "ドメイン",
+                "excludedKeyword": "マイナス検索による除外",
+                "ctlmsgSERP": "検索結果",
+                "ctlmsgIMG": "画像",
+                "ctlmsgKW": "関連語句",
+                "ctlmsgMIS": "検索語句無視!",
+                "ctlmsgVerbatim": "完全一致で再検索",
+                "ctlmsgGood": "検索結果に問題なし",
+                "ctlmsgBad": "検索結果を処理済",
+                "ctlmsgBadB": "(クリックで切替)"
+            }
+        }
+    },
+    "en": {
+        "langName": {
+            "en": "English",
+            "ja": "英語"
+        },
+        "abbrev": {
+            "table": {
+                "target": "Tgt.",
+                "type": "M.Type",
+                "action": "Action",
+                "criteria": "Criteria",
+                "contentType": "Type",
+                "matchedString": "Matched String"
+            },
+            "target": {
+                "url": "URL",
+                "description": "Desc.",
+                "title": "Title",
+                "suggest": "Rel."
+            },
+            "type": {
+                "domain": "Domain",
+                "str": "String",
+                "str_head": "Head",
+                "word": "Word",
+                "regexp": "RegExp",
+            },
+            "action": {
+                "hide_absolutely": "XX",
+                "hide": "X",
+                "hide_description_warn": "!!",
+                "warn": "!",
+                "hide_description": "Shr.",
+                "info": "Inf.",
+                "allow": "OK"
+            }
+        },
+        "full": {
+            "target": {
+                "url": "URL",
+                "description": "Description",
+                "title": "Title",
+                "suggest": "Suggestion"
+            },
+            "type": {
+                "domain": "Domain",
+                "str": "String",
+                "str_head": "String (Head)",
+                "word": "Word",
+                "regexp": "Regular Expression",
+            },
+            "action": {
+                "hide_absolutely": "Hide Absolutely",
+                "hide": "Hide",
+                "hide_description_warn": "Warn / Hide Description",
+                "warn": "Warn",
+                "hide_description": "Info / Hide Description",
+                "info": "Info",
+                "allow": "Allow (Do nothing)"
+            },
+            "results": {
+                "page": "Page",
+                "missing": "Ignored KWs",
+                "img": "Image",
+                "suggest": "Suggestion",
+                "suggest_excl": "Forced -KW",
+                "autocomplete": "Autocomplete"
+            },
+            "msg": {
+                "addLast": "Insert to the last",
+                "addNextToSelection": "Insert next to the selected rule",
+                "overwrite": "Overwrite",
+                "noChange": "No change",
+                "rules": "rule(s)",
+                "rules_selected": "selected",
+                "enabled": "Enabled",
+                "disabled": "Disabled",
+                "hidAbsolutely": "&quot;Hide Absolutely&quot; action is preventing results from appearing.",
+                "hidAbsolutelyB": "Cannot be displayed",
+                "defaultRuleset": "Default Ruleset",
+                "GscConfigMenu": "Google Search Cleaner configuration",
+                "close": "Close",
+                "ruleset": "Ruleset",
+                "rulesetEdit": "Edit rulesets",
+                "selectAll": "Select all",
+                "unselectAll": "Unselect all",
+                "toggleSelection": "Toggle selection",
+                "moveSelected": "Move selected rules",
+                "deleteSelected": "Delete selected rules",
+                "target": "Target",
+                "type": "Match Type",
+                "action": "Action",
+                "criteria": "Criteria",
+                "level": "Level",
+                "comment": "Comment",
+                "manageRuleset": "Manage Rulesets",
+                "friendlyNameForCurrentRuleset": "Friendly name for current ruleset",
+                "friendlyName": "Friendly name",
+                "deleteCurrentRuleset": "Delete current ruleset",
+                "key": "Key",
+                "addRuleset": "Add a new ruleset",
+                "importFromFile": "Import rules from file and add them to the current ruleset",
+                "exportSelected": "Export selection",
+                "urlList": "URL List (Incomplete)",
+                "activityLog": "Activity Log",
+                "clear": "Clear",
+                "pointForDetails": 'Point <span style="background-color: silver;">…</span> to show details.',
+                "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
+                "configMisc": "Miscellaneous Configurations",
+                "configLang": "Language",
+                "configMessageLocation": "Message location",
+                "configQuickBlock": "Show Quick Block buttons on the SERP",
+                "configCheckForImage": "Check for image search",
+                "configRSNameWithComment": "Show comments on the placeholder",
+                "configRSNameWithCommentB": "The comments starting with '#' will not be shown regardless of this configuration.",
+                "configFixMissing": "Enable Missing Keywords Indication",
+                "configHideMoshikashite": "Hide 'Did you mean' on the second (or lower) SERP page",
+                "configForceKWExcl": "Force keyword exclusion ('Minus Search') on Keyword Suggestion",
+                "configAlwaysLog": "Always log checked entries (for debugging)",
+                "configFloat": "Floating Message Box",
+                "configAnimation": "Animation",
+                "configMessageLocationPage": "Top-Left of the page",
+                "configMessageLocationConfig": "Configuration Window",
+                "backupRestoreInit": "Backup / Restore / Initialization",
+                "backupToFile": "Backup to file",
+                "restoreAll": "Restore all configuration from file",
+                "init": "Initialize all configuration (Cannot be undone!)",
+                "initConfirm": "Are you sure?",
+                "initialized": "Initialized all configuration.",
+                "about": "About",
+                "aboutAuthor": "Author",
+                "aboutLicense": "License",
+                "aboutJQ": 'This script uses <a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>.<br>jQuery is provided under MIT License.',
+                "saveChange": "Save changes",
+                "discardChange": "Discard changes",
+                "changeNotSaved": "The changes are not saved unless you click [Save changes].",
+                "reloadToTakeEffect": "Please reload the page to take effects.",
+                "lastRulesetCannotBeDeleted": "The last ruleset cannot be deleted.",
+                "untitled": "(Untitled)",
+                "invalidJSON": "Import failed because the given file is not a valid JSON. See the console for details.",
+                "invalidConfig": "Invalid configuration file. See the console for details.",
+                "ignoredKeywords": "Ignored Keywords",
+                "searchAllIncluded": "Search again with all keywords included",
+                "block": "Block",
+                "domain": "Domain",
+                "excludedKeyword": "Minus Search Exclusion",
+                "ctlmsgSERP": "Results",
+                "ctlmsgIMG": "Images",
+                "ctlmsgKW": "Keywords",
+                "ctlmsgMIS": "Ignored Keywords!",
+                "ctlmsgVerbatim": "Search Verbatim",
+                "ctlmsgGood": "No problem",
+                "ctlmsgBad": "Processed the results",
+                "ctlmsgBadB": "(Click to toggle)"
+            }
+        }
+    }
+
+};
+
+var action_priority = {
+    "hide_absolutely": 6,
+    "hide": 5,
+    "hide_description_warn": 4,
+    "warn": 2,
+    "hide_description": 3,
+    "info": 1,
+    "allow": 0,
+    "undef": -1
+};
+
+/* 現在の設定 */
+var config = null;
+
+/* デフォルトの設定 */
+var config_default = {
+    "rulesets": {
+        "default": {
+            "name": "既定のルールセット",
+            "enabled": true,
+            "rules": [
+            ]},
+    },
+    'config': {
+        'gso_lang': 'ja',
+        'message_location': 'page',
+        'quick_block': false,
+        'check_for_image': true,
+        'ruleset_name_with_comment': false,
+        'fix_missing': true,
+        'hide_moshikashite': true,
+        'force_keyword_exclusion_on_suggestion': false,
+        'always_log_checked_entries': false,
+        'float': true,
+        'animation': true,
+        'verbose': false,
+        'version': GM_info.script.version
+    }
+};
 
 /* Utility functions */
 
@@ -178,7 +537,7 @@ function gso_rseditor_update_selection() {
     var rule = {};
     var selection_size = $("#gso_ruleset_table table tbody tr.gso_rule_selected").size();
     if(selection_size === 0) {
-        $("#gso_rule_add").text("末尾に挿入");
+        $("#gso_rule_add").text(cat[config.config.gso_lang].full.msg.addLast);
         $("#gso_rule_overwrite").prop("disabled", true);
         $("#gso_rule_remove").prop("disabled", true);
         $("#gso_rule_moveup").prop("disabled", true);
@@ -189,7 +548,7 @@ function gso_rseditor_update_selection() {
     } else if (selection_size == 1) {
         rule = config.rulesets[$("#gso_ruleset_select").val()]
             .rules[Number($("#gso_ruleset_table table tbody tr.gso_rule_selected:first").attr('data-idx'))];
-        $("#gso_rule_add").text("選択されたルールの次に挿入");
+        $("#gso_rule_add").text(cat[config.config.gso_lang].full.msg.addNextToSelection);
         $("#gso_rule_overwrite").prop("disabled", false);
         $("#gso_rule_remove").prop("disabled", false);
         $("#gso_rule_moveup").prop("disabled", false);
@@ -205,13 +564,13 @@ function gso_rseditor_update_selection() {
         $("#gso_rule_comment").val(rule.comment);
         $("#gso_rule_enabled").prop("checked", rule.enabled);
     } else {
-        $("#gso_rule_add").text("末尾に挿入");
+        $("#gso_rule_add").text(cat[config.config.gso_lang].full.msg.addLast);
         $("#gso_rule_overwrite").prop("disabled", false);
         $("#gso_rule_remove").prop("disabled", false);
         $("#gso_rule_moveup").prop("disabled", true);
         $("#gso_rule_movedown").prop("disabled", true);
-        $("#gso_rule_criteria").attr("placeholder", "(変更しない)");
-        $("#gso_rule_comment").attr("placeholder", "(変更しない)");
+        $("#gso_rule_criteria").attr("placeholder", "(" + cat[config.config.gso_lang].full.msg.noChange + ")");
+        $("#gso_rule_comment").attr("placeholder", "(" + cat[config.config.gso_lang].full.msg.noChange + ")");
 
 
         var data = {};
@@ -236,10 +595,13 @@ function gso_rseditor_update_selection() {
 
     }
     if(selection_size === 0) {
-        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").size() + "個のルール");
+        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").size() +
+                                  " " + cat[config.config.gso_lang].full.msg.rules);
     } else {
         $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").size() +
-                                  "個のルール (" + selection_size + "個選択済)");
+                                  " " + cat[config.config.gso_lang].full.msg.rules +
+                                  " (" + selection_size + " " +
+                                  cat[config.config.gso_lang].full.msg.rules_selected + ")");
     }
 }
 
@@ -252,18 +614,12 @@ function gso_rseditor_update_rslist() {
 }
 
 function gso_rseditor_rslist_str(key, name, enabled) {
-    return name + ' [' + key + ']' + (enabled ? '' : '[無効]');
+    return name + ' [' + key + ']' + (enabled ? '' : '[' + cat[config.config.gso_lang].full.msg.disabled + ']');
 }
 
 function gso_log_append(type, target, matched, title, url, ruleset, action, action_effective, override) {
     /* ログに表示 */
     var table = $("#gso_log_table table tbody");
-    var type_res = {"page": "ページ",
-                   "missing": "検索語句無視",
-                   "img": "画像",
-                   "suggest": "関連語句",
-                   "suggest_excl": "関連(-除外)",
-                   "autocomplete": "検索語句予測"};
     var row_style = 0;
     
     if(table.find("tr").size() >= 1) {
@@ -284,7 +640,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         row_style = 0;        
     }
     table.append(
-        "<tr><td>" + type_res[type] +
+        "<tr><td>" + cat[config.config.gso_lang].full.results[type] +
             "</td><td>" +
             "</td><td>" +
             "</td><td>" +
@@ -304,7 +660,9 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
     if(action_effective == "hide_absolutely") {
         if(ruleset !== null) {
             table.find("tr:last td:eq(2)")
-                .append("<div style='width: 100%; color: silver;' title='「完全に非表示」動作のため表示できません'>表示不可</div>");
+                .append("<div style='width: 100%; color: silver;' title='"+
+                        cat[config.config.gso_lang].full.msg.hidAbsolutely +"'>" +
+                        cat[config.config.gso_lang].full.msg.hidAbsolutelyB + "</div>");
         }
         if(ruleset !== null) {
             table.find("tr:last td:eq(5)")
@@ -313,7 +671,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("&gt;&gt; " + cat.full.action[action]);
+                .append("&gt;&gt; " + cat[config.config.gso_lang].full.action[action]);
         }
         table.find("tr:last td:eq(4)").remove();
         table.find("tr:last td:eq(3)").remove();
@@ -338,7 +696,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("&gt;&gt; " + cat.full.action[action]);
+                .append("&gt;&gt; " + cat[config.config.gso_lang].full.action[action]);
         }
     }
 
@@ -346,7 +704,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         table.find("tr:last td:eq(1)").remove();
         table.find("tr:last td:first").attr("colspan", "2");
     } else {
-        table.find("tr:last td:eq(1)").text(cat.abbrev.target[target]);
+        table.find("tr:last td:eq(1)").text(cat[config.config.gso_lang].abbrev.target[target]);
     }
 }
 function gso_log_setBoundary() {
@@ -449,103 +807,11 @@ function gso_config_init() {
     });
 }
 
-
-
-var cat = {
-    "abbrev": {
-        "target": {
-            "url": "URL",
-            "description": "説明",
-            "title": "題名",
-            "suggest": "関連"
-        },
-        "type": {
-            "domain": "ドメイン",
-            "str": "文字列",
-            "str_head": "頭文字列",
-            "word": "ワード",
-            "regexp": "正規表現",
-        },
-        "action": {
-            "hide_absolutely": "禁止",
-            "hide": "隠す",
-            "hide_description_warn": "⚠縮",
-            "warn": "⚠",
-            "hide_description": "縮小",
-            "info": "通知",
-            "allow": "許可"
-        }
-    },
-    "full": {
-        "target": {
-            "url": "URL",
-            "description": "説明文",
-            "title": "タイトル",
-            "suggest": "サジェスト"
-        },
-        "type": {
-            "domain": "ドメイン",
-            "str": "文字列",
-            "str_head": "文字列(先頭一致)",
-            "word": "ワード",
-            "regexp": "正規表現",
-        },
-        "action": {
-            "hide_absolutely": "完全に非表示",
-            "hide": "非表示",
-            "hide_description_warn": "警告+説明文非表示",
-            "warn": "警告",
-            "hide_description": "通知+説明文非表示",
-            "info": "通知",
-            "allow": "許可"
-        }
-    }
-};
-
-var action_priority = {
-    "hide_absolutely": 6,
-    "hide": 5,
-    "hide_description_warn": 4,
-    "warn": 2,
-    "hide_description": 3,
-    "info": 1,
-    "allow": 0,
-    "undef": -1
-};
-
-/* 現在の設定 */
-var config = null;
-
-/* デフォルトの設定 */
-var config_default = {
-    "rulesets": {
-        "default": {
-            "name": "既定のルールセット",
-            "enabled": true,
-            "rules": [
-            ]},
-    },
-    'config': {
-        'message_location': 'page',
-        'quick_block': false,
-        'check_for_image': true,
-        'ruleset_name_with_comment': false,
-        'fix_missing': true,
-        'hide_moshikashite': true,
-        'force_keyword_exclusion_on_suggestion': false,
-        'always_log_checked_entries': false,
-        'float': true,
-        'animation': true,
-        'verbose': false,
-        'version': GM_info.script.version
-    }
-};
-
 (function() {
     console.log("Google Search Cleaner " + GM_info.script.version + " started.");
     gso_load(); /* 設定を読み込む */
 
-    GM_registerMenuCommand("Google掃除機 設定", gso_rseditor_toggle);
+    GM_registerMenuCommand(cat[config.config.gso_lang].full.msg.GscConfigMenu, gso_rseditor_toggle);
     GM_addStyle("span.gso_killed_serp_msg { color: silver; margin: 0 0; }");
     GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: 0.60em; top: 0px; left: 0px;}");
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
@@ -688,31 +954,31 @@ var config_default = {
     if($("#gso_config").size() === 0) {
         /* 設定画面 */
         var cfg_elem = $('<form id="gso_config" class="gso_config_embedded"></form>');
-        cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="閉じる">×</button></span>');
+        cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="' + cat[config.config.gso_lang].full.msg.close + '">×</button></span>');
         
         var fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>ルールセットの編集</legend>');
+        fieldset.append('<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>' + cat[config.config.gso_lang].full.msg.rulesetEdit + '</legend>');
         fieldset.append('<div id="gso_ruleset_editor"></div>');
         fieldset.find('#gso_ruleset_editor')
-            .append('<label for="gso_ruleset_select">ルールセット:</label>')
+            .append('<label for="gso_ruleset_select">'+ cat[config.config.gso_lang].full.msg.ruleset +':</label>')
             .append('<select id="gso_ruleset_select" name="gso_ruleset_select"></select>')
-            .append('<input id="gso_ruleset_enabled" type="checkbox" value="gso_ruleset_enabled">有効<hr>')
+            .append('<input id="gso_ruleset_enabled" type="checkbox" value="gso_ruleset_enabled">' + cat[config.config.gso_lang].full.msg.enabled + '<hr>')
             .append('<div></div>');
         fieldset.find('#gso_ruleset_editor > div:last')
             .append('<table style="width:440px; border-spacing: 0px 2px;"></table>')
             .append('<div id="gso_ruleset_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;"></div>')
-            .append('<button type="button" id="gso_ruleset_selectAll" class="gso_control_buttons">全選択</button>')
-            .append('<button type="button" id="gso_ruleset_unselectAll" class="gso_control_buttons">全解除</button>')
-            .append('<button type="button" id="gso_ruleset_selectToggle" class="gso_control_buttons">選択の切替</button>')
+            .append('<button type="button" id="gso_ruleset_selectAll" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.selectAll + '</button>')
+            .append('<button type="button" id="gso_ruleset_unselectAll" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.unselectAll + '</button>')
+            .append('<button type="button" id="gso_ruleset_selectToggle" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.toggleSelection + '</button>')
             .append('<span id="gso_rule_count"></span><br>')
-            .append('選択されたルールを移動')
+            .append(cat[config.config.gso_lang].full.msg.moveSelected)
             .append('<button type="button" id="gso_rule_moveup" class="gso_control_buttons">▲</button>')
             .append('<button type="button" id="gso_rule_movedown" class="gso_control_buttons">▼</button> ')
-            .append('<span style="display: block; text-align: right"><button type="button" id="gso_rule_remove" class="gso_control_buttons">選択されたルールを削除</button></span>')
+            .append('<span style="display: block; text-align: right"><button type="button" id="gso_rule_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteSelected + '</button></span>')
             .append('<hr>')
             .append('<div style="width:100%;"></div>')
-            .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">末尾に挿入</button>')
-            .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">上書</button>');
+            .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addLast + '</button>')
+            .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.overwrite + '</button>');
         fieldset.find('#gso_ruleset_editor > div:last > table:first')
             .append('<colgroup>' +
                     '<col style="width: 3em; min-width: 3em;">' +
@@ -723,11 +989,11 @@ var config_default = {
                     '<col style="width: 1em; min-width: 1em;">' +
                     '</colgroup>')
             .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
-                    '<td>対象</td>' +
-                    '<td>検索方法</td>' +
-                    '<td>動作</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.target + '</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.type + '</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.action + '</td>' +
                     '<td>Lv</td>' +
-                    '<td>条件文字列</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.criteria + '</td>' +
                     '<td>C</td>' +
                     '</tr></thead>');
         fieldset.find('#gso_ruleset_table')
@@ -744,77 +1010,77 @@ var config_default = {
                     '</table>');
         fieldset.find('#gso_ruleset_editor > div:last > div:last')
             .append('<div style="display: inline-block;">' +
-                    '有効<br>' +
+                    cat[config.config.gso_lang].full.msg.enabled + '<br>' +
                     '<input id="gso_rule_enabled" type="checkbox" value="gso_rule_enabled">' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    '対象:<br>' +
+                    cat[config.config.gso_lang].full.msg.target + ':<br>' +
                     '<select id="gso_rule_target" name="gso_rule_target">' +
-                    '<option value="url">URL</option>' +
-                    '<option value="description">説明文</option>' +
-                    '<option value="title">タイトル</option>' +
-                    '<option value="suggest">サジェスト</option>' +
+                    '<option value="url">' + cat[config.config.gso_lang].full.target.url + '</option>' +
+                    '<option value="description">' + cat[config.config.gso_lang].full.target.description + '</option>' +
+                    '<option value="title">' + cat[config.config.gso_lang].full.target.title + '</option>' +
+                    '<option value="suggest">' + cat[config.config.gso_lang].full.target.suggest + '</option>' +
                     '</select>' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    '検索方法:<br>' +
+                    cat[config.config.gso_lang].full.msg.type + ':<br>' +
                     '<select id="gso_rule_type" name="gso_rule_type">' +
-                    '<option value="domain">ドメイン</option>' +
-                    '<option value="str">文字列</option>' +
-                    '<option value="str_head">文字列(先頭一致)</option>' +
-                    '<option value="word">ワード</option>' +
-                    '<option value="regexp">正規表現</option>' +
+                    '<option value="domain">' + cat[config.config.gso_lang].full.type.domain + '</option>' +
+                    '<option value="str">' + cat[config.config.gso_lang].full.type.str + '</option>' +
+                    '<option value="str_head">' + cat[config.config.gso_lang].full.type.str_head + '</option>' +
+                    '<option value="word">' + cat[config.config.gso_lang].full.type.word + '</option>' +
+                    '<option value="regexp">' + cat[config.config.gso_lang].full.type.regexp + '</option>' +
                     '</select>' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    '動作:<br>' +
+                    cat[config.config.gso_lang].full.msg.action + ':<br>' +
                     '<select id="gso_rule_action" name="gso_rule_action">' +
-                    '<option value="hide_absolutely">完全に非表示</option>' +
-                    '<option value="hide">非表示</option>' +
-                    '<option value="hide_description_warn">説明文非表示+警告</option> ' +
-                    '<option value="hide_description">説明文非表示+通知</option>' +
-                    '<option value="warn">警告</option>' +
-                    '<option value="info">通知</option>' +
-                    '<option value="allow">許可</option>' +
+                    '<option value="hide_absolutely">' + cat[config.config.gso_lang].full.action.hide_absolutely + '</option>' +
+                    '<option value="hide">' + cat[config.config.gso_lang].full.action.hide + '</option>' +
+                    '<option value="hide_description_warn">' + cat[config.config.gso_lang].full.action.hide_description_warn + '</option> ' +
+                    '<option value="hide_description">' + cat[config.config.gso_lang].full.action.hide_description + '</option>' +
+                    '<option value="warn">' + cat[config.config.gso_lang].full.action.warn + '</option>' +
+                    '<option value="info">' + cat[config.config.gso_lang].full.action.info + '</option>' +
+                    '<option value="allow">' + cat[config.config.gso_lang].full.action.allow + '</option>' +
                     '</select>' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    'レベル:<br>' +
+                    cat[config.config.gso_lang].full.msg.level + ':<br>' +
                     '<input type="text" id="gso_rule_level" name="gso_rule_level" placeholder="0" style="width: 2em;">' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    '条件文字列:<br>' +
+                    cat[config.config.gso_lang].full.msg.criteria + ':<br>' +
                     '<textarea type="text" id="gso_rule_criteria" name="gso_rule_criteria" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
                     '</div>')
             .append('<div style="display: inline-block;">' +
-                    'コメント:<br>' +
+                    cat[config.config.gso_lang].full.msg.comment + ':<br>' +
                     '<textarea type="text" id="gso_rule_comment" name="gso_rule_comment" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
                     '</div>');
         fieldset.appendTo(cfg_elem);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_ruleset_manager_toggle" class="gso_control_buttons">▼</button>ルールセットの管理</legend>');
+        fieldset.append('<legend><button type="button" id="gso_ruleset_manager_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.manageRuleset + '</legend>');
         fieldset.append('<div id="gso_ruleset_manager" style="display: none;"></div>');
         fieldset.find('#gso_ruleset_manager')
-            .append('現在のルールセットの表示名:<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="表示名" style="width: auto;"><br>')
-            .append('<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">現在のルールセットを削除</button><br>')
-            .append('<input type="text" id="gso_new_ruleset_key" name="gso_new_ruleset_key" placeholder="キー" style="width: 6em;">')
-            .append('<button type="button" id="gso_ruleset_add" class="gso_control_buttons">新規ルールセット追加</button><hr>')
-            .append('ファイルからインポートして現在のルールセットに追加')
+            .append(cat[config.config.gso_lang].full.msg.friendlyNameForCurrentRuleset + ':<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="' + cat[config.config.gso_lang].full.msg.friendlyName + '" style="width: auto;"><br>')
+            .append('<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteCurrentRuleset + '</button><br>')
+            .append('<input type="text" id="gso_new_ruleset_key" name="gso_new_ruleset_key" placeholder="' + cat[config.config.gso_lang].full.msg.key + '" style="width: 6em;">')
+            .append('<button type="button" id="gso_ruleset_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addRuleset + '</button><hr>')
+            .append(cat[config.config.gso_lang].full.msg.importFromFile)
             .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>')
-            .append('選択範囲をエクスポート<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
-            .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">URLリスト(不完全)</button>')
+            .append(cat[config.config.gso_lang].full.msg.exportSelected + '<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
+            .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.urlList + '</button>')
             .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>');
         fieldset.appendTo(cfg_elem);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_log_toggle" class="gso_control_buttons">▼</button>活動ログ</legend>');
+        fieldset.append('<legend><button type="button" id="gso_log_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.activityLog + '</legend>');
         fieldset.append('<div id="gso_log" style="display: none;"></div>');
         fieldset.find('#gso_log')
             .append('<div></div>')
-            .append('<button type="button" id="gso_log_clear" class="gso_control_buttons">クリア</button><br>')
-            .append('<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。<br>')
-            .append('<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>');
+            .append('<button type="button" id="gso_log_clear" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.clear + '</button><br>')
+            .append(cat[config.config.gso_lang].full.msg.pointForDetails + '<br>')
+            .append(cat[config.config.gso_lang].full.msg.indicateOverride + '<br>');
         fieldset.find('#gso_log > div:first')
             .append('<table style="width:440px; border-spacing: 0px 2px;"></table>')
             .append('<div id="gso_log_table" style="height: 100px; width: 100%; overflow-y: scroll; overflow-x: hidden;"></div>');
@@ -829,13 +1095,13 @@ var config_default = {
                     '<col style="width: 11em; min-width: 11em;">' +
                     '</colgroup>')
             .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
-                    '<td>種類</td>' +
-                    '<td>対象</td>' +
-                    '<td>合致した文字列</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.contentType + '</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.target + '</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.matchedString + '</td>' +
                     '<td>T/KW</td>' +
                     '<td>URL</td>' +
                     '<td>RS</td>' +
-                    '<td>動作</td>' +
+                    '<td>' + cat[config.config.gso_lang].abbrev.table.action + '</td>' +
                     '</tr></thead>');
         fieldset.find('#gso_log_table')
             .append('<table style="width:440px; border-spacing: 0px 0px;">' +
@@ -853,50 +1119,57 @@ var config_default = {
         fieldset.appendTo(cfg_elem);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>その他の設定</legend>');
+        fieldset.append('<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.configMisc + '</legend>');
         fieldset.append('<div id="gso_config_misc" style="display: none;"></div>');
         fieldset.find('#gso_config_misc')
-            .append('メッセージの場所: <select id="message_location" name="message_location"></select><br>')
-            .append('<input type="checkbox" value="quick_block">検索結果にクイックブロックボタンを表示<br>')
-            .append('<input type="checkbox" value="check_for_image">画像検索のチェック<br>')
-            .append('<input type="checkbox" value="ruleset_name_with_comment">プレースホルダにコメントを表示する<br>')
-            .append('(「#」で始まるコメントはこの設定を有効にしても表示されません)<br>')
-            .append('<input type="checkbox" value="fix_missing">検索語句無視対策機能を有効にする<br>')
-            .append('<input type="checkbox" value="hide_moshikashite">2ページ目以降「もしかして：」を隠す<br>')
-            .append('<input type="checkbox" value="force_keyword_exclusion_on_suggestion">サジェストに「マイナス検索」を適用<br>')
-            .append('<input type="checkbox" value="always_log_checked_entries">合致したルールが存在しなくてもチェックされた項目を全て記録する<br>')
-            .append('<input type="checkbox" value="float">メッセージ・設定画面をスクロールに追従させる<br>')
-            .append('<input type="checkbox" value="animation">アニメーション<br>');
+            .append('言語/Language: <select id="gso_lang" name="gso_lang"></select><br>')
+            .append(cat[config.config.gso_lang].full.msg.configMessageLocation + ': <select id="message_location" name="message_location"></select><br>')
+            .append('<input type="checkbox" value="quick_block">' + cat[config.config.gso_lang].full.msg.configQuickBlock + '<br>')
+            .append('<input type="checkbox" value="check_for_image">' + cat[config.config.gso_lang].full.msg.configCheckForImage + '<br>')
+            .append('<input type="checkbox" value="ruleset_name_with_comment">' + cat[config.config.gso_lang].full.msg.configRSNameWithComment + '<br>')
+            .append('(' + cat[config.config.gso_lang].full.msg.configRSNameWithCommentB + ')<br>')
+            .append('<input type="checkbox" value="fix_missing">' + cat[config.config.gso_lang].full.msg.configFixMissing + '<br>')
+            .append('<input type="checkbox" value="hide_moshikashite">' + cat[config.config.gso_lang].full.msg.configHideMoshikashite + '<br>')
+            .append('<input type="checkbox" value="force_keyword_exclusion_on_suggestion">' + cat[config.config.gso_lang].full.msg.configForceKWExcl + '<br>')
+            .append('<input type="checkbox" value="always_log_checked_entries">' + cat[config.config.gso_lang].full.msg.configAlwaysLog + '<br>')
+            .append('<input type="checkbox" value="float">' + cat[config.config.gso_lang].full.msg.configFloat + '<br>')
+            .append('<input type="checkbox" value="animation">' + cat[config.config.gso_lang].full.msg.configAnimation + '<br>');
+        Object.keys(cat).forEach(function (k) {
+            fieldset.find('#gso_lang').append(
+                '<option value="' + k + '">' +
+                    cat[k].langName[k] + ' [' + cat[k].langName.en + ']</option>');
+        });
+
         fieldset.find('#message_location')
-            .append('<option value="page">ページ左上</option>')
-            .append('<option value="config">設定画面</option>');
+            .append('<option value="page">' + cat[config.config.gso_lang].full.msg.configMessageLocationPage + '</option>')
+            .append('<option value="config">' + cat[config.config.gso_lang].full.msg.configMessageLocationConfig + '</option>');
         fieldset.appendTo(cfg_elem);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_backup_toggle" class="gso_control_buttons">▼</button>バックアップ/復元/初期化</legend>');
+        fieldset.append('<legend><button type="button" id="gso_backup_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.backupRestoreInit + '</legend>');
         fieldset.append('<div id="gso_backup" style="display: none;"></div>');
         fieldset.find('#gso_backup')
-            .append('<button type="button" id="gso_exportAllJSON" class="gso_control_buttons">ファイルにバックアップ</button><hr>')
-            .append('全設定をファイルから復元<br>')
+            .append('<button type="button" id="gso_exportAllJSON" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.backupToFile + '</button><hr>')
+            .append(cat[config.config.gso_lang].full.msg.restoreAll + '<br>')
             .append('<input type="file" id="gso_importAllJSON" name="rulesetJSON[]"><br><br>')
             .append('<div style="text-align: right;"></div>');
-        fieldset.find('#gso_backup > div:first').append('<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">全設定を初期化(元に戻せません!)</button>');
+        fieldset.find('#gso_backup > div:first').append('<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">' + cat[config.config.gso_lang].full.msg.init + '</button>');
         fieldset.appendTo(cfg_elem);
         
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>バージョン情報</legend>');
+        fieldset.append('<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.about + '</legend>');
         fieldset.append('<div id="gso_about" style="display: none;"></div>');
         fieldset.find("#gso_about")
             .append('Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>')
-            .append('作者: たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
-            .append('ライセンス: GPL v3<br>')
-            .append('本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。');
+            .append(cat[config.config.gso_lang].full.msg.aboutAuthor + ': たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
+            .append(cat[config.config.gso_lang].full.msg.aboutLicense + ': GPL v3<br>')
+            .append(cat[config.config.gso_lang].full.msg.aboutJQ);
         fieldset.appendTo(cfg_elem);
         
         cfg_elem
-            .append('<button type="button" id="gso_save" class="gso_control_buttons">変更を保存</button>')
-            .append('<button type="button" id="gso_revert" class="gso_control_buttons">変更を破棄</button>')
-            .append('<span id="gso_status">[変更を保存]をクリックするまで設定は保存されません</span>');
+            .append('<button type="button" id="gso_save" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.saveChange + '</button>')
+            .append('<button type="button" id="gso_revert" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.discardChange + '</button><br>')
+            .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
 
         cfg_elem.prependTo("body");
         /* 結果表示 */
@@ -909,7 +1182,7 @@ var config_default = {
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
-            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">検索語句無視!</li>');
+            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
             msg_elem.prependTo("body");
         } else {
             $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
@@ -918,7 +1191,7 @@ var config_default = {
                 .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
                 .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
                 .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
-                .append('<li id="gso_count_ik" style="display:none">検索語句無視!</li>');
+                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
 
         }
         /* Event handlers */
@@ -969,7 +1242,7 @@ var config_default = {
                 delete config.rulesets[$("#gso_ruleset_select").val()];
                 gso_config_rseditor_init();
             } else {
-                $("#gso_status").text("最後のルールセットは削除できません");
+                $("#gso_status").text(cat[config.config.gso_lang].full.msg.lastRulesetCannotBeDeleted);
             }
         });
 
@@ -1002,10 +1275,10 @@ var config_default = {
             jQuery.each(ruleset.rules, function(i) {
                 var table = $("#gso_ruleset_table table tbody").append(
                     "<tr data-idx='" + i +"'>" +
-                        "<td>" + cat.abbrev.target[this.target] +
-                        "</td><td>" + cat.abbrev.type[this.type] +
-                        "</td><td><div title='" + cat.full.action[this.action] +
-                        "' style='width: 100%;'>" + cat.abbrev.action[this.action] +
+                        "<td>" + cat[config.config.gso_lang].abbrev.target[this.target] +
+                        "</td><td>" + cat[config.config.gso_lang].abbrev.type[this.type] +
+                        "</td><td><div title='" + cat[config.config.gso_lang].full.action[this.action] +
+                        "' style='width: 100%;'>" + cat[config.config.gso_lang].abbrev.action[this.action] +
                         "</div></td><td>" + this.level +
                         "</td><td style='overflow: hidden; white-space: nowrap; width: 248px; max-width: 248px; text-overflow: ellipsis;'>" + this.criteria +
                         "</td><td>" +
@@ -1160,7 +1433,7 @@ var config_default = {
                     catch (e) {
                         console.log(e.message);
                         if (e instanceof SyntaxError) {
-                            $("#gso_status").text('有効なJSONでないため、インポートに失敗しました。詳細はコンソールを参照してください。');
+                            $("#gso_status").text(cat[config.config.gso_lang].full.msg.invalidJSON);
                             return;
                         }
                     }
@@ -1169,7 +1442,7 @@ var config_default = {
                         gso_config_rseditor_init();
                     } else {
                         console.log(config_json);
-                        $("#gso_status").text('不正な設定ファイルです。詳細はコンソールを参照してください。');
+                        $("#gso_status").text(cat[config.config.gso_lang].full.msg.invalidConfig);
                     }
                 };
             })(file);
@@ -1178,7 +1451,7 @@ var config_default = {
         $("#gso_resetAll").click(function () {
             var phase = Number($(this).attr('data-phase'));
             if (phase === 0) {
-                $(this).text("後悔しませんね?");
+                $(this).text(cat[config.config.gso_lang].full.msg.initConfirm);
                 $(this).attr('data-phase', "1");
             } else if(phase >= 1) {
                 GM_deleteValue("quick_block");
@@ -1196,8 +1469,8 @@ var config_default = {
                 
                 gso_load();
                 gso_config_init();
-                $("#gso_status").text('全ての設定を初期化しました。');
-                $(this).text("全設定を初期化(元に戻せません!)");
+                $("#gso_status").text(cat[config.config.gso_lang].full.msg.initialized);
+                $(this).text(cat[config.config.gso_lang].full.msg.init);
                 $(this).attr('data-phase', "0");
             }
         });
@@ -1381,7 +1654,7 @@ var config_default = {
 
         $("#gso_save").click(function () {
             gso_save();
-            $("#gso_status").text("設定を反映させるには再読み込みを行ってください");
+            $("#gso_status").text(cat[config.config.gso_lang].full.msg.reloadToTakeEffect);
         });
 
         $("#gso_revert").click(function () {
@@ -1728,8 +2001,8 @@ var config_default = {
                     var missing_kw_list = $(this);
                     var missing_kw_list_ar = [];
                     var missing_kw_list_new_html = missing_kw_list.html()
-                        .replace(/<span>未指定:<\/span>/gi, "無視されたキーワード:")
-                        .replace(/<span>Missing:<\/span>/gi, "Ignored keywords:")
+                        .replace(/<span>未指定:<\/span>/gi, cat[config.config.gso_lang].full.msg.ignoredKeywords + ':')
+                        .replace(/<span>Missing:<\/span>/gi, cat[config.config.gso_lang].full.msg.ignoredKeywords + ':')
                         .replace(/<s>/gi, '<span class="gso_ignored_kw">')
                         .replace(/<\/s>/gi, "</span>");
                     missing_kw_list.html(missing_kw_list_new_html);
@@ -1755,12 +2028,17 @@ var config_default = {
                                    null,
                                    false);
                     if(missing_kw_list.children("span.gso_ignored_kw").size() > 1) {
-                        missing_kw_list.append(' <a href="' + encodeURI(new_url_all) + '">全部含めて再検索</a>');
+                        missing_kw_list.append(' <a href="' + encodeURI(new_url_all) + '">' +
+                                               cat[config.config.gso_lang].full.msg.searchAllIncluded + '</a>');
                     }
                 });
             }
             if(config.config.quick_block && !$(node).is("a")) {
-                $(node).find("div._SWb").append("<span class='gso_quick_block' style='display: none;'>ブロック<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>ドメイン</button></span>");
+                $(node).find("div._SWb")
+                    .append("<span class='gso_quick_block' style='display: none;'>" +
+                            cat[config.config.gso_lang].full.msg.block +
+                            "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
+                            cat[config.config.gso_lang].full.msg.domain + "</button></span>");
                 var qb = $(node).find("span.gso_quick_block > button:eq(0)");
                 var qb2 = $(node).find("span.gso_quick_block > button:eq(1)");
                 var domain = "";
@@ -2077,7 +2355,7 @@ var config_default = {
                 var params = {};
                 var temp_rulesets = {
                     "MINUS": {
-                        "name": "マイナス検索による除外",
+                        "name": cat[config.config.gso_lang].full.msg.excludedKeyword,
                         "enabled": true,
                         "rules": []
                     }
@@ -2220,9 +2498,9 @@ var config_default = {
         var count_totalKW = $("*.gso_killed_kw").size();
         var count_totalIK = $("span.gso_ignored_kw:visible").size();
 
-        $("#gso_killed_count_s").html("検索結果: " + (count_totalSERP + count_totalSERPdesc));
-        $("#gso_killed_count_si").html("画像: " + count_totalSERPimg);
-        $("#gso_killed_count_k").html("関連語句: " + count_totalKW);
+        $("#gso_killed_count_s").html(cat[config.config.gso_lang].full.msg.ctlmsgSERP + ": " + (count_totalSERP + count_totalSERPdesc));
+        $("#gso_killed_count_si").html(cat[config.config.gso_lang].full.msg.ctlmsgIMG + ": " + count_totalSERPimg);
+        $("#gso_killed_count_k").html(cat[config.config.gso_lang].full.msg.ctlmsgKW + ": " + count_totalKW);
 
         if(count_totalSERP > 0 || count_totalSERPdesc > 0) {
             $("#gso_killed_count_s").parent().show();
@@ -2241,11 +2519,13 @@ var config_default = {
         }
         if(count_totalIK > 0) {
             if(config.config.message_location == "page") {
-                $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "]<br>" +
-                                        "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+                $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS + " [" + count_totalIK + "]<br>" +
+                                        "<a href='" + location.href + "&tbs=li:1'>" +
+                                        cat[config.config.gso_lang].full.msg.ctlmsgVerbatim + "</a>");
             } else {
-                $("#gso_count_ik").html("検索語句無視! [" + count_totalIK + "] " +
-                                        "<a href='" + location.href + "&tbs=li:1'>完全一致で再検索</a>");
+                $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS + " [" + count_totalIK + "] " +
+                                        "<a href='" + location.href + "&tbs=li:1'>" +
+                                        cat[config.config.gso_lang].full.msg.ctlmsgVerbatim + "</a>");
             }
             $("#gso_count_ik").show();
         } else {
@@ -2256,14 +2536,14 @@ var config_default = {
            count_totalSERPimg > 0 ||
            count_totalKW > 0) {
             if(config.config.message_location == "page") {
-                $("#gso_results_msg_top").html("検索結果を処理済<br>(クリックで切替)");
+                $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad + "<br>" + cat[config.config.gso_lang].full.msg.ctlmsgBadB);
             } else {
-                $("#gso_results_msg_top").html("検索結果を処理済(クリックで切替)");
+                $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad + cat[config.config.gso_lang].full.msg.ctlmsgBadB);
             }
         } else if(count_totalIK > 0) {
-            $("#gso_results_msg_top").html("検索結果を処理済");
+            $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad);
         } else {
-            $("#gso_results_msg_top").html("検索結果に問題なし");
+            $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgGood);
         }
     }
 

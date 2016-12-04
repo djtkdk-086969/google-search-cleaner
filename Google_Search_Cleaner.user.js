@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.2.0.154
+// @version        1.2.0.157
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -151,6 +151,7 @@ var cat = {
                 "backupToFile": "ファイルにバックアップ",
                 "restoreAll": "全設定をファイルから復元",
                 "init": "全設定を初期化(元に戻せません!)",
+                "initButton": "初期化",
                 "initConfirm": "後悔しませんね?",
                 "initialized": "全ての設定を初期化しました。",
                 "about": "バージョン情報",
@@ -264,7 +265,7 @@ var cat = {
                 "GscConfigMenu": "Google Search Cleaner configuration",
                 "close": "Close",
                 "ruleset": "Ruleset",
-                "rulesetEdit": "Edit rulesets",
+                "rulesetEdit": "Edit Rulesets",
                 "selectAll": "Select all",
                 "unselectAll": "Unselect all",
                 "toggleSelection": "Toggle selection",
@@ -304,10 +305,11 @@ var cat = {
                 "configAnimation": "Animation",
                 "configMessageLocationPage": "Top-Left of the page",
                 "configMessageLocationConfig": "Configuration Window",
-                "backupRestoreInit": "Backup / Restore / Initialization",
+                "backupRestoreInit": "Backup / Restore / Factory Reset",
                 "backupToFile": "Backup to file",
                 "restoreAll": "Restore all configuration from file",
-                "init": "Initialize all configuration (Cannot be undone!)",
+                "init": "Reset all configuration (Cannot be undone!)",
+                "initButton": "Reset",
                 "initConfirm": "Are you sure?",
                 "initialized": "Initialized all configuration.",
                 "about": "About",
@@ -1122,7 +1124,8 @@ function gso_config_init() {
         fieldset.append('<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.configMisc + '</legend>');
         fieldset.append('<div id="gso_config_misc" style="display: none;"></div>');
         fieldset.find('#gso_config_misc')
-            .append('言語/Language: <select id="gso_lang" name="gso_lang"></select><br>')
+            .append(cat[config.config.gso_lang].full.msg.configLang +
+                    (config.config.gso_lang == 'en' ? '' : ' / Language') + ': <select id="gso_lang" name="gso_lang"></select><br>')
             .append(cat[config.config.gso_lang].full.msg.configMessageLocation + ': <select id="message_location" name="message_location"></select><br>')
             .append('<input type="checkbox" value="quick_block">' + cat[config.config.gso_lang].full.msg.configQuickBlock + '<br>')
             .append('<input type="checkbox" value="check_for_image">' + cat[config.config.gso_lang].full.msg.configCheckForImage + '<br>')
@@ -1137,7 +1140,9 @@ function gso_config_init() {
         Object.keys(cat).forEach(function (k) {
             fieldset.find('#gso_lang').append(
                 '<option value="' + k + '">' +
-                    cat[k].langName[k] + ' [' + cat[k].langName.en + ']</option>');
+                    cat[k].langName[k] +
+                    (config.config.gso_lang == k ? '' : ' [' + cat[k].langName[config.config.gso_lang] + ']') +
+                    '</option>');
         });
 
         fieldset.find('#message_location')
@@ -1153,7 +1158,10 @@ function gso_config_init() {
             .append(cat[config.config.gso_lang].full.msg.restoreAll + '<br>')
             .append('<input type="file" id="gso_importAllJSON" name="rulesetJSON[]"><br><br>')
             .append('<div style="text-align: right;"></div>');
-        fieldset.find('#gso_backup > div:first').append('<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">' + cat[config.config.gso_lang].full.msg.init + '</button>');
+        fieldset.find('#gso_backup > div:first')
+            .append(cat[config.config.gso_lang].full.msg.init + 
+                    '<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">' +
+                    cat[config.config.gso_lang].full.msg.initButton + '</button>');
         fieldset.appendTo(cfg_elem);
         
         fieldset = $('<fieldset></fieldset>');
@@ -1470,7 +1478,7 @@ function gso_config_init() {
                 gso_load();
                 gso_config_init();
                 $("#gso_status").text(cat[config.config.gso_lang].full.msg.initialized);
-                $(this).text(cat[config.config.gso_lang].full.msg.init);
+                $(this).text(cat[config.config.gso_lang].full.msg.initButton);
                 $(this).attr('data-phase', "0");
             }
         });

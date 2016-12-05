@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.2.0.158
+// @version        1.3.0.159
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -22,7 +22,7 @@
 // @compatible     chrome
 // ==/UserScript==
 
-/* Message Catalog */
+/* Message Catalog (for translation) */
 var cat = {
     "ja": {
         "langName": {

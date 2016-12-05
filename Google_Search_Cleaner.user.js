@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.2.0.157
+// @version        1.2.0.158
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -955,7 +955,8 @@ function gso_config_init() {
 
     if($("#gso_config").size() === 0) {
         /* 設定画面 */
-        var cfg_elem = $('<form id="gso_config" class="gso_config_embedded"></form>');
+        var cfg_elem = $('<form id="gso_config" class="gso_config_embedded" lang="'+
+                         config.config.gso_lang + '"></form>');
         cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="' + cat[config.config.gso_lang].full.msg.close + '">×</button></span>');
         
         var fieldset = $('<fieldset></fieldset>');
@@ -1182,7 +1183,8 @@ function gso_config_init() {
         cfg_elem.prependTo("body");
         /* 結果表示 */
         if(config.config.message_location == "page") {
-            var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;"></div>');
+            var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;" lang="' +
+                             config.config.gso_lang + '"></div>');
             msg_elem.append('<em>GSC</em>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
             msg_elem.append('<div id="gso_results_msg_top"></div>');

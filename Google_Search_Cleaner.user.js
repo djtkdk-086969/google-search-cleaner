@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.0.159
+// @version        1.3.0.160
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -851,10 +851,18 @@ function gso_config_init() {
         "div.sld:has(h3.r > a.l)," +
         "div._knc:has(h3.r > a.l)," +
         "a._rQb, " +
-        "div._lnc > a.top";
+        "div._lnc > a.top, " +
+        "div.dbsr, " +       /* 2016/11仕様変更 */
+        "ul._vio > li._sio"; /* 同上 */
     /*
       サイト内検索: div.rc:has(h3.r > a)
       ニューストピック: li.g:has(a._Dk), div.g:has(a._Dk)
+      トップニュース(2016/11): (div._NId div._Bfp) div.dbsr
+      > a (URL)
+      > div._qlp cite._NCp (From)
+      トップニュース(2016/11横並び): (div._NId) ul._vio > li._sio
+      a (URL)
+      p._NRj._ORj.f._xRj > cite (from)
     */
 
     var selector_IMG = 

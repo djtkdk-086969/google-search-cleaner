@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.197
+// @version        1.3.1.198
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -763,6 +763,8 @@ function gso_quick_block_b(node) {
     } else {
         qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.qbHeadURL + ":");
     }
+    qb_b.find("input:eq(0)").val(node.attr('data-criteria'));
+    qb_b.find("input:eq(2)").val(node.attr('data-type'));
     qb_b.find("button.gso_qb_sendToRE").click(function() {
         $("#gso_rule_target").val("url");
         $("#gso_rule_type").val(qb_b.find("input:eq(2)").val());

@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.199
+// @version        1.3.1.200
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -774,6 +774,7 @@ function gso_quick_block_b(node) {
         $("#gso_rule_enabled").prop("checked", true);
         $("#gso_rule_level").val(0);
         $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
+        $("#gso_ruleset_select").change();
         $("#gso_config").show();
         qb_b.remove();
     });

@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @author         たかだか。(TakaDaka.)
 // @name           Google掃除機(仮称)
 // @namespace      https://twitter.com/djtkdk_086969
@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.0.160
+// @version        1.3.1.194
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -178,7 +178,13 @@ var cat = {
                 "ctlmsgVerbatim": "完全一致で再検索",
                 "ctlmsgGood": "検索結果に問題なし",
                 "ctlmsgBad": "検索結果を処理済",
-                "ctlmsgBadB": "(クリックで切替)"
+                "ctlmsgBadB": "(クリックで切替)",
+                "qbCreateNewRule": "新規ルールを作成します",
+                "qbAddTo": "追加先",
+                "qbAdd": "追加",
+                "qbSendTo": "ルールセット編集画面に送る",
+                "qbAdded": "ルールを追加しました。ページを再読み込みすると変更が反映されます。",
+                "qbHeadURL": "URL(先頭一致)"
             }
         }
     },
@@ -336,7 +342,13 @@ var cat = {
                 "ctlmsgVerbatim": "Search Verbatim",
                 "ctlmsgGood": "No problem",
                 "ctlmsgBad": "Processed the results",
-                "ctlmsgBadB": "(Click to toggle)"
+                "ctlmsgBadB": "(Click to toggle)",
+                "qbCreateNewRule": "Creating a New Rule",
+                "qbAddTo": "Add to",
+                "qbAdd": "Add",
+                "qbSendTo": "Send to the Ruleset Editor",
+                "qbAdded": "The rule has been added. Reload the page to take effects.",
+                "qbHeadURL": "URL (Forward Match)"
             }
         }
     }
@@ -818,8 +830,8 @@ function gso_config_init() {
     GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: 0.60em; top: 0px; left: 0px;}");
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
     GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
-    GM_addStyle("span.gso_killed_kw_bad { color: silver; text-decoration: line-through; white-space: nowrap;}");
-    GM_addStyle("span.gso_killed_kw_placeholder {border: 1px solid; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_bad {text-decoration: line-through; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_placeholder {color: white; background-color: darkgray; white-space: nowrap; border-radius: 3px/3px; padding: 1px;}");
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
     GM_addStyle("#gso_control { left: 0px; z-index: 999; width: 120px; background-color: white; border: 1px solid black; text-align: center; }");
@@ -827,11 +839,11 @@ function gso_config_init() {
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; font-size: x-small;}");
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
-    GM_addStyle("*.gso_quick_block {font-size: smaller;}");
-    //GM_addStyle("div.gso_killed_count { display: inline-block; padding: 8px; }");
+    GM_addStyle("*.gso_quick_block_wnd {font-size: smaller; position: absolute; background-color: silver; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
     GM_addStyle("*.gso_float { position: fixed; top: 0px; }");
     GM_addStyle("*.gso_control_embedded { position: absolute; top: 60px; }");
+    GM_addStyle("*.gso_control_embedded2 { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_serp_description_info { display: block; background: lightgray; }");
     GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
@@ -1191,7 +1203,7 @@ function gso_config_init() {
         cfg_elem.prependTo("body");
         /* 結果表示 */
         if(config.config.message_location == "page") {
-            var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_control_embedded" style="display: none;" lang="' +
+            var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +
                              config.config.gso_lang + '"></div>');
             msg_elem.append('<em>GSC</em>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
@@ -1201,7 +1213,13 @@ function gso_config_init() {
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
             msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-            msg_elem.prependTo("body");
+            if($("#hdtb:visible").size() > 0) {
+                msg_elem.addClass("gso_control_embedded2");
+                msg_elem.prependTo("#hdtb");
+            } else {
+                msg_elem.addClass("gso_control_embedded");
+                msg_elem.prependTo("body");
+            }
         } else {
             $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
             $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
@@ -1683,17 +1701,28 @@ function gso_config_init() {
             /* 表示を追従させる */
             var ctl = $("#gso_control");
             var cfg = $("#gso_config");
-            var minimum_top = 60;
+            var minimum_top_ctl = 60;
             var minimum_top_cfg = 0;
 
             if(config.config.float) {
-                if($(window).scrollTop() > minimum_top && ctl.hasClass("gso_control_embedded")) {
-                    ctl.removeClass("gso_control_embedded");
-                    ctl.addClass("gso_float");
-                } else if($(window).scrollTop() <= minimum_top && cfg.hasClass("gso_float")) {
-                    ctl.removeClass("gso_float");
-                    ctl.addClass("gso_control_embedded");
+                if(ctl.parent().is("#hdtb")) {
+                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                        ctl.removeClass("gso_control_embedded2");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && cfg.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded2");
+                    }
+                } else {
+                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
+                        ctl.removeClass("gso_control_embedded");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= minimum_top_ctl && cfg.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded");
+                    }
                 }
+
                 if($(window).scrollTop() > minimum_top_cfg && cfg.hasClass("gso_config_embedded")) {
                     cfg.removeClass("gso_config_embedded");
                     cfg.addClass("gso_float");
@@ -2052,23 +2081,40 @@ function gso_config_init() {
                 });
             }
             if(config.config.quick_block && !$(node).is("a")) {
-                $(node).find("div._SWb")
-                    .append("<span class='gso_quick_block' style='display: none;'>" +
-                            cat[config.config.gso_lang].full.msg.block +
-                            "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
-                            cat[config.config.gso_lang].full.msg.domain + "</button></span>");
-                var qb = $(node).find("span.gso_quick_block > button:eq(0)");
-                var qb2 = $(node).find("span.gso_quick_block > button:eq(1)");
+                /* 現在のノードの上にマウスポインタを持ってきたときに
+                 クイックブロックボタンを▼表示 */
+                $(node).append("<div class='gso_quick_block_wnd gso_quick_block' style='display: none;'>" +
+                               cat[config.config.gso_lang].full.msg.block +
+                               "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
+                               cat[config.config.gso_lang].full.msg.domain + "</button></div>");
+                $(node).append("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
+                               "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
+                               "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
+                               "<form><ul style='list-style: none;'>" +
+                               "<li><label for='criteria' style='float: left; width: 120px;'>URL:</label><input type='text' name='criteria'></li>" +
+                               "<li><label for='comment' style='float: left; width: 120px;'>" +
+                               cat[config.config.gso_lang].full.msg.comment +
+                               ":</label><input type='text' name='comment'></li>" +
+                               "<li><label for='ruleset' style='float: left; width: 120px;'>" +
+                               cat[config.config.gso_lang].full.msg.qbAddTo +
+                               ":</label><select name='ruleset'></select></li></ul>" +
+                               "<input type='hidden' name='type' value='domain'>" +
+                               "<button class='gso_qb_directAdd' type='button'>" +
+                               cat[config.config.gso_lang].full.msg.qbAdd +
+                               "</button><button class='gso_qb_sendToRE'  type='button'>" +
+                               cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
+                               "</form></div>");
+                
+                var qb = $(node).find("div.gso_quick_block > button:eq(0)");
+                var qb2 = $(node).find("div.gso_quick_block > button:eq(1)");
                 var domain = "";
-                qb.attr("data-target", context.target);
+                var qb_b = $(node).find("div.gso_quick_block_b");
                 qb.click(function () {
-                    $("#gso_rule_target").val("url");
-                    $("#gso_rule_type").val("str_head");
-                    $("#gso_rule_action").val("hide");
-                    $("#gso_rule_criteria").val($(this).attr("data-target"));
-                    $("#gso_rule_comment").val("");
-                    $("#gso_rule_enabled").prop("checked", true);
-                    $("#gso_config").show();
+                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.qbHeadURL + ":");
+                    qb_b.find("input:eq(0)").val(context.target);
+                    qb_b.find("input:eq(2)").val("str_head");
+                    $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
+                    $(this).parents("*.gso_quick_block").hide();
                 });
                 try {
                     domain = context.target.split("/")[2].split(":")[0];
@@ -2076,18 +2122,50 @@ function gso_config_init() {
                 catch (e) {
                     domain = "";
                 }
-                qb2.attr("data-domain", domain);
                 qb2.click(function () {
-                    if($(this).attr("data-domain") !== "") {
-                        $("#gso_rule_target").val("url");
-                        $("#gso_rule_type").val("domain");
-                        $("#gso_rule_action").val("hide");
-                        $("#gso_rule_criteria").val($(this).attr("data-domain"));
-                        $("#gso_rule_comment").val("");
-                        $("#gso_rule_enabled").prop("checked", true);
-                        $("#gso_config").show();
-                    }
+                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.domain + ":");
+                    qb_b.find("input:eq(0)").val(domain);
+                    qb_b.find("input:eq(2)").val("domain");
+                    $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
+                    $(this).parents("*.gso_quick_block").hide();
                 });
+                qb_b.find("button.gso_qb_sendToRE").click(function() {
+                    $("#gso_rule_target").val("url");
+                    $("#gso_rule_type").val(qb_b.find("input:eq(2)").val());
+                    $("#gso_rule_action").val("hide");
+                    $("#gso_rule_criteria").val(qb_b.find("input:eq(0)").val());
+                    $("#gso_rule_comment").val(qb_b.find("input:eq(1)").val());
+                    $("#gso_rule_enabled").prop("checked", true);
+                    $("#gso_rule_level").val(0);
+                    $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
+                    $("#gso_config").show();
+                });
+                qb_b.find("button.gso_qb_close").click(function() {
+                    qb_b.hide();
+                });
+                jQuery.each(config.rulesets, function(id) {
+                    qb_b.find("select:eq(0)").append(
+                        '<option value="' + id + '">' +
+                            gso_rseditor_rslist_str(id, this.name, this.enabled) +
+                            '</option>');
+                });
+                qb_b.find("button.gso_qb_directAdd").click(function() {
+                    var new_rule = {
+                        "target": "url",
+                        "type": qb_b.find("input:eq(2)").val(),
+                        "action": "hide",
+                        "level": 0,
+                        "criteria": qb_b.find("input:eq(0)").val(),
+                        "comment": qb_b.find("input:eq(1)").val(),
+                        "enabled": true
+                    };
+                    if(!check_rule(new_rule)) return;
+                    config.rulesets[qb_b.find("select:eq(0)").val()].rules.push(new_rule);
+                    $("#gso_ruleset_select").change();
+                    gso_save();
+                    alert(cat[config.config.gso_lang].full.msg.qbAdded);
+                });
+                
                 $(node).hover(
                     function () {
                         /* IN */
@@ -2336,21 +2414,21 @@ function gso_config_init() {
                 });
                 if(applied_rule.rule.action == "hide") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
-                                        context.related_kw +
-                                        ' <span style="background-color: silver; color: dimgray;" title="' +
-                                        config.rulesets[applied_rule.ruleset_id].name + '">×</span>' +
+                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
+                                        config.rulesets[applied_rule.ruleset_id].name + ': ' +
+                                        '<span class="gso_killed_kw_bad">' + applied_rule.rule.criteria + '</span>' +
                                         '</span>' +
-                                        '<span class="gso_serp_description_a" style="opacity: 0;">***</span></span>');
+                                        '</span>' +
+                                        '</span>');
                 } else if(applied_rule.rule.action == "warn") {
                     $(node).after(' <span style="background-color: silver; color: dimgray;" title="' +
                                         config.rulesets[applied_rule.ruleset_id].name + '">&#x26A0;</span>');
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_a" style="opacity: 0;">***</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_killed_kw_bad gso_serp_description_b">' +
+                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
                                         config.rulesets[applied_rule.ruleset_id].name +
-                                        '</span></span>');
+                                        '</span>' +
+                                        '</span>');
                 }
                 gso_log_setBoundary();
                 update_kw();

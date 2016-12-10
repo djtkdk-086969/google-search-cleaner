@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.0.185
+// @version        1.3.0.188
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -818,8 +818,8 @@ function gso_config_init() {
     GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: 0.60em; top: 0px; left: 0px;}");
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
     GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
-    GM_addStyle("span.gso_killed_kw_bad { color: silver; text-decoration: line-through; white-space: nowrap;}");
-    GM_addStyle("span.gso_killed_kw_placeholder {border: 1px solid; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_bad {text-decoration: line-through; white-space: nowrap;}");
+    GM_addStyle("span.gso_killed_kw_placeholder {color: white; background-color: darkgray; white-space: nowrap; border-radius: 3px/3px; padding: 1px;}");
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
     GM_addStyle("#gso_control { left: 0px; z-index: 999; width: 120px; background-color: white; border: 1px solid black; text-align: center; }");
@@ -2393,21 +2393,21 @@ function gso_config_init() {
                 });
                 if(applied_rule.rule.action == "hide") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_b">' +
-                                        context.related_kw +
-                                        ' <span style="background-color: silver; color: dimgray;" title="' +
-                                        config.rulesets[applied_rule.ruleset_id].name + '">×</span>' +
+                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
+                                        config.rulesets[applied_rule.ruleset_id].name + ': ' +
+                                        '<span class="gso_killed_kw_bad">' + applied_rule.rule.criteria + '</span>' +
                                         '</span>' +
-                                        '<span class="gso_serp_description_a" style="opacity: 0;">***</span></span>');
+                                        '</span>' +
+                                        '</span>');
                 } else if(applied_rule.rule.action == "warn") {
                     $(node).after(' <span style="background-color: silver; color: dimgray;" title="' +
                                         config.rulesets[applied_rule.ruleset_id].name + '">&#x26A0;</span>');
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
-                                        '<span class="gso_killed_kw_bad gso_serp_description_a" style="opacity: 0;">***</span>' +
-                                        '<span class="gso_killed_kw_placeholder gso_killed_kw_bad gso_serp_description_b">' +
+                                        '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +
                                         config.rulesets[applied_rule.ruleset_id].name +
-                                        '</span></span>');
+                                        '</span>' +
+                                        '</span>');
                 }
                 gso_log_setBoundary();
                 update_kw();

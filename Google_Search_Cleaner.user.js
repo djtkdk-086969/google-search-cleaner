@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.0.188
+// @version        1.3.1.194
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -178,7 +178,13 @@ var cat = {
                 "ctlmsgVerbatim": "完全一致で再検索",
                 "ctlmsgGood": "検索結果に問題なし",
                 "ctlmsgBad": "検索結果を処理済",
-                "ctlmsgBadB": "(クリックで切替)"
+                "ctlmsgBadB": "(クリックで切替)",
+                "qbCreateNewRule": "新規ルールを作成します",
+                "qbAddTo": "追加先",
+                "qbAdd": "追加",
+                "qbSendTo": "ルールセット編集画面に送る",
+                "qbAdded": "ルールを追加しました。ページを再読み込みすると変更が反映されます。",
+                "qbHeadURL": "URL(先頭一致)"
             }
         }
     },
@@ -336,7 +342,13 @@ var cat = {
                 "ctlmsgVerbatim": "Search Verbatim",
                 "ctlmsgGood": "No problem",
                 "ctlmsgBad": "Processed the results",
-                "ctlmsgBadB": "(Click to toggle)"
+                "ctlmsgBadB": "(Click to toggle)",
+                "qbCreateNewRule": "Creating a New Rule",
+                "qbAddTo": "Add to",
+                "qbAdd": "Add",
+                "qbSendTo": "Send to the Ruleset Editor",
+                "qbAdded": "The rule has been added. Reload the page to take effects.",
+                "qbHeadURL": "URL (Forward Match)"
             }
         }
     }
@@ -2077,13 +2089,20 @@ function gso_config_init() {
                                cat[config.config.gso_lang].full.msg.domain + "</button></div>");
                 $(node).append("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
                                "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
-                               "新規ルールを作成します" +
+                               "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
                                "<form><ul style='list-style: none;'>" +
-                               "<li><label for='criteria' style='float: left; width: 60px;'>URL:</label><input type='text' name='criteria'></li>" +
-                               "<li><label for='comment' style='float: left; width: 60px;'>コメント:</label><input type='text' name='comment'></li>" +
-                               "<li><label for='ruleset' style='float: left; width: 60px;'>追加先:</label><select name='ruleset'></select></li></ul>" +
+                               "<li><label for='criteria' style='float: left; width: 120px;'>URL:</label><input type='text' name='criteria'></li>" +
+                               "<li><label for='comment' style='float: left; width: 120px;'>" +
+                               cat[config.config.gso_lang].full.msg.comment +
+                               ":</label><input type='text' name='comment'></li>" +
+                               "<li><label for='ruleset' style='float: left; width: 120px;'>" +
+                               cat[config.config.gso_lang].full.msg.qbAddTo +
+                               ":</label><select name='ruleset'></select></li></ul>" +
                                "<input type='hidden' name='type' value='domain'>" +
-                               "<button class='gso_qb_directAdd' type='button'>追加</button><button class='gso_qb_sendToRE'  type='button'>ルールセット編集画面に送る</button>" +
+                               "<button class='gso_qb_directAdd' type='button'>" +
+                               cat[config.config.gso_lang].full.msg.qbAdd +
+                               "</button><button class='gso_qb_sendToRE'  type='button'>" +
+                               cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
                                "</form></div>");
                 
                 var qb = $(node).find("div.gso_quick_block > button:eq(0)");
@@ -2091,6 +2110,7 @@ function gso_config_init() {
                 var domain = "";
                 var qb_b = $(node).find("div.gso_quick_block_b");
                 qb.click(function () {
+                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.qbHeadURL + ":");
                     qb_b.find("input:eq(0)").val(context.target);
                     qb_b.find("input:eq(2)").val("str_head");
                     $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
@@ -2103,6 +2123,7 @@ function gso_config_init() {
                     domain = "";
                 }
                 qb2.click(function () {
+                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.domain + ":");
                     qb_b.find("input:eq(0)").val(domain);
                     qb_b.find("input:eq(2)").val("domain");
                     $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
@@ -2142,7 +2163,7 @@ function gso_config_init() {
                     config.rulesets[qb_b.find("select:eq(0)").val()].rules.push(new_rule);
                     $("#gso_ruleset_select").change();
                     gso_save();
-                    alert("ルールを追加しました。ページを再読み込みすると変更が反映されます。");
+                    alert(cat[config.config.gso_lang].full.msg.qbAdded);
                 });
                 
                 $(node).hover(

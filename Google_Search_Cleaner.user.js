@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.196
+// @version        1.3.1.197
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2166,7 +2166,7 @@ function gso_config_init() {
                     qb_w.attr('data-criteria', context.target);
                     qb_w.attr('data-type', 'str_head');
                     qb_w.hide();
-                    gso_quick_block_b(qb);
+                    gso_quick_block_b(qb_w);
                 });
                 try {
                     domain = context.target.split("/")[2].split(":")[0];
@@ -2178,7 +2178,7 @@ function gso_config_init() {
                     qb_w.attr('data-criteria', domain);
                     qb_w.attr('data-type', 'domain');
                     qb_w.hide();
-                    gso_quick_block_b(qb);
+                    gso_quick_block_b(qb_w);
                 });
                 
                 $(node).hover(

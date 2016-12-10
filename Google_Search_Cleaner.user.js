@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.194
+// @version        1.3.1.200
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -721,6 +721,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         table.find("tr:last td:eq(1)").text(cat[config.config.gso_lang].abbrev.target[target]);
     }
 }
+
 function gso_log_setBoundary() {
     /*
       ログにおける検索結果の境界を設定
@@ -729,8 +730,81 @@ function gso_log_setBoundary() {
     */
     $("#gso_log_table table tbody").find("tr:last").attr("data-last-rule", "last-rule");
 }
+
 function gso_rseditor_toggle() {
     $("#gso_config").toggle();
+}
+
+function gso_quick_block_b(node) {
+    /* クイックブロック 詳細設定用要素作成
+       node: 元クイックブロックボタン用要素 (div.quick_block) のjQueryオブジェクト */
+    
+    var qb_b = $("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
+                 "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
+                 "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
+                 "<form><ul style='list-style: none;'>" +
+                 "<li><label for='criteria' style='float: left; width: 120px;'>URL:</label><input type='text' name='criteria'></li>" +
+                 "<li><label for='comment' style='float: left; width: 120px;'>" +
+                 cat[config.config.gso_lang].full.msg.comment +
+                 ":</label><input type='text' name='comment'></li>" +
+                 "<li><label for='ruleset' style='float: left; width: 120px;'>" +
+                 cat[config.config.gso_lang].full.msg.qbAddTo +
+                 ":</label><select name='ruleset'></select></li></ul>" +
+                 "<input type='hidden' name='type' value='domain'>" +
+                 "<button class='gso_qb_directAdd' type='button'>" +
+                 cat[config.config.gso_lang].full.msg.qbAdd +
+                 "</button><button class='gso_qb_sendToRE'  type='button'>" +
+                 cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
+                 "</form></div>")
+        .insertAfter(node);
+    
+    if(node.attr('data-type') == 'domain') {
+        qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.domain + ":");
+    } else {
+        qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.qbHeadURL + ":");
+    }
+    qb_b.find("input:eq(0)").val(node.attr('data-criteria'));
+    qb_b.find("input:eq(2)").val(node.attr('data-type'));
+    qb_b.find("button.gso_qb_sendToRE").click(function() {
+        $("#gso_rule_target").val("url");
+        $("#gso_rule_type").val(qb_b.find("input:eq(2)").val());
+        $("#gso_rule_action").val("hide");
+        $("#gso_rule_criteria").val(qb_b.find("input:eq(0)").val());
+        $("#gso_rule_comment").val(qb_b.find("input:eq(1)").val());
+        $("#gso_rule_enabled").prop("checked", true);
+        $("#gso_rule_level").val(0);
+        $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
+        $("#gso_ruleset_select").change();
+        $("#gso_config").show();
+        qb_b.remove();
+    });
+    qb_b.find("button.gso_qb_close").click(function() {
+        qb_b.remove();
+    });
+    jQuery.each(config.rulesets, function(id) {
+        qb_b.find("select:eq(0)").append(
+            '<option value="' + id + '">' +
+                gso_rseditor_rslist_str(id, this.name, this.enabled) +
+                '</option>');
+    });
+    qb_b.find("button.gso_qb_directAdd").click(function() {
+        var new_rule = {
+            "target": "url",
+            "type": qb_b.find("input:eq(2)").val(),
+            "action": "hide",
+            "level": 0,
+            "criteria": qb_b.find("input:eq(0)").val(),
+            "comment": qb_b.find("input:eq(1)").val(),
+            "enabled": true
+        };
+        if(!check_rule(new_rule)) return;
+        config.rulesets[qb_b.find("select:eq(0)").val()].rules.push(new_rule);
+        $("#gso_ruleset_select").change();
+        gso_save();
+        alert(cat[config.config.gso_lang].full.msg.qbAdded);
+        qb_b.remove();
+    });
+    qb_b.show();
 }
 
 /* GM_setValue / GM_getValue */
@@ -2082,39 +2156,22 @@ function gso_config_init() {
             }
             if(config.config.quick_block && !$(node).is("a")) {
                 /* 現在のノードの上にマウスポインタを持ってきたときに
-                 クイックブロックボタンを▼表示 */
-                $(node).append("<div class='gso_quick_block_wnd gso_quick_block' style='display: none;'>" +
-                               cat[config.config.gso_lang].full.msg.block +
-                               "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
-                               cat[config.config.gso_lang].full.msg.domain + "</button></div>");
-                $(node).append("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
-                               "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
-                               "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
-                               "<form><ul style='list-style: none;'>" +
-                               "<li><label for='criteria' style='float: left; width: 120px;'>URL:</label><input type='text' name='criteria'></li>" +
-                               "<li><label for='comment' style='float: left; width: 120px;'>" +
-                               cat[config.config.gso_lang].full.msg.comment +
-                               ":</label><input type='text' name='comment'></li>" +
-                               "<li><label for='ruleset' style='float: left; width: 120px;'>" +
-                               cat[config.config.gso_lang].full.msg.qbAddTo +
-                               ":</label><select name='ruleset'></select></li></ul>" +
-                               "<input type='hidden' name='type' value='domain'>" +
-                               "<button class='gso_qb_directAdd' type='button'>" +
-                               cat[config.config.gso_lang].full.msg.qbAdd +
-                               "</button><button class='gso_qb_sendToRE'  type='button'>" +
-                               cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
-                               "</form></div>");
+                 クイックブロックボタンを表示 */
+                var qb_w =
+                    $("<div class='gso_quick_block_wnd gso_quick_block' style='display: none;'>" +
+                      cat[config.config.gso_lang].full.msg.block +
+                      "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
+                      cat[config.config.gso_lang].full.msg.domain + "</button></div>")
+                    .appendTo(node);
                 
-                var qb = $(node).find("div.gso_quick_block > button:eq(0)");
-                var qb2 = $(node).find("div.gso_quick_block > button:eq(1)");
+                var qb = qb_w.find("button:eq(0)");
+                var qb2 = qb_w.find("button:eq(1)");
                 var domain = "";
-                var qb_b = $(node).find("div.gso_quick_block_b");
                 qb.click(function () {
-                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.qbHeadURL + ":");
-                    qb_b.find("input:eq(0)").val(context.target);
-                    qb_b.find("input:eq(2)").val("str_head");
-                    $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
-                    $(this).parents("*.gso_quick_block").hide();
+                    qb_w.attr('data-criteria', context.target);
+                    qb_w.attr('data-type', 'str_head');
+                    qb_w.hide();
+                    gso_quick_block_b(qb_w);
                 });
                 try {
                     domain = context.target.split("/")[2].split(":")[0];
@@ -2123,47 +2180,10 @@ function gso_config_init() {
                     domain = "";
                 }
                 qb2.click(function () {
-                    qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.domain + ":");
-                    qb_b.find("input:eq(0)").val(domain);
-                    qb_b.find("input:eq(2)").val("domain");
-                    $(this).parents("*.gso_quick_block").siblings("*.gso_quick_block_b").show();
-                    $(this).parents("*.gso_quick_block").hide();
-                });
-                qb_b.find("button.gso_qb_sendToRE").click(function() {
-                    $("#gso_rule_target").val("url");
-                    $("#gso_rule_type").val(qb_b.find("input:eq(2)").val());
-                    $("#gso_rule_action").val("hide");
-                    $("#gso_rule_criteria").val(qb_b.find("input:eq(0)").val());
-                    $("#gso_rule_comment").val(qb_b.find("input:eq(1)").val());
-                    $("#gso_rule_enabled").prop("checked", true);
-                    $("#gso_rule_level").val(0);
-                    $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
-                    $("#gso_config").show();
-                });
-                qb_b.find("button.gso_qb_close").click(function() {
-                    qb_b.hide();
-                });
-                jQuery.each(config.rulesets, function(id) {
-                    qb_b.find("select:eq(0)").append(
-                        '<option value="' + id + '">' +
-                            gso_rseditor_rslist_str(id, this.name, this.enabled) +
-                            '</option>');
-                });
-                qb_b.find("button.gso_qb_directAdd").click(function() {
-                    var new_rule = {
-                        "target": "url",
-                        "type": qb_b.find("input:eq(2)").val(),
-                        "action": "hide",
-                        "level": 0,
-                        "criteria": qb_b.find("input:eq(0)").val(),
-                        "comment": qb_b.find("input:eq(1)").val(),
-                        "enabled": true
-                    };
-                    if(!check_rule(new_rule)) return;
-                    config.rulesets[qb_b.find("select:eq(0)").val()].rules.push(new_rule);
-                    $("#gso_ruleset_select").change();
-                    gso_save();
-                    alert(cat[config.config.gso_lang].full.msg.qbAdded);
+                    qb_w.attr('data-criteria', domain);
+                    qb_w.attr('data-type', 'domain');
+                    qb_w.hide();
+                    gso_quick_block_b(qb_w);
                 });
                 
                 $(node).hover(

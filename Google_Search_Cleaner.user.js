@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.198
+// @version        1.3.1.199
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -775,6 +775,7 @@ function gso_quick_block_b(node) {
         $("#gso_rule_level").val(0);
         $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
         $("#gso_config").show();
+        qb_b.remove();
     });
     qb_b.find("button.gso_qb_close").click(function() {
         qb_b.remove();
@@ -800,6 +801,7 @@ function gso_quick_block_b(node) {
         $("#gso_ruleset_select").change();
         gso_save();
         alert(cat[config.config.gso_lang].full.msg.qbAdded);
+        qb_b.remove();
     });
     qb_b.show();
 }

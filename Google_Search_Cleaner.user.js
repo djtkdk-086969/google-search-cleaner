@@ -1,8 +1,10 @@
 ﻿// ==UserScript==
 // @author         たかだか。(TakaDaka.)
 // @name           Google掃除機(仮称)
+// @name:en        Google Search Cleaner (Tentative Name)
 // @namespace      https://twitter.com/djtkdk_086969
 // @description    Googleの検索結果に出て欲しくないページを、条件を指定して非表示にします。
+// @description:en Blocks websites you don't want to see on Google Search, by customizable rules.
 // @require        https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js
 // @include        *://www.google.*/
 // @include        *://www.google.*/?*
@@ -10,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.208
+// @version        1.3.2.210
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -18,6 +20,7 @@
 // @grant          GM_registerMenuCommand
 // @license        GPL v3; http://www.gnu.org/copyleft/gpl.html
 // @homepage       https://twitter.com/djtkdk_086969
+// @supportURL     https://github.com/djtkdk-086969/google-search-cleaner
 // @compatible     firefox
 // @compatible     chrome
 // ==/UserScript==

@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.200
+// @version        1.3.2.207
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -393,6 +393,12 @@ var config_default = {
         'verbose': false,
         'version': GM_info.script.version
     }
+};
+
+var status = {
+    "show_serp": false,
+    "show_img": false,
+    "show_kw": false
 };
 
 /* Utility functions */
@@ -807,6 +813,145 @@ function gso_quick_block_b(node) {
     qb_b.show();
 }
 
+function gso_control_prepare() {
+    /* 結果表示画面の作成 */
+    var node_added = false;
+    if(config.config.message_location == "page") {
+        if($("#gso_control").size() === 0) {
+            var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +
+                             config.config.gso_lang + '"></div>');
+            msg_elem.append('<em>GSC</em>');
+            msg_elem.append('<div id="gso_results_msg_eff"></div>');
+            msg_elem.append('<div id="gso_results_msg_top"></div>');
+            msg_elem.append('<ul style="list-style-type: none;"></ul>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
+            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
+            if($("#hdtb:visible").size() > 0) {
+                msg_elem.addClass("gso_control_embedded2");
+                msg_elem.prependTo("#hdtb");
+            } else {
+                msg_elem.addClass("gso_control_embedded");
+                msg_elem.prependTo("body");
+            }
+            node_added = true;
+        }
+    } else {
+        if($("#gso_config #gso_results_msg_top").size() === 0) {
+            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
+            $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
+            $("#gso_results_msg_top + ul")
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
+                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
+            node_added = true;
+        }
+    }
+    if (node_added) {
+        /* Event handlers */
+        $("#gso_killed_count_s").click(function () {
+            if(status.show_serp) {
+                status.show_serp = false;
+            } else {
+                status.show_serp = true;
+            }
+            update_serp();
+        });
+        $("#gso_killed_count_si").click(function () {
+            if(status.show_img) {
+                status.show_img = false;
+            } else {
+                status.show_img = true;
+            }
+            update_img();
+        });
+        $("#gso_killed_count_k").click(function () {
+            if(status.show_kw) {
+                status.show_kw = false;
+            } else {
+                status.show_kw = true;
+            }
+            update_kw();
+        });
+        $(window).scroll(function () {
+            /* 表示を追従させる */
+            var ctl = $("#gso_control");
+            var minimum_top_ctl = 60;
+
+            if(config.config.float) {
+                if(ctl.parent().is("#hdtb")) {
+                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                        ctl.removeClass("gso_control_embedded2");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && ctl.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded2");
+                    }
+                } else {
+                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
+                        ctl.removeClass("gso_control_embedded");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= minimum_top_ctl && cfg.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded");
+                    }
+                }
+            } else {
+                if(ctl.hasClass("gso_float")) {
+                    ctl.removeClass("gso_float");
+                    ctl.addClass("gso_control_embedded");
+                }
+            }
+        });
+
+
+        /* Hide this if neither #sbtc (Search Box) nor #search (SERP) is present */
+        if($("#sbtc").size() > 0 || $("#search").size() > 0) {
+            $("#gso_control").show();
+        } else {
+            $("#gso_control").hide();
+        }
+        
+
+    }
+
+}
+function update_serp() {
+    if(status.show_serp) {
+        $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
+        $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
+        $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
+        $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
+    } else {
+        $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
+        $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
+        $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
+        $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
+    }
+}
+function update_img() {
+    if(status.show_img) {
+        $("*.gso_killed_serpimg_warn.gso_serp_description_b").show();
+        $("*.gso_killed_serpimg_warn.gso_serp_description_a").hide();
+    } else {
+        $("*.gso_killed_serpimg_warn.gso_serp_description_a").show();
+        $("*.gso_killed_serpimg_warn.gso_serp_description_b").hide();
+    }
+    /* slideToggle ではなんかバグる */
+}
+function update_kw() {
+    if(status.show_kw) {
+        $("span.gso_killed_kw span.gso_serp_description_a").hide();
+        $("span.gso_killed_kw span.gso_serp_description_b").show();
+    } else {
+        $("span.gso_killed_kw span.gso_serp_description_a").show();
+        $("span.gso_killed_kw span.gso_serp_description_b").hide();
+    }
+}
+
+
 /* GM_setValue / GM_getValue */
 function gso_save() {
     /* GM_setValue で現在の設定値(config)を保存する */
@@ -965,11 +1110,6 @@ function gso_config_init() {
     var selector_KW = "div#trev a, div#brs p._e4b > a";
     /* 関連する検索キーワード */
 
-    var status = {
-        "show_serp": false,
-        "show_img": false,
-        "show_kw": false
-    };
     
     function check(url, description, title, keyword, temp_rulesets) {
         /* ルールセットに合致するかどうかチェック
@@ -1275,61 +1415,8 @@ function gso_config_init() {
             .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
 
         cfg_elem.prependTo("body");
-        /* 結果表示 */
-        if(config.config.message_location == "page") {
-            var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +
-                             config.config.gso_lang + '"></div>');
-            msg_elem.append('<em>GSC</em>');
-            msg_elem.append('<div id="gso_results_msg_eff"></div>');
-            msg_elem.append('<div id="gso_results_msg_top"></div>');
-            msg_elem.append('<ul style="list-style-type: none;"></ul>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
-            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-            if($("#hdtb:visible").size() > 0) {
-                msg_elem.addClass("gso_control_embedded2");
-                msg_elem.prependTo("#hdtb");
-            } else {
-                msg_elem.addClass("gso_control_embedded");
-                msg_elem.prependTo("body");
-            }
-        } else {
-            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
-            $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
-            $("#gso_results_msg_top + ul")
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
-                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-
-        }
+        
         /* Event handlers */
-        $("#gso_killed_count_s").click(function () {
-            if(status.show_serp) {
-                status.show_serp = false;
-            } else {
-                status.show_serp = true;
-            }
-            update_serp();
-        });
-        $("#gso_killed_count_si").click(function () {
-            if(status.show_img) {
-                status.show_img = false;
-            } else {
-                status.show_img = true;
-            }
-            update_img();
-        });
-        $("#gso_killed_count_k").click(function () {
-            if(status.show_kw) {
-                status.show_kw = false;
-            } else {
-                status.show_kw = true;
-            }
-            update_kw();
-        });
-
         $("#gso_config_close").click(function () {
             $("#gso_config").toggle();
         });
@@ -1773,30 +1860,10 @@ function gso_config_init() {
         });
         $(window).scroll(function () {
             /* 表示を追従させる */
-            var ctl = $("#gso_control");
             var cfg = $("#gso_config");
-            var minimum_top_ctl = 60;
             var minimum_top_cfg = 0;
 
             if(config.config.float) {
-                if(ctl.parent().is("#hdtb")) {
-                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
-                        ctl.removeClass("gso_control_embedded2");
-                        ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && cfg.hasClass("gso_float")) {
-                        ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded2");
-                    }
-                } else {
-                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
-                        ctl.removeClass("gso_control_embedded");
-                        ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= minimum_top_ctl && cfg.hasClass("gso_float")) {
-                        ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded");
-                    }
-                }
-
                 if($(window).scrollTop() > minimum_top_cfg && cfg.hasClass("gso_config_embedded")) {
                     cfg.removeClass("gso_config_embedded");
                     cfg.addClass("gso_float");
@@ -1805,10 +1872,6 @@ function gso_config_init() {
                     cfg.addClass("gso_config_embedded");
                 }
             } else {
-                if(ctl.hasClass("gso_float")) {
-                    ctl.removeClass("gso_float");
-                    ctl.addClass("gso_control_embedded");
-                }
                 if(cfg.hasClass("gso_float")) {
                     cfg.removeClass("gso_float");
                     cfg.addClass("gso_config_embedded");
@@ -1816,17 +1879,12 @@ function gso_config_init() {
             }
         });
         /* End of event handlers section */
-    }
+    } /* End of #gso_config UI */
+    gso_control_prepare(); /* #gso_control UI */
     /* Initialize Configuration */
     gso_config_init();
     $("#gso_ruleset_select").change();
 
-    if($("#sbtc").size() > 0 || $("#search").size() > 0) {
-        $("#gso_control").show();
-    } else {
-        $("#gso_control").hide();
-    }
-    
     var mo_autocomplete =
         new MutationObserver(function(mutationEventList){
             mutationEventList.forEach(function(mutationEvent) {
@@ -1913,6 +1971,10 @@ function gso_config_init() {
                     });
                     mo_link.observe(node_extrares, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});  
+                }
+                var node_hdtb = mutation.target.querySelector("#hdtb");
+                if (node_hdtb) {
+                    gso_control_prepare(); /* #gso_control UI */
                 }
             }
         });
@@ -2573,38 +2635,6 @@ function gso_config_init() {
         
     }
     
-    function update_serp() {
-        if(status.show_serp) {
-            $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
-            $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
-            $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
-            $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
-        } else {
-            $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
-            $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
-            $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
-            $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
-        }
-    }
-    function update_img() {
-        if(status.show_img) {
-            $("*.gso_killed_serpimg_warn.gso_serp_description_b").show();
-            $("*.gso_killed_serpimg_warn.gso_serp_description_a").hide();
-        } else {
-            $("*.gso_killed_serpimg_warn.gso_serp_description_a").show();
-            $("*.gso_killed_serpimg_warn.gso_serp_description_b").hide();
-        }
-        /* slideToggle ではなんかバグる */
-    }
-    function update_kw() {
-        if(status.show_kw) {
-            $("span.gso_killed_kw span.gso_serp_description_a").hide();
-            $("span.gso_killed_kw span.gso_serp_description_b").show();
-        } else {
-            $("span.gso_killed_kw span.gso_serp_description_a").show();
-            $("span.gso_killed_kw span.gso_serp_description_b").hide();
-        }
-    }
 
     function update_gso_control_msg() {
         /* 結果表示 */

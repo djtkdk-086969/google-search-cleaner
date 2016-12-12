@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.206
+// @version        1.3.2.207
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -849,7 +849,6 @@ function gso_control_prepare() {
             node_added = true;
         }
     }
-    console.log("Node added:", node_added);
     if (node_added) {
         /* Event handlers */
         $("#gso_killed_count_s").click(function () {
@@ -1881,7 +1880,6 @@ function gso_config_init() {
         });
         /* End of event handlers section */
     } /* End of #gso_config UI */
-    console.log("gso_control_prepare() [Initial]")
     gso_control_prepare(); /* #gso_control UI */
     /* Initialize Configuration */
     gso_config_init();
@@ -1976,7 +1974,6 @@ function gso_config_init() {
                 }
                 var node_hdtb = mutation.target.querySelector("#hdtb");
                 if (node_hdtb) {
-                    console.log("gso_control_prepare() [from MO]")
                     gso_control_prepare(); /* #gso_control UI */
                 }
             }

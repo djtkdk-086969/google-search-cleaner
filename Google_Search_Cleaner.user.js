@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.203
+// @version        1.3.1.204
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -869,6 +869,38 @@ function gso_control_prepare() {
             }
             update_kw();
         });
+        $(window).scroll(function () {
+            /* 表示を追従させる */
+            var ctl = $("#gso_control");
+            var minimum_top_ctl = 60;
+
+            if(config.config.float) {
+                if(ctl.parent().is("#hdtb")) {
+                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                        ctl.removeClass("gso_control_embedded2");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && cfg.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded2");
+                    }
+                } else {
+                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
+                        ctl.removeClass("gso_control_embedded");
+                        ctl.addClass("gso_float");
+                    } else if($(window).scrollTop() <= minimum_top_ctl && cfg.hasClass("gso_float")) {
+                        ctl.removeClass("gso_float");
+                        ctl.addClass("gso_control_embedded");
+                    }
+                }
+            } else {
+                if(ctl.hasClass("gso_float")) {
+                    ctl.removeClass("gso_float");
+                    ctl.addClass("gso_control_embedded");
+                }
+            }
+        });
+
+
         /* Hide this if neither #sbtc (Search Box) nor #search (SERP) is present */
         if($("#sbtc").size() > 0 || $("#search").size() > 0) {
             $("#gso_control").show();
@@ -1794,30 +1826,10 @@ function gso_config_init() {
         });
         $(window).scroll(function () {
             /* 表示を追従させる */
-            var ctl = $("#gso_control");
             var cfg = $("#gso_config");
-            var minimum_top_ctl = 60;
             var minimum_top_cfg = 0;
 
             if(config.config.float) {
-                if(ctl.parent().is("#hdtb")) {
-                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
-                        ctl.removeClass("gso_control_embedded2");
-                        ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && cfg.hasClass("gso_float")) {
-                        ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded2");
-                    }
-                } else {
-                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
-                        ctl.removeClass("gso_control_embedded");
-                        ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= minimum_top_ctl && cfg.hasClass("gso_float")) {
-                        ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded");
-                    }
-                }
-
                 if($(window).scrollTop() > minimum_top_cfg && cfg.hasClass("gso_config_embedded")) {
                     cfg.removeClass("gso_config_embedded");
                     cfg.addClass("gso_float");
@@ -1826,10 +1838,6 @@ function gso_config_init() {
                     cfg.addClass("gso_config_embedded");
                 }
             } else {
-                if(ctl.hasClass("gso_float")) {
-                    ctl.removeClass("gso_float");
-                    ctl.addClass("gso_control_embedded");
-                }
                 if(cfg.hasClass("gso_float")) {
                     cfg.removeClass("gso_float");
                     cfg.addClass("gso_config_embedded");

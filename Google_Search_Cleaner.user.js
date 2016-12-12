@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.201
+// @version        1.3.1.202
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -807,6 +807,72 @@ function gso_quick_block_b(node) {
     qb_b.show();
 }
 
+function gso_control_prepare() {
+    /* 結果表示画面の作成 */
+    var node_added = false;
+    if(config.config.message_location == "page") {
+        if($("#gso_control").size() === 0) {
+            var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +
+                             config.config.gso_lang + '"></div>');
+            msg_elem.append('<em>GSC</em>');
+            msg_elem.append('<div id="gso_results_msg_eff"></div>');
+            msg_elem.append('<div id="gso_results_msg_top"></div>');
+            msg_elem.append('<ul style="list-style-type: none;"></ul>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
+            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
+            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
+            if($("#hdtb:visible").size() > 0) {
+                msg_elem.addClass("gso_control_embedded2");
+                msg_elem.prependTo("#hdtb");
+            } else {
+                msg_elem.addClass("gso_control_embedded");
+                msg_elem.prependTo("body");
+            }
+            node_added = true;
+        }
+    } else {
+        if($("#gso_config #gso_results_msg_top").size() === 0) {
+            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
+            $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
+            $("#gso_results_msg_top + ul")
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
+                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
+            node_added = true;
+        }
+    }
+    /* Event handlers */
+    if (node_added) {
+        $("#gso_killed_count_s").click(function () {
+            if(status.show_serp) {
+                status.show_serp = false;
+            } else {
+                status.show_serp = true;
+            }
+            update_serp();
+        });
+        $("#gso_killed_count_si").click(function () {
+            if(status.show_img) {
+                status.show_img = false;
+            } else {
+                status.show_img = true;
+            }
+            update_img();
+        });
+        $("#gso_killed_count_k").click(function () {
+            if(status.show_kw) {
+                status.show_kw = false;
+            } else {
+                status.show_kw = true;
+            }
+            update_kw();
+        });
+    }
+
+}
+
 /* GM_setValue / GM_getValue */
 function gso_save() {
     /* GM_setValue で現在の設定値(config)を保存する */
@@ -1275,63 +1341,8 @@ function gso_config_init() {
             .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
 
         cfg_elem.prependTo("body");
-    }
-    if($("#gso_control").size() === 0) {
-        /* 結果表示 */
-        if(config.config.message_location == "page") {
-            var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +
-                             config.config.gso_lang + '"></div>');
-            msg_elem.append('<em>GSC</em>');
-            msg_elem.append('<div id="gso_results_msg_eff"></div>');
-            msg_elem.append('<div id="gso_results_msg_top"></div>');
-            msg_elem.append('<ul style="list-style-type: none;"></ul>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
-            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-            if($("#hdtb:visible").size() > 0) {
-                msg_elem.addClass("gso_control_embedded2");
-                msg_elem.prependTo("#hdtb");
-            } else {
-                msg_elem.addClass("gso_control_embedded");
-                msg_elem.prependTo("body");
-            }
-        } else {
-            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
-            $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
-            $("#gso_results_msg_top + ul")
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
-                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-
-        }
+        
         /* Event handlers */
-        $("#gso_killed_count_s").click(function () {
-            if(status.show_serp) {
-                status.show_serp = false;
-            } else {
-                status.show_serp = true;
-            }
-            update_serp();
-        });
-        $("#gso_killed_count_si").click(function () {
-            if(status.show_img) {
-                status.show_img = false;
-            } else {
-                status.show_img = true;
-            }
-            update_img();
-        });
-        $("#gso_killed_count_k").click(function () {
-            if(status.show_kw) {
-                status.show_kw = false;
-            } else {
-                status.show_kw = true;
-            }
-            update_kw();
-        });
-
         $("#gso_config_close").click(function () {
             $("#gso_config").toggle();
         });
@@ -1818,7 +1829,8 @@ function gso_config_init() {
             }
         });
         /* End of event handlers section */
-    }
+    } /* End of #gso_config UI */
+    gso_control_prepare(); /* #gso_control UI */
     /* Initialize Configuration */
     gso_config_init();
     $("#gso_ruleset_select").change();
@@ -1915,6 +1927,10 @@ function gso_config_init() {
                     });
                     mo_link.observe(node_extrares, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});  
+                }
+                var node_hdtb = mutation.target.querySelector("#hdtb");
+                if (node_hdtb) {
+                    gso_control_prepare(); /* #gso_control UI */
                 }
             }
         });

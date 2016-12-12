@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.207
+// @version        1.3.2.208
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1060,7 +1060,7 @@ function gso_config_init() {
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
     GM_addStyle("*.gso_quick_block_wnd {font-size: smaller; position: absolute; background-color: silver; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
-    GM_addStyle("*.gso_float { position: fixed; top: 0px; }");
+    GM_addStyle("*.gso_float { position: fixed; top: 0px; opacity: 0.5;} *.gso_float:hover {opacity: 1;}");
     GM_addStyle("*.gso_control_embedded { position: absolute; top: 60px; }");
     GM_addStyle("*.gso_control_embedded2 { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");

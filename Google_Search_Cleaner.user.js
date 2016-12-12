@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.204
+// @version        1.3.1.206
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -393,6 +393,12 @@ var config_default = {
         'verbose': false,
         'version': GM_info.script.version
     }
+};
+
+var status = {
+    "show_serp": false,
+    "show_img": false,
+    "show_kw": false
 };
 
 /* Utility functions */
@@ -843,6 +849,7 @@ function gso_control_prepare() {
             node_added = true;
         }
     }
+    console.log("Node added:", node_added);
     if (node_added) {
         /* Event handlers */
         $("#gso_killed_count_s").click(function () {
@@ -879,7 +886,7 @@ function gso_control_prepare() {
                     if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
                         ctl.removeClass("gso_control_embedded2");
                         ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && cfg.hasClass("gso_float")) {
+                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && ctl.hasClass("gso_float")) {
                         ctl.removeClass("gso_float");
                         ctl.addClass("gso_control_embedded2");
                     }
@@ -912,6 +919,39 @@ function gso_control_prepare() {
     }
 
 }
+function update_serp() {
+    if(status.show_serp) {
+        $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
+        $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
+        $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
+        $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
+    } else {
+        $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
+        $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
+        $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
+        $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
+    }
+}
+function update_img() {
+    if(status.show_img) {
+        $("*.gso_killed_serpimg_warn.gso_serp_description_b").show();
+        $("*.gso_killed_serpimg_warn.gso_serp_description_a").hide();
+    } else {
+        $("*.gso_killed_serpimg_warn.gso_serp_description_a").show();
+        $("*.gso_killed_serpimg_warn.gso_serp_description_b").hide();
+    }
+    /* slideToggle ではなんかバグる */
+}
+function update_kw() {
+    if(status.show_kw) {
+        $("span.gso_killed_kw span.gso_serp_description_a").hide();
+        $("span.gso_killed_kw span.gso_serp_description_b").show();
+    } else {
+        $("span.gso_killed_kw span.gso_serp_description_a").show();
+        $("span.gso_killed_kw span.gso_serp_description_b").hide();
+    }
+}
+
 
 /* GM_setValue / GM_getValue */
 function gso_save() {
@@ -1071,11 +1111,6 @@ function gso_config_init() {
     var selector_KW = "div#trev a, div#brs p._e4b > a";
     /* 関連する検索キーワード */
 
-    var status = {
-        "show_serp": false,
-        "show_img": false,
-        "show_kw": false
-    };
     
     function check(url, description, title, keyword, temp_rulesets) {
         /* ルールセットに合致するかどうかチェック
@@ -1846,6 +1881,7 @@ function gso_config_init() {
         });
         /* End of event handlers section */
     } /* End of #gso_config UI */
+    console.log("gso_control_prepare() [Initial]")
     gso_control_prepare(); /* #gso_control UI */
     /* Initialize Configuration */
     gso_config_init();
@@ -1940,6 +1976,7 @@ function gso_config_init() {
                 }
                 var node_hdtb = mutation.target.querySelector("#hdtb");
                 if (node_hdtb) {
+                    console.log("gso_control_prepare() [from MO]")
                     gso_control_prepare(); /* #gso_control UI */
                 }
             }
@@ -2601,38 +2638,6 @@ function gso_config_init() {
         
     }
     
-    function update_serp() {
-        if(status.show_serp) {
-            $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
-            $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
-            $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
-            $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
-        } else {
-            $("*.gso_serp_description_a:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").show();
-            $("*.gso_serp_description_b:not(*.gso_ani,*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").hide();
-            $("*.gso_serp_description_a.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideDown("fast");
-            $("*.gso_serp_description_b.gso_ani:not(*.gso_killed_kw_bad,*.gso_killed_kw_placeholder,*.gso_killed_serpimg_warn)").slideUp("fast");
-        }
-    }
-    function update_img() {
-        if(status.show_img) {
-            $("*.gso_killed_serpimg_warn.gso_serp_description_b").show();
-            $("*.gso_killed_serpimg_warn.gso_serp_description_a").hide();
-        } else {
-            $("*.gso_killed_serpimg_warn.gso_serp_description_a").show();
-            $("*.gso_killed_serpimg_warn.gso_serp_description_b").hide();
-        }
-        /* slideToggle ではなんかバグる */
-    }
-    function update_kw() {
-        if(status.show_kw) {
-            $("span.gso_killed_kw span.gso_serp_description_a").hide();
-            $("span.gso_killed_kw span.gso_serp_description_b").show();
-        } else {
-            $("span.gso_killed_kw span.gso_serp_description_a").show();
-            $("span.gso_killed_kw span.gso_serp_description_b").hide();
-        }
-    }
 
     function update_gso_control_msg() {
         /* 結果表示 */

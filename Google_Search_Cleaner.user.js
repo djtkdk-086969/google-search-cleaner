@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.202
+// @version        1.3.1.203
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -843,8 +843,8 @@ function gso_control_prepare() {
             node_added = true;
         }
     }
-    /* Event handlers */
     if (node_added) {
+        /* Event handlers */
         $("#gso_killed_count_s").click(function () {
             if(status.show_serp) {
                 status.show_serp = false;
@@ -869,6 +869,14 @@ function gso_control_prepare() {
             }
             update_kw();
         });
+        /* Hide this if neither #sbtc (Search Box) nor #search (SERP) is present */
+        if($("#sbtc").size() > 0 || $("#search").size() > 0) {
+            $("#gso_control").show();
+        } else {
+            $("#gso_control").hide();
+        }
+        
+
     }
 
 }
@@ -1835,12 +1843,6 @@ function gso_config_init() {
     gso_config_init();
     $("#gso_ruleset_select").change();
 
-    if($("#sbtc").size() > 0 || $("#search").size() > 0) {
-        $("#gso_control").show();
-    } else {
-        $("#gso_control").hide();
-    }
-    
     var mo_autocomplete =
         new MutationObserver(function(mutationEventList){
             mutationEventList.forEach(function(mutationEvent) {

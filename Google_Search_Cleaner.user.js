@@ -10,7 +10,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.1.200
+// @version        1.3.1.201
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1275,6 +1275,8 @@ function gso_config_init() {
             .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
 
         cfg_elem.prependTo("body");
+    }
+    if($("#gso_control").size() === 0) {
         /* 結果表示 */
         if(config.config.message_location == "page") {
             var msg_elem = $('<div id="gso_control" class="gso_control_msg" style="display: none;" lang="' +

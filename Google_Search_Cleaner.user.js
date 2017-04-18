@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.221
+// @version        1.4.0.222
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue

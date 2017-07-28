@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.225
+// @version        1.3.2.226
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1113,7 +1113,7 @@ function gso_config_init() {
 
     GM_registerMenuCommand(cat[config.config.gso_lang].full.msg.GscConfigMenu, gso_rseditor_toggle);
     GM_addStyle("span.gso_killed_serp_msg { color: silver; margin: 0 0; }");
-    GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: 0.60em; top: 0px; left: 0px;}");
+    GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: small; top: 0px; left: 0px;}");
     GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
     GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
     GM_addStyle("span.gso_killed_kw_bad {text-decoration: line-through; white-space: nowrap;}");

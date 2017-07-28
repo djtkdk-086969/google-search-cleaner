@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.220
+// @version        1.3.2.225
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -832,9 +832,10 @@ function gso_control_prepare() {
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
             msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
             msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-            if($("#hdtb").size() > 0) {
+            if($("#before-appbar").size() > 0) {
                 msg_elem.addClass("gso_control_embedded2");
-                msg_elem.prependTo("#hdtb");
+                msg_elem.prependTo("#before-appbar");
+                $("#gso_control").wrap("<div class='gso_dummy'></div>");
             } else {
                 msg_elem.addClass("gso_control_embedded");
                 msg_elem.prependTo("body");
@@ -886,11 +887,11 @@ function gso_control_prepare() {
             var minimum_top_ctl = 60;
 
             if(config.config.float) {
-                if(ctl.parent().is("#hdtb")) {
-                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                if(ctl.parents("#before-appbar").size()) {
+                    if($(window).scrollTop() > $("#before-appbar").offset().top && ctl.hasClass("gso_control_embedded2")) {
                         ctl.removeClass("gso_control_embedded2");
                         ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && ctl.hasClass("gso_float")) {
+                    } else if($(window).scrollTop() <= $("#before-appbar").offset().top && ctl.hasClass("gso_float")) {
                         ctl.removeClass("gso_float");
                         ctl.addClass("gso_control_embedded2");
                     }
@@ -1138,6 +1139,7 @@ function gso_config_init() {
     GM_addStyle("tr.gso_log_a {background-color: inherit;}");
     GM_addStyle("tr.gso_log_b {background-color: whitesmoke;}");
     GM_addStyle("*.gso_log_overridden {text-decoration: line-through; color: silver;}");
+    GM_addStyle("div.gso_dummy {position: relative;}");
 
     var selector_SERP =
         "div.rc:has(h3.r > a)," +
@@ -2039,8 +2041,8 @@ function gso_config_init() {
                     mo_link.observe(node_extrares, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});  
                 }
-                var node_hdtb = mutation.target.querySelector("#hdtb");
-                if (node_hdtb) {
+                var target_node_gsoctl = mutation.target.querySelector("#before-appbar");
+                if (target_node_gsoctl) {
                     gso_control_prepare(); /* #gso_control UI */
                 }
             }

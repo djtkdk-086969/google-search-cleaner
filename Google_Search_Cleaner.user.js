@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.0.264
+// @version        1.4.0.265
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -907,6 +907,8 @@ function gso_control_prepare() {
             /* 表示を追従させる */
             var ctl = $("#gso_resultWnd");
             var minimum_top_ctl = 60;
+            var isIschMode = false;
+            isIschMode = (location.href.search("&tbm=isch&") >= 0);
 
             if(config.config.float) {
                 if(ctl.parents("#hdtb").size()) {
@@ -925,6 +927,12 @@ function gso_control_prepare() {
                         ctl.removeClass("gso_float");
                         ctl.addClass("gso_control_embedded");
                     }
+                }
+                /* 画像検索 かつ 左上に固定(gso_float)のとき半透明にする */
+                if(ctl.hasClass("gso_float") && isIschMode) {
+                    ctl.addClass("gso_semitr");
+                } else {
+                    ctl.removeClass("gso_semitr");
                 }
             } else {
                 if(ctl.hasClass("gso_float")) {

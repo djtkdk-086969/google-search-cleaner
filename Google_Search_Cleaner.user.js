@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.3.2.226
+// @version        1.4.0.264
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -174,13 +174,16 @@ var cat = {
                 "block": "ブロック",
                 "domain": "ドメイン",
                 "excludedKeyword": "マイナス検索による除外",
+                "ctlmsgWndIK": "未指定",
                 "ctlmsgSERP": "検索結果",
                 "ctlmsgIMG": "画像",
                 "ctlmsgKW": "関連語句",
-                "ctlmsgMIS": "検索語句無視!",
+                "ctlmsgMIS": "検索語句無視が %1 件発生しています",
+                "ctlmsgSuggest": "%1 件の自動補完をブロックしました",
                 "ctlmsgVerbatim": "完全一致で再検索",
-                "ctlmsgGood": "検索結果に問題なし",
-                "ctlmsgBad": "検索結果を処理済",
+                "ctlmsgNoSERP": "検索結果が表示されていません",
+                "ctlmsgGood": "処理対象となった検索結果はありません",
+                "ctlmsgBad": "次の要素がルールセットに合致し処理されました",
                 "ctlmsgBadB": "(クリックで切替)",
                 "qbCreateNewRule": "新規ルールを作成します",
                 "qbAddTo": "追加先",
@@ -338,13 +341,16 @@ var cat = {
                 "block": "Block",
                 "domain": "Domain",
                 "excludedKeyword": "Minus Search Exclusion",
+                "ctlmsgWndIK": "Missing",
                 "ctlmsgSERP": "Results",
                 "ctlmsgIMG": "Images",
                 "ctlmsgKW": "Keywords",
-                "ctlmsgMIS": "Ignored Keywords!",
+                "ctlmsgMIS": "%1 keyword ignoring (Missing) occurred.",
+                "ctlmsgSuggest": "Blocked %1 autocomplete(s).",
                 "ctlmsgVerbatim": "Search Verbatim",
-                "ctlmsgGood": "No problem",
-                "ctlmsgBad": "Processed the results",
+                "ctlmsgNoSERP": "No search results displayed.",
+                "ctlmsgGood": "No search results processed.",
+                "ctlmsgBad": "The following elements matched with the rulesets and have been processed.",
                 "ctlmsgBadB": "(Click to toggle)",
                 "qbCreateNewRule": "Creating a New Rule",
                 "qbAddTo": "Add to",
@@ -822,36 +828,52 @@ function gso_control_prepare() {
     if(config.config.message_location == "page") {
         if($("#gso_control").size() === 0) {
             //console.log("GSC: Results window (page) created.");
-            var msg_elem = $('<div id="gso_control" class="gso_control_msg gso_semitr" style="display: none;" lang="' +
-                             config.config.gso_lang + '"></div>');
-            msg_elem.append('<em>GSC</em>');
+            var msg_elem = $('<div id="gso_resultWnd"></div>');
+            msg_elem.append('<em>GSC</em> <span id="gso_resultWnd_icon" class="gso_emoji">-</span><span id="gso_resultWnd_count">-</span><span id="gso_resultWnd_IKcount" class="gso_resultWnd_IKcount" style="display: none;">Missing</span>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
-            msg_elem.append('<div id="gso_results_msg_top"></div>');
-            msg_elem.append('<ul style="list-style-type: none;"></ul>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
-            msg_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
-            msg_elem.find("ul").append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
-            if($("#before-appbar").size() > 0) {
+            msg_elem.append('<div class="gso_dummy"></div>'); /* dummy */
+            if($("#hdtb").size() > 0) {
                 msg_elem.addClass("gso_control_embedded2");
-                msg_elem.prependTo("#before-appbar");
-                $("#gso_control").wrap("<div class='gso_dummy'></div>");
+                msg_elem.prependTo("#hdtb");
             } else {
                 msg_elem.addClass("gso_control_embedded");
                 msg_elem.prependTo("body");
             }
+            var ctl_elem = $('<div id="gso_control" class="gso_control_msg" style="position: absolute; display: none;" lang="' +
+                             config.config.gso_lang + '"></div>');
+            ctl_elem.append('<div id="gso_results_msg_top">' + cat[config.config.gso_lang].full.msg.ctlmsgNoSERP + '</div>');
+            ctl_elem.append('<ul style="list-style-type: none;"></ul>');
+            ctl_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>');
+            ctl_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>');
+            ctl_elem.find("ul").append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
+            ctl_elem.append('<div id="gso_results_msg_ik"><hr><span id="gso_count_ik">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</span></div>');
+            ctl_elem.append('<div id="gso_results_msg_suggest"><hr><span id="gso_count_suggest">' + cat[config.config.gso_lang].full.msg.ctlmsgSuggest + '</span></div>');
+            ctl_elem.prependTo("#gso_resultWnd div.gso_dummy");
             node_added = true;
+            $("#gso_resultWnd").hover(
+                function () {
+                    /* IN */
+                    $("#gso_control").show();
+                },
+                function () {
+                    /* OUT(do nothing) */
+                    $("#gso_control").hide();
+
+                }
+            );
         }
     } else {
         if($("#gso_config #gso_results_msg_top").size() === 0) {
             //console.log("GSC: Results window (config) created.");
-            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top"></div>');
+            $("#gso_config fieldset:first").before('<div id="gso_results_msg_top">' + cat[config.config.gso_lang].full.msg.ctlmsgNoSERP + '</div>');
             $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
             $("#gso_results_msg_top + ul")
                 .append('<li style="display:none"><button type="button" id="gso_killed_count_s" class="gso_control_buttons">R</button></li>')
                 .append('<li style="display:none"><button type="button" id="gso_killed_count_si" class="gso_control_buttons">I</button></li>')
-                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>')
-                .append('<li id="gso_count_ik" style="display:none">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</li>');
+                .append('<li style="display:none"><button type="button" id="gso_killed_count_k" class="gso_control_buttons">S</button></li>');
+            $("#gso_results_msg_top + ul")
+                .after('<div id="gso_results_msg_ik"><hr><span id="gso_count_ik">' + cat[config.config.gso_lang].full.msg.ctlmsgMIS + '</span></div>')
+                .after('<div id="gso_results_msg_suggest"><hr><span id="gso_count_suggest">' + cat[config.config.gso_lang].full.msg.ctlmsgSuggest + '</span></div>');
             node_added = true;
         }
     }
@@ -883,15 +905,15 @@ function gso_control_prepare() {
         });
         $(window).scroll(function () {
             /* 表示を追従させる */
-            var ctl = $("#gso_control");
+            var ctl = $("#gso_resultWnd");
             var minimum_top_ctl = 60;
 
             if(config.config.float) {
-                if(ctl.parents("#before-appbar").size()) {
-                    if($(window).scrollTop() > $("#before-appbar").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                if(ctl.parents("#hdtb").size()) {
+                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
                         ctl.removeClass("gso_control_embedded2");
                         ctl.addClass("gso_float");
-                    } else if($(window).scrollTop() <= $("#before-appbar").offset().top && ctl.hasClass("gso_float")) {
+                    } else if($(window).scrollTop() <= $("#hdtb").offset().top && ctl.hasClass("gso_float")) {
                         ctl.removeClass("gso_float");
                         ctl.addClass("gso_control_embedded2");
                     }
@@ -915,14 +937,12 @@ function gso_control_prepare() {
         /* Make sure the Results screen is updated */
         update_gso_control_msg();
 
-        /* Hide this if neither #sbtc (Search Box) nor #search (SERP) is present */
+        /* Hide Results Window if neither #sbtc (Search Box) nor #search (SERP) is present */
         if($("#sbtc").size() > 0 || $("#search").size() > 0) {
-            $("#gso_control").show();
+            $("#gso_resultWnd").show();
         } else {
-            $("#gso_control").hide();
+            $("#gso_resultWnd").hide();
         }
-        
-
     }
 
 }
@@ -930,12 +950,14 @@ function gso_control_prepare() {
 function update_gso_control_msg() {
     //console.log("update_gso_control_msg()");
     /* 結果表示 */
+
     var count_totalSERP = $("*.gso_killed_serp").size();
     var count_totalSERPdesc = $("*.gso_titleonly_serp").size();
     var count_totalSERPimg = $("*.gso_killed_serpimg").size();
     var count_totalKW = $("*.gso_killed_kw").size();
     var count_totalIK = $("span.gso_ignored_kw:visible").size();
 
+    $("#gso_resultWnd_count").html(count_totalSERP + count_totalSERPdesc + count_totalSERPimg + count_totalKW);
     $("#gso_killed_count_s").html(cat[config.config.gso_lang].full.msg.ctlmsgSERP + ": " + (count_totalSERP + count_totalSERPdesc));
     $("#gso_killed_count_si").html(cat[config.config.gso_lang].full.msg.ctlmsgIMG + ": " + count_totalSERPimg);
     $("#gso_killed_count_k").html(cat[config.config.gso_lang].full.msg.ctlmsgKW + ": " + count_totalKW);
@@ -955,33 +977,61 @@ function update_gso_control_msg() {
     } else {
         $("#gso_killed_count_k").parent().hide();
     }
-    if(count_totalIK > 0) {
-        if(config.config.message_location == "page") {
-            $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS + " [" + count_totalIK + "]<br>" +
+
+    if(config.config.message_location == "page") {
+        if(count_totalIK > 0) {
+            $("#gso_resultWnd_IKcount").show();
+            $("#gso_resultWnd_IKcount").html(cat[config.config.gso_lang].full.msg.ctlmsgWndIK + " " + count_totalIK);
+            $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS.replace("%1", count_totalIK) + "<br>" +
                                     "<a href='" + location.href + "&tbs=li:1'>" +
                                     cat[config.config.gso_lang].full.msg.ctlmsgVerbatim + "</a>");
+            $("#gso_results_msg_ik").show();
         } else {
-            $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS + " [" + count_totalIK + "] " +
-                                    "<a href='" + location.href + "&tbs=li:1'>" +
-                                    cat[config.config.gso_lang].full.msg.ctlmsgVerbatim + "</a>");
+            $("#gso_resultWnd_IKcount").hide();
+            $("#gso_results_msg_ik").hide();
         }
-        $("#gso_count_ik").show();
-    } else {
-        $("#gso_count_ik").hide();
-    }
-    if(count_totalSERP > 0 ||
-       count_totalSERPdesc > 0 ||
-       count_totalSERPimg > 0 ||
-       count_totalKW > 0) {
-        if(config.config.message_location == "page") {
-            $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad + "<br>" + cat[config.config.gso_lang].full.msg.ctlmsgBadB);
+        if(count_totalKWSuggest > 0) {
+            $("#gso_count_suggest").html(cat[config.config.gso_lang].full.msg.ctlmsgSuggest.replace("%1", count_totalKWSuggest));
+            $("#gso_results_msg_suggest").show();
         } else {
+            $("#gso_results_msg_suggest").hide();
+        }
+        if(count_totalSERP > 0 ||
+           count_totalSERPdesc > 0 ||
+           count_totalSERPimg > 0 ||
+           count_totalKW > 0) {
+                $("#gso_resultWnd_icon").html("&#x26D4;");
+                $("#gso_resultWnd_count").show();
+                $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad);
+        } else {
+            $("#gso_resultWnd_icon").html("&#x2714;");
+            $("#gso_resultWnd_count").hide();
+            $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgGood);
+        }
+    } else {
+        if(count_totalIK > 0) {
+            $("#gso_count_ik").html(cat[config.config.gso_lang].full.msg.ctlmsgMIS.replace("%1", count_totalIK) +
+                                        "<a href='" + location.href + "&tbs=li:1'>" +
+                                        cat[config.config.gso_lang].full.msg.ctlmsgVerbatim + "</a>");
+            $("#gso_count_ik").show();
+        } else {
+            $("#gso_resultWnd_IKcount").hide();
+            $("#gso_count_ik").hide();
+        }
+        if(count_totalKWSuggest > 0) {
+            $("#gso_count_suggest").html(cat[config.config.gso_lang].full.msg.ctlmsgSuggest.replace("%1", count_totalKWSuggest));
+            $("#gso_results_msg_suggest").show();
+        } else {
+            $("#gso_results_msg_suggest").hide();
+        }
+        if(count_totalSERP > 0 ||
+           count_totalSERPdesc > 0 ||
+           count_totalSERPimg > 0 ||
+           count_totalKW > 0) {
             $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad + cat[config.config.gso_lang].full.msg.ctlmsgBadB);
+        } else {
+            $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgGood);
         }
-    } else if(count_totalIK > 0) {
-        $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad);
-    } else {
-        $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgGood);
     }
 }
 
@@ -1107,6 +1157,9 @@ function gso_config_init() {
     });
 }
 
+/* Global variables */
+var count_totalKWSuggest = 0;
+
 (function() {
     console.log("Google Search Cleaner " + GM_info.script.version + " started.");
     gso_load(); /* 設定を読み込む */
@@ -1120,8 +1173,10 @@ function gso_config_init() {
     GM_addStyle("span.gso_killed_kw_placeholder {color: white; background-color: darkgray; white-space: nowrap; border-radius: 3px/3px; padding: 1px;}");
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
-    GM_addStyle("#gso_control { left: 0px; z-index: 999; width: 120px; background-color: white; border: 1px solid black; text-align: center; }");
+    GM_addStyle("#gso_control { left: -3px; z-index: 999; width: 128px; padding: 3px; background-color: white; border: 1px solid black; }");
+    GM_addStyle("#gso_resultWnd { left: 0px; top: 0px; padding: 2px; z-index: 999; background-color: white; border: 1px solid black; }");
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
+    GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; font-size: x-small;}");
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
@@ -1140,6 +1195,7 @@ function gso_config_init() {
     GM_addStyle("tr.gso_log_b {background-color: whitesmoke;}");
     GM_addStyle("*.gso_log_overridden {text-decoration: line-through; color: silver;}");
     GM_addStyle("div.gso_dummy {position: relative;}");
+    GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
     var selector_SERP =
         "div.rc:has(h3.r > a)," +
@@ -2041,7 +2097,7 @@ function gso_config_init() {
                     mo_link.observe(node_extrares, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});  
                 }
-                var target_node_gsoctl = mutation.target.querySelector("#before-appbar");
+                var target_node_gsoctl = mutation.target.querySelector("#hdtb");
                 if (target_node_gsoctl) {
                     gso_control_prepare(); /* #gso_control UI */
                 }
@@ -2206,9 +2262,9 @@ function gso_config_init() {
                     if(applied_rule.rule.comment !== "" &&
                        !applied_rule.rule.comment.startsWith("#") &&
                        config.config.ruleset_name_with_comment) {
-                        new_desc.html("&#x26A0; " + ruleset_name + " [" + applied_rule.rule.comment + "]");
+                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
                     } else {
-                        new_desc.html("&#x26A0; " + ruleset_name);
+                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name);
                     }
                     new_desc.insertBefore(original_desc);
                     original_desc.addClass("gso_serp_description_b gso_ani");
@@ -2219,9 +2275,9 @@ function gso_config_init() {
                     if(applied_rule.rule.comment !== "" &&
                        !applied_rule.rule.comment.startsWith("#") &&
                        config.config.ruleset_name_with_comment) {
-                        new_desc.html("&#x26A0; " + ruleset_name + " [" + applied_rule.rule.comment + "]");
+                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
                     } else {
-                        new_desc.html("&#x26A0; " + ruleset_name);
+                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name);
                     }
                     new_desc.insertBefore(original_desc);
                     $(node).addClass("gso_titleonly_serp");
@@ -2399,14 +2455,14 @@ function gso_config_init() {
                         $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp"></div>');
                         if(applied_rule.rule.action == "hide") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("&#x26A0; " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
                             $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp gso_serp_description_a"></div>');
                         }
                         if(applied_rule.rule.action == "hide_description_warn" ||
                            applied_rule.rule.action == "warn") {
                             $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("&#x26A0; " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
                         }
                         if(applied_rule.rule.action == "hide_absolutely") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
@@ -2507,13 +2563,13 @@ function gso_config_init() {
 
                         if(applied_rule.rule.action == "hide") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("&#x26A0; " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
                             $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_isch gso_serp_description_a"></div>');
                         }
                         if(applied_rule.rule.action == "hide_description_warn" ||
                            applied_rule.rule.action == "warn") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("&#x26A0; " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
                             $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
                         }
                         if(applied_rule.rule.action == "hide_absolutely") {
@@ -2688,6 +2744,8 @@ function gso_config_init() {
                     });
                 });
                 if(applied_rule.rule.action != "allow") {
+                    count_totalKWSuggest++;
+                    update_gso_control_msg();
                     $(this).addClass("gso_killed_kw_autocomplete");
                     $("#gso_results_msg_eff").show().fadeOut("slow");
                 } else {

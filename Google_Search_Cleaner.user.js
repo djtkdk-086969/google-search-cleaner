@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.0.265
+// @version        1.4.0.266
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -413,7 +413,12 @@ var gso_control_status = {
 /* Utility functions */
 
 function escapeRegexp(string) {
+    /* 
+    //Emacs(24)でシンタックスハイライトがこの行以降正常に機能しないため構文を変更
     return string.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1");
+    */
+    var escaped_char = new RegExp("([.*+?^=!:${}()|[\\]\\/\\\\])","g");
+    return string.replace(escapedChar, "\\$1");
 }
 function chk_str(target, ref, method) {
     /*

@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.0.267
+// @version        1.4.0.281
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -131,11 +131,11 @@ var cat = {
                 "importFromFile": "ファイルからインポートして現在のルールセットに追加",
                 "exportSelected": "選択範囲をエクスポート",
                 "urlList": "URLリスト(不完全)",
-                "activityLog": "活動ログ",
+                "activityLog": "ログ",
                 "clear": "クリア",
                 "pointForDetails": '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。',
                 "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
-                "configMisc": "その他の設定",
+                "configMisc": "設定",
                 "configLang": "言語",
                 "configMessageLocation": "メッセージの場所",
                 "configQuickBlock": "検索結果にクイックブロックボタンを表示",
@@ -298,11 +298,11 @@ var cat = {
                 "importFromFile": "Import rules from file and add them to the current ruleset",
                 "exportSelected": "Export selection",
                 "urlList": "URL List (Incomplete)",
-                "activityLog": "Activity Log",
+                "activityLog": "Log",
                 "clear": "Clear",
                 "pointForDetails": 'Point <span style="background-color: silver;">…</span> to show details.',
                 "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
-                "configMisc": "Miscellaneous Configurations",
+                "configMisc": "Preferences",
                 "configLang": "Language",
                 "configMessageLocation": "Message location",
                 "configQuickBlock": "Show Quick Block buttons on the SERP",
@@ -317,7 +317,7 @@ var cat = {
                 "configAnimation": "Animation",
                 "configMessageLocationPage": "Top-Left of the page",
                 "configMessageLocationConfig": "Configuration Window",
-                "backupRestoreInit": "Backup / Restore / Factory Reset",
+                "backupRestoreInit": "Backup / Restore / Reset",
                 "backupToFile": "Backup to file",
                 "restoreAll": "Restore all configuration from file",
                 "init": "Reset all configuration (Cannot be undone!)",
@@ -1191,6 +1191,9 @@ var count_totalKWSuggest = 0;
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; font-size: x-small;}");
+    GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: 1px solid silver;}");
+    GM_addStyle("ul.gso_config_tab li.gso_config_selected {background-color: silver;}");
+    GM_addStyle("ul.gso_config_tabpage {list-style-type: none;} ul.gso_config_tabpage fieldset {border: none;}");
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
     GM_addStyle("*.gso_quick_block_wnd {font-size: smaller; position: absolute; background-color: silver; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
@@ -1330,9 +1333,23 @@ var count_totalKWSuggest = 0;
         var cfg_elem = $('<form id="gso_config" class="gso_config_embedded" lang="'+
                          config.config.gso_lang + '"></form>');
         cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="' + cat[config.config.gso_lang].full.msg.close + '">×</button></span>');
-        
+        cfg_elem.append('<ul class="gso_config_tab"></ul>');
+        cfg_elem.find('ul.gso_config_tab')
+            .append('<li class="gso_config_selected">' + cat[config.config.gso_lang].full.msg.rulesetEdit + '</li>')
+            .append('<li>' + cat[config.config.gso_lang].full.msg.manageRuleset + '</li>')
+            .append('<li>' + cat[config.config.gso_lang].full.msg.activityLog + '</li>')
+            .append('<li>' + cat[config.config.gso_lang].full.msg.configMisc + '</li>')
+            .append('<li>' + cat[config.config.gso_lang].full.msg.backupRestoreInit + '</li>')
+            .append('<li>' + cat[config.config.gso_lang].full.msg.about + '</li>');
+        cfg_elem.append('<ul class="gso_config_tabpage"></ul>');
+        cfg_elem.find('ul.gso_config_tabpage')
+            .append('<li></li>')
+            .append('<li style="display: none;"></li>')
+            .append('<li style="display: none;"></li>')
+            .append('<li style="display: none;"></li>')
+            .append('<li style="display: none;"></li>')
+            .append('<li style="display: none;"></li>');
         var fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_ruleset_editor_toggle" class="gso_control_buttons">▲</button>' + cat[config.config.gso_lang].full.msg.rulesetEdit + '</legend>');
         fieldset.append('<div id="gso_ruleset_editor"></div>');
         fieldset.find('#gso_ruleset_editor')
             .append('<label for="gso_ruleset_select">'+ cat[config.config.gso_lang].full.msg.ruleset +':</label>')
@@ -1384,9 +1401,9 @@ var count_totalKWSuggest = 0;
                     '<tbody></tbody>' +
                     '</table>');
         fieldset.find('#gso_ruleset_editor > div:last > div:last')
-            .append('<div style="display: inline-block;">' +
-                    cat[config.config.gso_lang].full.msg.enabled + '<br>' +
+            .append('<div>' +
                     '<input id="gso_rule_enabled" type="checkbox" value="gso_rule_enabled">' +
+                    cat[config.config.gso_lang].full.msg.enabled +
                     '</div>')
             .append('<div style="display: inline-block;">' +
                     cat[config.config.gso_lang].full.msg.target + ':<br>' +
@@ -1431,11 +1448,10 @@ var count_totalKWSuggest = 0;
                     cat[config.config.gso_lang].full.msg.comment + ':<br>' +
                     '<textarea type="text" id="gso_rule_comment" name="gso_rule_comment" placeholder="" style="width: 210px; font-size: inherit;"></textarea>' +
                     '</div>');
-        fieldset.appendTo(cfg_elem);
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(0).append(fieldset);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_ruleset_manager_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.manageRuleset + '</legend>');
-        fieldset.append('<div id="gso_ruleset_manager" style="display: none;"></div>');
+        fieldset.append('<div id="gso_ruleset_manager"></div>');
         fieldset.find('#gso_ruleset_manager')
             .append(cat[config.config.gso_lang].full.msg.friendlyNameForCurrentRuleset + ':<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="' + cat[config.config.gso_lang].full.msg.friendlyName + '" style="width: auto;"><br>')
             .append('<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteCurrentRuleset + '</button><br>')
@@ -1446,11 +1462,10 @@ var count_totalKWSuggest = 0;
             .append(cat[config.config.gso_lang].full.msg.exportSelected + '<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
             .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.urlList + '</button>')
             .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>');
-        fieldset.appendTo(cfg_elem);
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(1).append(fieldset);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_log_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.activityLog + '</legend>');
-        fieldset.append('<div id="gso_log" style="display: none;"></div>');
+        fieldset.append('<div id="gso_log"></div>');
         fieldset.find('#gso_log')
             .append('<div></div>')
             .append('<button type="button" id="gso_log_clear" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.clear + '</button><br>')
@@ -1491,11 +1506,10 @@ var count_totalKWSuggest = 0;
                     '</colgroup>' +
                     '<tbody>' +
                     '</tbody>');
-        fieldset.appendTo(cfg_elem);
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(2).append(fieldset);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_config_misc_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.configMisc + '</legend>');
-        fieldset.append('<div id="gso_config_misc" style="display: none;"></div>');
+        fieldset.append('<div id="gso_config_misc"></div>');
         fieldset.find('#gso_config_misc')
             .append(cat[config.config.gso_lang].full.msg.configLang +
                     (config.config.gso_lang == 'en' ? '' : ' / Language') + ': <select id="gso_lang" name="gso_lang"></select><br>')
@@ -1521,11 +1535,10 @@ var count_totalKWSuggest = 0;
         fieldset.find('#message_location')
             .append('<option value="page">' + cat[config.config.gso_lang].full.msg.configMessageLocationPage + '</option>')
             .append('<option value="config">' + cat[config.config.gso_lang].full.msg.configMessageLocationConfig + '</option>');
-        fieldset.appendTo(cfg_elem);
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(3).append(fieldset);
 
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_backup_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.backupRestoreInit + '</legend>');
-        fieldset.append('<div id="gso_backup" style="display: none;"></div>');
+        fieldset.append('<div id="gso_backup"></div>');
         fieldset.find('#gso_backup')
             .append('<button type="button" id="gso_exportAllJSON" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.backupToFile + '</button><hr>')
             .append(cat[config.config.gso_lang].full.msg.restoreAll + '<br>')
@@ -1535,18 +1548,19 @@ var count_totalKWSuggest = 0;
             .append(cat[config.config.gso_lang].full.msg.init + 
                     '<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">' +
                     cat[config.config.gso_lang].full.msg.initButton + '</button>');
-        fieldset.appendTo(cfg_elem);
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(4).append(fieldset);
         
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<legend><button type="button" id="gso_about_toggle" class="gso_control_buttons">▼</button>' + cat[config.config.gso_lang].full.msg.about + '</legend>');
-        fieldset.append('<div id="gso_about" style="display: none;"></div>');
+        fieldset.append('<div id="gso_about"></div>');
         fieldset.find("#gso_about")
             .append('Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>')
             .append(cat[config.config.gso_lang].full.msg.aboutAuthor + ': たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
             .append(cat[config.config.gso_lang].full.msg.aboutLicense + ': GPL v3<br>')
             .append(cat[config.config.gso_lang].full.msg.aboutJQ);
-        fieldset.appendTo(cfg_elem);
-        
+        cfg_elem.find('ul.gso_config_tabpage > li').eq(5).append(fieldset);
+
+        cfg_elem.append("<hr>");
+
         cfg_elem
             .append('<button type="button" id="gso_save" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.saveChange + '</button>')
             .append('<button type="button" id="gso_revert" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.discardChange + '</button><br>')
@@ -1555,6 +1569,13 @@ var count_totalKWSuggest = 0;
         cfg_elem.prependTo("body");
         
         /* Event handlers */
+        $("ul.gso_config_tab > li").click(function () {
+            var idx = $("ul.gso_config_tab > li").index(this);
+            $("ul.gso_config_tab > li").removeClass("gso_config_selected");
+            $("ul.gso_config_tab > li").eq(idx).addClass("gso_config_selected");
+            $("ul.gso_config_tabpage > li").hide();
+            $("ul.gso_config_tabpage > li").eq(idx).show();
+        });
         $("#gso_config_close").click(function () {
             $("#gso_config").toggle();
         });
@@ -1934,7 +1955,7 @@ var count_totalKWSuggest = 0;
         $("#gso_config_misc select").change(function() {
             config.config[this.name] = $(this).val();
         });
-
+        /*
         $("#gso_ruleset_editor_toggle").click(function() {
             if($("#gso_ruleset_editor").is(":visible")) {
                 $("#gso_ruleset_editor_toggle").text("▼");
@@ -1986,7 +2007,7 @@ var count_totalKWSuggest = 0;
             }
             $("#gso_about").slideToggle();
         });
-
+        */
         $("#gso_save").click(function () {
             gso_save();
             $("#gso_status").text(cat[config.config.gso_lang].full.msg.reloadToTakeEffect);

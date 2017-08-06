@@ -12,7 +12,7 @@
 // @include        *://www.google.*/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.0.281
+// @version        1.4.0.301
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -25,7 +25,7 @@
 // @compatible     chrome
 // ==/UserScript==
 
-/* Message Catalog (for translation) */
+/* 翻訳用メッセージカタログ(?) */
 var cat = {
     "ja": {
         "langName": {
@@ -96,6 +96,18 @@ var cat = {
                 "autocomplete": "検索語句予測"
             },
             "msg": {
+                "configTabRSEdit": "RS編集",
+                "configTabRSMng": "RS管理",
+                "configTabLog": "ログ",
+                "configTabPrefs": "設定",
+                "configTabBackup": "バックアップ・初期化",
+                "configTabAbout": "バージョン情報",
+                "configTabRSEditH": "ルールセット内のルールを編集します",
+                "configTabRSMngH": "ルールセットの追加・削除などを行います",
+                "configTabLogH": "活動ログを表示します",
+                "configTabPrefsH": "その他の設定を変更します",
+                "configTabBackupH": "設定のバックアップ・復元・初期化を行います",
+                "configTabAboutH": "このスクリプトについて",
                 "addLast": "末尾に挿入",
                 "addNextToSelection": "選択されたルールの次に挿入",
                 "overwrite": "上書",
@@ -110,19 +122,18 @@ var cat = {
                 "GscConfigMenu": "Google掃除機 設定",
                 "close": "閉じる",
                 "ruleset": "ルールセット",
-                "rulesetEdit": "ルールセットの編集",
                 "selectAll": "全選択",
                 "unselectAll": "全解除",
                 "toggleSelection": "選択の切替",
                 "moveSelected": "選択されたルールを移動",
                 "deleteSelected": "選択されたルールを削除",
+                "currentRuleEnabled": "このルールを有効にする",
                 "target": "対象",
                 "type": "検索方法",
                 "action": "動作",
                 "criteria": "条件文字列",
                 "level": "レベル",
                 "comment": "コメント",
-                "manageRuleset": "ルールセットの管理",
                 "friendlyNameForCurrentRuleset": "現在のルールセットの表示名",
                 "friendlyName": "表示名",
                 "deleteCurrentRuleset": "現在のルールセットを削除",
@@ -131,11 +142,9 @@ var cat = {
                 "importFromFile": "ファイルからインポートして現在のルールセットに追加",
                 "exportSelected": "選択範囲をエクスポート",
                 "urlList": "URLリスト(不完全)",
-                "activityLog": "ログ",
                 "clear": "クリア",
                 "pointForDetails": '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。',
                 "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
-                "configMisc": "設定",
                 "configLang": "言語",
                 "configMessageLocation": "メッセージの場所",
                 "configQuickBlock": "検索結果にクイックブロックボタンを表示",
@@ -150,17 +159,15 @@ var cat = {
                 "configAnimation": "アニメーション",
                 "configMessageLocationPage": "ページ左上",
                 "configMessageLocationConfig": "設定画面",
-                "backupRestoreInit": "バックアップ/復元/初期化",
                 "backupToFile": "ファイルにバックアップ",
                 "restoreAll": "全設定をファイルから復元",
                 "init": "全設定を初期化(元に戻せません!)",
                 "initButton": "初期化",
                 "initConfirm": "後悔しませんね?",
                 "initialized": "全ての設定を初期化しました。",
-                "about": "バージョン情報",
                 "aboutAuthor": "作者",
                 "aboutLicense": "ライセンス",
-                "aboutJQ": '本スクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
+                "aboutJQ": 'このスクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
                 "saveChange": "変更を保存",
                 "discardChange": "変更を破棄",
                 "changeNotSaved": "[変更を保存]をクリックするまで設定は保存されません",
@@ -171,7 +178,9 @@ var cat = {
                 "invalidConfig": "不正な設定ファイルです。詳細はコンソールを参照してください。",
                 "ignoredKeywords": "無視されたキーワード",
                 "searchAllIncluded": "全部含めて再検索",
-                "block": "ブロック",
+                "qbBlock": "ブロック...",
+                "qbFullURL": "URL全体",
+                "qbDomain": "ドメイン名",
                 "domain": "ドメイン",
                 "excludedKeyword": "マイナス検索による除外",
                 "ctlmsgWndIK": "未指定",
@@ -263,6 +272,18 @@ var cat = {
                 "autocomplete": "Autocomplete"
             },
             "msg": {
+                "configTabRSEdit": "Edit RS",
+                "configTabRSMng": "Manage RS",
+                "configTabLog": "Log",
+                "configTabPrefs": "Preferences",
+                "configTabBackup": "Backup / Reset",
+                "configTabAbout": "About",
+                "configTabRSEditH": "Edit rules in the rulesets",
+                "configTabRSMngH": "Add / remove a ruleset",
+                "configTabLogH": "Show the Activity Log",
+                "configTabPrefsH": "Miscellaneous Preferences",
+                "configTabBackupH": "Backup / Restore / Reset all rulesets and preferences",
+                "configTabAboutH": "About this script",
                 "addLast": "Insert to the last",
                 "addNextToSelection": "Insert next to the selected rule",
                 "overwrite": "Overwrite",
@@ -274,22 +295,21 @@ var cat = {
                 "hidAbsolutely": "&quot;Hide Absolutely&quot; action is preventing results from appearing.",
                 "hidAbsolutelyB": "Cannot be displayed",
                 "defaultRuleset": "Default Ruleset",
-                "GscConfigMenu": "Google Search Cleaner configuration",
+                "GscConfigMenu": "Google Search Cleaner Preferences",
                 "close": "Close",
                 "ruleset": "Ruleset",
-                "rulesetEdit": "Edit Rulesets",
                 "selectAll": "Select all",
                 "unselectAll": "Unselect all",
                 "toggleSelection": "Toggle selection",
                 "moveSelected": "Move selected rules",
                 "deleteSelected": "Delete selected rules",
+                "currentRuleEnabled": "Enable this rule",
                 "target": "Target",
                 "type": "Match Type",
                 "action": "Action",
                 "criteria": "Criteria",
                 "level": "Level",
                 "comment": "Comment",
-                "manageRuleset": "Manage Rulesets",
                 "friendlyNameForCurrentRuleset": "Friendly name for current ruleset",
                 "friendlyName": "Friendly name",
                 "deleteCurrentRuleset": "Delete current ruleset",
@@ -298,11 +318,9 @@ var cat = {
                 "importFromFile": "Import rules from file and add them to the current ruleset",
                 "exportSelected": "Export selection",
                 "urlList": "URL List (Incomplete)",
-                "activityLog": "Log",
                 "clear": "Clear",
                 "pointForDetails": 'Point <span style="background-color: silver;">…</span> to show details.',
                 "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
-                "configMisc": "Preferences",
                 "configLang": "Language",
                 "configMessageLocation": "Message location",
                 "configQuickBlock": "Show Quick Block buttons on the SERP",
@@ -317,14 +335,12 @@ var cat = {
                 "configAnimation": "Animation",
                 "configMessageLocationPage": "Top-Left of the page",
                 "configMessageLocationConfig": "Configuration Window",
-                "backupRestoreInit": "Backup / Restore / Reset",
                 "backupToFile": "Backup to file",
                 "restoreAll": "Restore all configuration from file",
                 "init": "Reset all configuration (Cannot be undone!)",
                 "initButton": "Reset",
                 "initConfirm": "Are you sure?",
                 "initialized": "Initialized all configuration.",
-                "about": "About",
                 "aboutAuthor": "Author",
                 "aboutLicense": "License",
                 "aboutJQ": 'This script uses <a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>.<br>jQuery is provided under MIT License.',
@@ -338,7 +354,9 @@ var cat = {
                 "invalidConfig": "Invalid configuration file. See the console for details.",
                 "ignoredKeywords": "Ignored Keywords",
                 "searchAllIncluded": "Search again with all keywords included",
-                "block": "Block",
+                "qbBlock": "Block...",
+                "qbFullURL": "Full URL",
+                "qbDomain": "Domain Name",
                 "domain": "Domain",
                 "excludedKeyword": "Minus Search Exclusion",
                 "ctlmsgWndIK": "Missing",
@@ -564,7 +582,7 @@ function check_config(config_json) {
     return valid;
 }
 
-/* Utility functions (for UI) */
+/* UI用関数群 */
 function gso_rseditor_update_selection() {
     /* ボタンの有効・無効、各入力フィールドの更新を行う
        (ルールセット内のルールの選択状態を変更したら呼び出すこと) */
@@ -762,12 +780,12 @@ function gso_quick_block_b(node) {
     var qb_b = $("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
                  "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
                  "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
-                 "<form><ul style='list-style: none;'>" +
-                 "<li><label for='criteria' style='float: left; width: 120px;'>URL:</label><input type='text' name='criteria'></li>" +
-                 "<li><label for='comment' style='float: left; width: 120px;'>" +
+                 "<form><ul>" +
+                 "<li><label for='criteria'>URL:</label><input type='text' name='criteria'></li>" +
+                 "<li><label for='comment'>" +
                  cat[config.config.gso_lang].full.msg.comment +
                  ":</label><input type='text' name='comment'></li>" +
-                 "<li><label for='ruleset' style='float: left; width: 120px;'>" +
+                 "<li><label for='ruleset'>" +
                  cat[config.config.gso_lang].full.msg.qbAddTo +
                  ":</label><select name='ruleset'></select></li></ul>" +
                  "<input type='hidden' name='type' value='domain'>" +
@@ -775,7 +793,7 @@ function gso_quick_block_b(node) {
                  cat[config.config.gso_lang].full.msg.qbAdd +
                  "</button><button class='gso_qb_sendToRE'  type='button'>" +
                  cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
-                 "</form></div>")
+                 "<span class='gso_qb_msg'></span></form></div>")
         .insertAfter(node);
     
     if(node.attr('data-type') == 'domain') {
@@ -795,6 +813,7 @@ function gso_quick_block_b(node) {
         $("#gso_rule_level").val(0);
         $("#gso_ruleset_select").val(qb_b.find("select:eq(0)").val());
         $("#gso_ruleset_select").change();
+        $("#gso_config_header ul.gso_config_tab > li:eq(0)").click();
         $("#gso_config").show();
         qb_b.remove();
     });
@@ -883,7 +902,7 @@ function gso_control_prepare() {
         }
     }
     if (node_added) {
-        /* Event handlers */
+        /* イベントハンドラ */
         $("#gso_killed_count_s").click(function () {
             if(gso_control_status.show_serp) {
                 gso_control_status.show_serp = false;
@@ -947,10 +966,10 @@ function gso_control_prepare() {
             }
         });
 
-        /* Make sure the Results screen is updated */
+        /* 結果表示画面を更新 */
         update_gso_control_msg();
 
-        /* Hide Results Window if neither #sbtc (Search Box) nor #search (SERP) is present */
+        /* #sbtc (Search Box) も #search (SERP) も存在しない場合は結果表示画面を消す */
         if($("#sbtc").size() > 0 || $("#search").size() > 0) {
             $("#gso_resultWnd").show();
         } else {
@@ -1114,7 +1133,7 @@ function gso_load() {
     jQuery.fx.off = !config.config.animation;
 }
 
-/* Import / Export */
+/* インポート・エクスポート */
 function gso_import_ruleset(rules, key) {
     if(typeof rules == "object" &&
        jQuery.isArray(rules)){
@@ -1143,7 +1162,7 @@ function gso_import_ruleset(rules, key) {
 }
 
 
-/* Initialization functions */
+/* 初期化用関数 */
 
 function gso_config_rseditor_init() {
     $("#gso_ruleset_select option").remove();
@@ -1170,7 +1189,7 @@ function gso_config_init() {
     });
 }
 
-/* Global variables */
+/* グローバル変数 */
 var count_totalKWSuggest = 0;
 
 (function() {
@@ -1191,12 +1210,17 @@ var count_totalKWSuggest = 0;
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; font-size: x-small;}");
-    GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: 1px solid silver;}");
-    GM_addStyle("ul.gso_config_tab li.gso_config_selected {background-color: silver;}");
+    GM_addStyle("*.gso_config_header { background-color: whitesmoke;}");
+    GM_addStyle("*.gso_config_footer { background-color: whitesmoke;}");
+    GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: none; background-color: lightgray; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
+    GM_addStyle("ul.gso_config_tab li.gso_config_selected {background-color: white;}");
     GM_addStyle("ul.gso_config_tabpage {list-style-type: none;} ul.gso_config_tabpage fieldset {border: none;}");
+    GM_addStyle("#gso_about_header {text-align: center;}");
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
-    GM_addStyle("*.gso_quick_block_wnd {font-size: smaller; position: absolute; background-color: silver; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
+    GM_addStyle("*.gso_quick_block_wnd {position: absolute; background-color: lightgray; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
+    GM_addStyle("*.gso_quick_block_b ul {list-style: none;} *.gso_quick_block_b ul li label {float: left; width: 100px;}");
+    GM_addStyle("*.gso_quick_block_b ul li input {width: 400px;} *.gso_quick_block_b ul li select {max-width: 400px;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
     GM_addStyle("*.gso_float { position: fixed; top: 0px;}");
     GM_addStyle("*.gso_semitr { opacity: 0.5;} *.gso_semitr:hover {opacity: 1;}");
@@ -1332,15 +1356,17 @@ var count_totalKWSuggest = 0;
         /* 設定画面 */
         var cfg_elem = $('<form id="gso_config" class="gso_config_embedded" lang="'+
                          config.config.gso_lang + '"></form>');
-        cfg_elem.append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="' + cat[config.config.gso_lang].full.msg.close + '">×</button></span>');
-        cfg_elem.append('<ul class="gso_config_tab"></ul>');
+        cfg_elem.append('<div id="gso_config_header" class="gso_config_header" style="width: 100%;"></div>');
+        cfg_elem.find("#gso_config_header")
+            .append('<span style="display: block; text-align: right"><button type="button" id="gso_config_close" class="gso_control_buttons" title="' + cat[config.config.gso_lang].full.msg.close + '">×</button></span>')
+            .append('<ul class="gso_config_tab"></ul>');
         cfg_elem.find('ul.gso_config_tab')
-            .append('<li class="gso_config_selected">' + cat[config.config.gso_lang].full.msg.rulesetEdit + '</li>')
-            .append('<li>' + cat[config.config.gso_lang].full.msg.manageRuleset + '</li>')
-            .append('<li>' + cat[config.config.gso_lang].full.msg.activityLog + '</li>')
-            .append('<li>' + cat[config.config.gso_lang].full.msg.configMisc + '</li>')
-            .append('<li>' + cat[config.config.gso_lang].full.msg.backupRestoreInit + '</li>')
-            .append('<li>' + cat[config.config.gso_lang].full.msg.about + '</li>');
+            .append('<li class="gso_config_selected" title="' + cat[config.config.gso_lang].full.msg.configTabRSEditH + '">' + cat[config.config.gso_lang].full.msg.configTabRSEdit + '</li>')
+            .append('<li title="' + cat[config.config.gso_lang].full.msg.configTabRSMngH + '">' + cat[config.config.gso_lang].full.msg.configTabRSMng + '</li>')
+            .append('<li title="' + cat[config.config.gso_lang].full.msg.configTabLogH + '">' + cat[config.config.gso_lang].full.msg.configTabLog + '</li>')
+            .append('<li title="' + cat[config.config.gso_lang].full.msg.configTabPrefsH + '">' + cat[config.config.gso_lang].full.msg.configTabPrefs + '</li>')
+            .append('<li title="' + cat[config.config.gso_lang].full.msg.configTabBackupH + '">' + cat[config.config.gso_lang].full.msg.configTabBackup + '</li>')
+            .append('<li title="' + cat[config.config.gso_lang].full.msg.configTabAboutH + '">' + cat[config.config.gso_lang].full.msg.configTabAbout + '</li>');
         cfg_elem.append('<ul class="gso_config_tabpage"></ul>');
         cfg_elem.find('ul.gso_config_tabpage')
             .append('<li></li>')
@@ -1403,7 +1429,7 @@ var count_totalKWSuggest = 0;
         fieldset.find('#gso_ruleset_editor > div:last > div:last')
             .append('<div>' +
                     '<input id="gso_rule_enabled" type="checkbox" value="gso_rule_enabled">' +
-                    cat[config.config.gso_lang].full.msg.enabled +
+                    cat[config.config.gso_lang].full.msg.currentRuleEnabled +
                     '</div>')
             .append('<div style="display: inline-block;">' +
                     cat[config.config.gso_lang].full.msg.target + ':<br>' +
@@ -1551,17 +1577,17 @@ var count_totalKWSuggest = 0;
         cfg_elem.find('ul.gso_config_tabpage > li').eq(4).append(fieldset);
         
         fieldset = $('<fieldset></fieldset>');
-        fieldset.append('<div id="gso_about"></div>');
+        fieldset.append('<div id="gso_about"><div id="gso_about_header"></div></div>');
+        fieldset.find("#gso_about_header")
+            .append('<span style="font-size: x-large">Google掃除機(仮称)<br>(Google Search Cleaner)</span><br>Version ' + GM_info.script.version + '<br>');
         fieldset.find("#gso_about")
-            .append('Google掃除機(仮称) Google Search Cleaner ' + GM_info.script.version + '<br>')
             .append(cat[config.config.gso_lang].full.msg.aboutAuthor + ': たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
             .append(cat[config.config.gso_lang].full.msg.aboutLicense + ': GPL v3<br>')
             .append(cat[config.config.gso_lang].full.msg.aboutJQ);
         cfg_elem.find('ul.gso_config_tabpage > li').eq(5).append(fieldset);
 
-        cfg_elem.append("<hr>");
-
-        cfg_elem
+        cfg_elem.append('<div id="gso_config_footer" class="gso_config_footer" style="width: 100%;"></div>');
+        cfg_elem.find("#gso_config_footer")
             .append('<button type="button" id="gso_save" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.saveChange + '</button>')
             .append('<button type="button" id="gso_revert" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.discardChange + '</button><br>')
             .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
@@ -1955,59 +1981,6 @@ var count_totalKWSuggest = 0;
         $("#gso_config_misc select").change(function() {
             config.config[this.name] = $(this).val();
         });
-        /*
-        $("#gso_ruleset_editor_toggle").click(function() {
-            if($("#gso_ruleset_editor").is(":visible")) {
-                $("#gso_ruleset_editor_toggle").text("▼");
-            } else {
-                $("#gso_ruleset_editor_toggle").text("▲");
-            }
-            $("#gso_ruleset_editor").slideToggle();
-        });
-        $("#gso_log_toggle").click(function() {
-            if($("#gso_log").is(":visible")) {
-                $("#gso_log_toggle").text("▼");
-            } else {
-                $("#gso_log_toggle").text("▲");
-            }
-            $("#gso_log").slideToggle();
-        });
-        $("#gso_log_clear").click(function() {
-            $("#gso_log_table tbody tr").remove();
-        });
-        $("#gso_ruleset_manager_toggle").click(function() {
-            if($("#gso_ruleset_manager").is(":visible")) {
-                $("#gso_ruleset_manager_toggle").text("▼");
-            } else {
-                $("#gso_ruleset_manager_toggle").text("▲");
-            }
-            $("#gso_ruleset_manager").slideToggle();
-        });
-        $("#gso_config_misc_toggle").click(function() {
-            if($("#gso_config_misc").is(":visible")) {
-                $(this).text("▼");
-            } else {
-                $(this).text("▲");
-            }
-            $("#gso_config_misc").slideToggle();
-        });
-        $("#gso_backup_toggle").click(function() {
-            if($("#gso_backup").is(":visible")) {
-                $(this).text("▼");
-            } else {
-                $(this).text("▲");
-            }
-            $("#gso_backup").slideToggle();
-        });
-        $("#gso_about_toggle").click(function() {
-            if($("#gso_about").is(":visible")) {
-                $(this).text("▼");
-            } else {
-                $(this).text("▲");
-            }
-            $("#gso_about").slideToggle();
-        });
-        */
         $("#gso_save").click(function () {
             gso_save();
             $("#gso_status").text(cat[config.config.gso_lang].full.msg.reloadToTakeEffect);
@@ -2380,9 +2353,9 @@ var count_totalKWSuggest = 0;
                  クイックブロックボタンを表示 */
                 var qb_w =
                     $("<div class='gso_quick_block_wnd gso_quick_block' style='display: none;'>" +
-                      cat[config.config.gso_lang].full.msg.block +
-                      "<button type='button' class='gso_control_buttons'>URL</button><button type='button' class='gso_control_buttons'>" +
-                      cat[config.config.gso_lang].full.msg.domain + "</button></div>")
+                      cat[config.config.gso_lang].full.msg.qbBlock +
+                      "<button type='button' class='gso_control_buttons'>" + cat[config.config.gso_lang].full.msg.qbFullURL +"</button>" +
+                      "<button type='button' class='gso_control_buttons'>" + cat[config.config.gso_lang].full.msg.qbDomain + "</button></div>")
                     .appendTo(node);
                 
                 var qb = qb_w.find("button:eq(0)");

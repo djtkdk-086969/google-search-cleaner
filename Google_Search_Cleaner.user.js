@@ -6,13 +6,17 @@
 // @description    Googleの検索結果に出て欲しくないページを、条件を指定して非表示にします。
 // @description:en Blocks websites you don't want to see on Google Search, by customizable rules.
 // @require        https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js
-// @include        *://www.google.*/
-// @include        *://www.google.*/?*
-// @include        *://www.google.*/search*
-// @include        *://www.google.*/webhp?*
+// @include        https://www.google.tld/
+// @include        https://www.google.tld/?*
+// @include        https://www.google.tld/search*
+// @include        https://www.google.tld/webhp?*
+// @include        http://www.google.tld/
+// @include        http://www.google.tld/?*
+// @include        http://www.google.tld/search*
+// @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.0.301
+// @version        1.4.1.302
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue

@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.302
+// @version        1.4.1.303
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -435,7 +435,7 @@ var gso_control_status = {
 /* Utility functions */
 
 function escapeRegexp(string) {
-    /* 
+    /*
     //Emacs(24)でシンタックスハイライトがこの行以降正常に機能しないため構文を変更
     return string.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1");
     */
@@ -486,11 +486,11 @@ function chk_str(target, ref, method) {
 
         if (words.every(function(element, index, array) {
             if(/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(element)) {
-                /* キーワードに日本語(ひらがなカタカナ漢字)が含まれている 
+                /* キーワードに日本語(ひらがなカタカナ漢字)が含まれている
                    →単純に部分一致検索する */
                 r = new RegExp(escapeRegexp(element), "i");
                 return r.test(target);
-                
+
             } else {
                 /* キーワードに日本語を含まない
                    →単語単位で検索(\bSTR\b) */
@@ -528,7 +528,7 @@ function check_rule(rule) {
     var target_allow = ["url", "description", "title", "suggest"];
     var type_allow = ["domain", "str", "str_head", "word", "regexp"];
     var action_allow = ["hide_absolutely", "hide", "hide_description_warn", "warn", "hide_description", "info", "allow"];
-    
+
     return (typeof rule == "object" &&
             typeof rule.criteria == "string" &&
             typeof rule.target == "string" &&
@@ -677,23 +677,23 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
     /* ログに表示 */
     var table = $("#gso_log_table table tbody");
     var row_style = 0;
-    
+
     if(table.find("tr").size() >= 1) {
         if(table.find("tr:last").attr("data-last-rule") === undefined) {
-            if(table.find("tr:last").hasClass("gso_log_a")){            
+            if(table.find("tr:last").hasClass("gso_log_a")){
                 row_style = 0;
             } else {
                 row_style = 1;
             }
         } else {
-            if(table.find("tr:last").hasClass("gso_log_a")){            
+            if(table.find("tr:last").hasClass("gso_log_a")){
                 row_style = 1;
             } else {
                 row_style = 0;
             }
         }
     } else {
-        row_style = 0;        
+        row_style = 0;
     }
     table.append(
         "<tr><td>" + cat[config.config.gso_lang].full.results[type] +
@@ -780,7 +780,7 @@ function gso_rseditor_toggle() {
 function gso_quick_block_b(node) {
     /* クイックブロック 詳細設定用要素作成
        node: 元クイックブロックボタン用要素 (div.quick_block) のjQueryオブジェクト */
-    
+
     var qb_b = $("<div class='gso_quick_block_wnd gso_quick_block_b' style='display: none;'>" +
                  "<button class='gso_qb_close' type='button' style='position: absolute;top: 0px;right: 0px;'>×</button>" +
                  "<em>" + cat[config.config.gso_lang].full.msg.qbCreateNewRule + "</em>" +
@@ -799,7 +799,7 @@ function gso_quick_block_b(node) {
                  cat[config.config.gso_lang].full.msg.qbSendTo + "</button>" +
                  "<span class='gso_qb_msg'></span></form></div>")
         .insertAfter(node);
-    
+
     if(node.attr('data-type') == 'domain') {
         qb_b.find("label:eq(0)").text(cat[config.config.gso_lang].full.msg.domain + ":");
     } else {
@@ -1125,7 +1125,7 @@ function gso_load() {
     config = {};
     config.config = {};
     config.rulesets = {};
-    
+
     Object.keys(config_default.config).forEach(function (k) {
         config.config[k] = GM_getValue(k, config_default.config[k]);
     });
@@ -1133,7 +1133,7 @@ function gso_load() {
     config.rulesets = JSON.parse(GM_getValue("rulesets", '{"default":{"name":"既定のルールセット","enabled":true,"rules":[{"action":"hide","comment":"","criteria":"example.com","enabled":false,"level":0,"target":"url","type":"domain"}]}}'));
     console.log("loaded configuration");
     console.log(config);
-    
+
     jQuery.fx.off = !config.config.animation;
 }
 
@@ -1176,7 +1176,7 @@ function gso_config_rseditor_init() {
                 gso_rseditor_rslist_str(id, this.name, this.enabled) +
                 '</option>');
     });
-    
+
     $("#gso_ruleset_select").change();
 
     $("#gso_ruleset_remove").prop("disabled", $("#gso_ruleset_select option").size() <= 1);
@@ -1253,7 +1253,8 @@ var count_totalKWSuggest = 0;
         "a._rQb, " +
         "div._lnc > a.top, " +
         "div.dbsr, " +       /* 2016/11仕様変更 */
-        "ul._vio > li._sio"; /* 同上 */
+        "ul._vio > li._sio, " + /* 同上 */
+        "div._Pcr"; /* 2017/09仕様変更 */
     /*
       サイト内検索: div.rc:has(h3.r > a)
       ニューストピック: li.g:has(a._Dk), div.g:has(a._Dk)
@@ -1263,23 +1264,26 @@ var count_totalKWSuggest = 0;
       トップニュース(2016/11横並び): (div._NId) ul._vio > li._sio
       a (URL)
       p._NRj._ORj.f._xRj > cite (from)
+      トップニュース(2017/09横並び): (div._NId) g-scrolling-carousel div._Pcr
+      a (URL)
+      p._NRj._ORj.f._xRj > cite (from)
     */
 
-    var selector_IMG = 
+    var selector_IMG =
         "div.img-brk li.rg_el, " +
         "div.img-brk div.rg_el";
     /*
       画像検索結果(旧): div.img-brk li.rg_el
       画像検索結果: div.img-brk div.rg_el
     */
-    
+
     var selector_IMGLIST =
         "div#isr_mc div.rg_el";
 
     var selector_KW = "div#trev a, div#brs p._e4b > a";
     /* 関連する検索キーワード */
 
-    
+
     function check(url, description, title, keyword, temp_rulesets) {
         /* ルールセットに合致するかどうかチェック
            優先度ごとに最初に合致したルールと内包するルールセットを
@@ -1338,7 +1342,7 @@ var count_totalKWSuggest = 0;
         });
         return matched_rules;
     }
-    
+
     function get_most_significant_rule(matched_rules) {
         /* 複数のルール(のツリー)に合致した場合、最も厳しい処理を適用する */
         var context = null;
@@ -1575,11 +1579,11 @@ var count_totalKWSuggest = 0;
             .append('<input type="file" id="gso_importAllJSON" name="rulesetJSON[]"><br><br>')
             .append('<div style="text-align: right;"></div>');
         fieldset.find('#gso_backup > div:first')
-            .append(cat[config.config.gso_lang].full.msg.init + 
+            .append(cat[config.config.gso_lang].full.msg.init +
                     '<button type="button" id="gso_resetAll" class="gso_control_buttons" data-phase="0">' +
                     cat[config.config.gso_lang].full.msg.initButton + '</button>');
         cfg_elem.find('ul.gso_config_tabpage > li').eq(4).append(fieldset);
-        
+
         fieldset = $('<fieldset></fieldset>');
         fieldset.append('<div id="gso_about"><div id="gso_about_header"></div></div>');
         fieldset.find("#gso_about_header")
@@ -1597,7 +1601,7 @@ var count_totalKWSuggest = 0;
             .append('<span id="gso_status">' + cat[config.config.gso_lang].full.msg.changeNotSaved + '</span>');
 
         cfg_elem.prependTo("body");
-        
+
         /* Event handlers */
         $("ul.gso_config_tab > li").click(function () {
             var idx = $("ul.gso_config_tab > li").index(this);
@@ -1745,7 +1749,7 @@ var count_totalKWSuggest = 0;
                    if(file.type != 'application/json' && file.type != 'text/plain') {
                    return true; // continue
                    }
-                */                
+                */
                 var reader = new FileReader();
                 reader.onload = (function(file) {
                     return function(evt) {
@@ -1810,7 +1814,7 @@ var count_totalKWSuggest = 0;
                }
             */
             var reader = new FileReader();
-            reader.onload = (function(file) {        
+            reader.onload = (function(file) {
                 return function(evt) {
                     var config_json;
                     try {
@@ -1852,7 +1856,7 @@ var count_totalKWSuggest = 0;
                 GM_deleteValue("verbose");
 
                 GM_deleteValue("rulesets");
-                
+
                 gso_load();
                 gso_config_init();
                 $("#gso_status").text(cat[config.config.gso_lang].full.msg.initialized);
@@ -1860,7 +1864,7 @@ var count_totalKWSuggest = 0;
                 $(this).attr('data-phase', "0");
             }
         });
-        
+
         $("#gso_ruleset_selectAll").click(function () {
             $("#gso_ruleset_table table tbody tr").addClass("gso_rule_selected");
             gso_rseditor_update_selection();
@@ -2030,7 +2034,7 @@ var count_totalKWSuggest = 0;
                 }
             });
         });
-    
+
     /* mo_serp: 検索結果を探す */
     var mo_serp = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -2062,7 +2066,7 @@ var count_totalKWSuggest = 0;
                         });
                     }
                     mo_link.observe(node_search, {childList: true, subtree: true});
-                    mo_serp.observe(document.body, {childList: true, subtree: true});  
+                    mo_serp.observe(document.body, {childList: true, subtree: true});
                 }
 
                 /* その中に 'div#topstuff'があるか？ */
@@ -2077,7 +2081,7 @@ var count_totalKWSuggest = 0;
                     });
                     hide_moshikashite();
                     mo_link.observe(node_topstuff, {childList: true, subtree: true});
-                    mo_serp.observe(document.body, {childList: true, subtree: true});  
+                    mo_serp.observe(document.body, {childList: true, subtree: true});
                 }
 
                 /* その中に 'div#taw'があるか？ */
@@ -2092,7 +2096,7 @@ var count_totalKWSuggest = 0;
                     });
                     hide_moshikashite();
                     mo_link.observe(node_taw, {childList: true, subtree: true});
-                    mo_serp.observe(document.body, {childList: true, subtree: true});  
+                    mo_serp.observe(document.body, {childList: true, subtree: true});
                 }
 
                 /* その中に 'div#extrares'があるか？ */
@@ -2106,7 +2110,7 @@ var count_totalKWSuggest = 0;
                         check_elem_kw(this);
                     });
                     mo_link.observe(node_extrares, {childList: true, subtree: true});
-                    mo_serp.observe(document.body, {childList: true, subtree: true});  
+                    mo_serp.observe(document.body, {childList: true, subtree: true});
                 }
                 var target_node_gsoctl = mutation.target.querySelector("#hdtb");
                 if (target_node_gsoctl) {
@@ -2115,7 +2119,7 @@ var count_totalKWSuggest = 0;
             }
         });
     });
-    
+
     /* mo_link: ある要素の中に別の要素が挿入されたか監視 */
     var mo_link = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -2139,7 +2143,7 @@ var count_totalKWSuggest = 0;
                             check_elem_imglist(this);
                         });
                     }
-                    
+
                 });
             }
         });
@@ -2149,12 +2153,12 @@ var count_totalKWSuggest = 0;
     $(document).ready(check_elem_first());
 
     /* div#searchの挿入を監視 */
-    mo_serp.observe(document.body, {childList: true, subtree: true});    
-    
+    mo_serp.observe(document.body, {childList: true, subtree: true});
+
     /* オートコンプリートの監視 */
     mo_autocomplete.observe(document.getElementById("sbtc"),
                             {attributes: true, childList: true, characterData: true, subtree: false});
-    
+
     function check_elem_serp(node) {
         /* ---------- 検索結果 ---------- */
         if(!$(node).is(".gso_checked")) {
@@ -2325,7 +2329,7 @@ var count_totalKWSuggest = 0;
                         .replace(/<s>/gi, '<span class="gso_ignored_kw">')
                         .replace(/<\/s>/gi, "</span>");
                     missing_kw_list.html(missing_kw_list_new_html);
-                    
+
                     var new_url_all = decodeURI_s(location.href.replace(/&start=\d+/, ""));
                     missing_kw_list.children("span.gso_ignored_kw").each(function () {
                         var ignored_kw = $(this).text();
@@ -2361,7 +2365,7 @@ var count_totalKWSuggest = 0;
                       "<button type='button' class='gso_control_buttons'>" + cat[config.config.gso_lang].full.msg.qbFullURL +"</button>" +
                       "<button type='button' class='gso_control_buttons'>" + cat[config.config.gso_lang].full.msg.qbDomain + "</button></div>")
                     .appendTo(node);
-                
+
                 var qb = qb_w.find("button:eq(0)");
                 var qb2 = qb_w.find("button:eq(1)");
                 var domain = "";
@@ -2383,7 +2387,7 @@ var count_totalKWSuggest = 0;
                     qb_w.hide();
                     gso_quick_block_b(qb_w);
                 });
-                
+
                 $(node).hover(
                     function () {
                         /* IN */
@@ -2397,7 +2401,7 @@ var count_totalKWSuggest = 0;
             }
         }
         $(node).addClass("gso_checked");
-        
+
         gso_log_setBoundary();
         update_gso_control_msg();
         update_serp();
@@ -2426,10 +2430,10 @@ var count_totalKWSuggest = 0;
                     // ページのURL
                     context.target = link.find("img:first").attr("title");
                     // 代替テキスト
-                    context.description = link.find("img:first").attr("alt"); 
+                    context.description = link.find("img:first").attr("alt");
                 }
                 context.matched_rules = check(context.target, context.description, null, null, null);
-                
+
                 if(context.matched_rules.length > 0) {
                     var applied_rule = get_most_significant_rule(context.matched_rules);
                     var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;
@@ -2614,7 +2618,7 @@ var count_totalKWSuggest = 0;
                     "matched_rules": null
                 };
             context.matched_rules = check(null, null, null, context.related_kw, null);
-            
+
             if(context.matched_rules.length > 0) {
                 var applied_rule = get_most_significant_rule(context.matched_rules);
                 context.matched_rules.forEach(function(element, index, array) {
@@ -2725,18 +2729,18 @@ var count_totalKWSuggest = 0;
             return false;
         }
     }
-    
+
     function check_autocomplete() {
         /* 検索語句入力欄のオートコンプリートをチェック
            (関連語句のみ) */
         mo_autocomplete.disconnect();
         $("#sbtc li.gsfs").each(function() {
-            
+
             var context =
                 {
                     "autocomplete" : $(this).find("div.sbqs_c").text(),
                     "matched_rules": null
-                }; 
+                };
             context.matched_rules = check(null, null, null, context.autocomplete, null);
 
             if(context.matched_rules.length > 0) {
@@ -2767,12 +2771,12 @@ var count_totalKWSuggest = 0;
             }
         });
         gso_log_setBoundary();
-        
+
         mo_autocomplete.observe(document.getElementById("sbtc"),
                                 {attributes: true, childList: true, characterData: true, subtree: true});
-        
+
     }
-    
+
     function hide_moshikashite() {
         if(config.config.hide_moshikashite && $("p.ssp").size() > 0 && location.href.match("start=") !== null) {
             $("p.ssp").hide();
@@ -2796,7 +2800,7 @@ var count_totalKWSuggest = 0;
             });
         }
         /* ---------- 関連キーワード ---------- */
-        
+
         /* top: div#trev > div > a.nobr
            bottom: div.brs_col > p._e4b > a */
 
@@ -2812,6 +2816,6 @@ var count_totalKWSuggest = 0;
         }
         hide_moshikashite();
     }
-    
-    
+
+
 })();

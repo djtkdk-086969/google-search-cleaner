@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.303
+// @version        1.4.1.305
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1036,11 +1036,11 @@ function update_gso_control_msg() {
            count_totalSERPdesc > 0 ||
            count_totalSERPimg > 0 ||
            count_totalKW > 0) {
-                $("#gso_resultWnd_icon").html("&#x26D4;");
+                $("#gso_resultWnd_icon").html("&#xfe0f;&#x26D4;");
                 $("#gso_resultWnd_count").show();
                 $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgBad);
         } else {
-            $("#gso_resultWnd_icon").html("&#x2714;");
+            $("#gso_resultWnd_icon").html("&#xfe0f;&#x2714;");
             $("#gso_resultWnd_count").hide();
             $("#gso_results_msg_top").html(cat[config.config.gso_lang].full.msg.ctlmsgGood);
         }
@@ -1546,7 +1546,8 @@ var count_totalKWSuggest = 0;
         fieldset.append('<div id="gso_config_misc"></div>');
         fieldset.find('#gso_config_misc')
             .append(cat[config.config.gso_lang].full.msg.configLang +
-                    (config.config.gso_lang == 'en' ? '' : ' / Language') + ': <select id="gso_lang" name="gso_lang"></select><br>')
+                    (config.config.gso_lang == 'en' ? '' : ' / Language ') +
+                    '<span class="gso_emoji">&#xfe0f;&#x1f30f;</span>: <select id="gso_lang" name="gso_lang"></select><br>')
             .append(cat[config.config.gso_lang].full.msg.configMessageLocation + ': <select id="message_location" name="message_location"></select><br>')
             .append('<input type="checkbox" value="quick_block">' + cat[config.config.gso_lang].full.msg.configQuickBlock + '<br>')
             .append('<input type="checkbox" value="check_for_image">' + cat[config.config.gso_lang].full.msg.configCheckForImage + '<br>')
@@ -1675,7 +1676,7 @@ var count_totalKWSuggest = 0;
                         "</td></tr>");
                 if(this.comment !== "") {
                     table.find("tr:last td:eq(5)")
-                        .append("<div title='" + this.comment + "' style='width: 100%; background-color: silver;'>…</div>");
+                        .append("<div title='" + this.comment + "' class='gso_emoji' style='width: 100%;'>&#xfe0f;&#x1f4ac;</div>");
                 }
                 if(!this.enabled) {
                     table.find("tr:last").addClass("gso_rule_disabled");
@@ -2277,9 +2278,9 @@ var count_totalKWSuggest = 0;
                     if(applied_rule.rule.comment !== "" &&
                        !applied_rule.rule.comment.startsWith("#") &&
                        config.config.ruleset_name_with_comment) {
-                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
+                        new_desc.html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
                     } else {
-                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name);
+                        new_desc.html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + ruleset_name);
                     }
                     new_desc.insertBefore(original_desc);
                     original_desc.addClass("gso_serp_description_b gso_ani");
@@ -2290,9 +2291,9 @@ var count_totalKWSuggest = 0;
                     if(applied_rule.rule.comment !== "" &&
                        !applied_rule.rule.comment.startsWith("#") &&
                        config.config.ruleset_name_with_comment) {
-                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
+                        new_desc.html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + ruleset_name + " [" + applied_rule.rule.comment + "]");
                     } else {
-                        new_desc.html("<span class='gso_emoji'>&#x26A0;</span> " + ruleset_name);
+                        new_desc.html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + ruleset_name);
                     }
                     new_desc.insertBefore(original_desc);
                     $(node).addClass("gso_titleonly_serp");
@@ -2470,14 +2471,14 @@ var count_totalKWSuggest = 0;
                         $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp"></div>');
                         if(applied_rule.rule.action == "hide") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
                             $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp gso_serp_description_a"></div>');
                         }
                         if(applied_rule.rule.action == "hide_description_warn" ||
                            applied_rule.rule.action == "warn") {
                             $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
                         }
                         if(applied_rule.rule.action == "hide_absolutely") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
@@ -2578,13 +2579,13 @@ var count_totalKWSuggest = 0;
 
                         if(applied_rule.rule.action == "hide") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
                             $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_isch gso_serp_description_a"></div>');
                         }
                         if(applied_rule.rule.action == "hide_description_warn" ||
                            applied_rule.rule.action == "warn") {
                             $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#x26A0;</span> " + msg);
+                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
                             $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
                         }
                         if(applied_rule.rule.action == "hide_absolutely") {
@@ -2644,7 +2645,7 @@ var count_totalKWSuggest = 0;
                                         '</span>');
                 } else if(applied_rule.rule.action == "warn") {
                     $(node).after(' <span style="background-color: silver; color: dimgray;" title="' +
-                                        config.rulesets[applied_rule.ruleset_id].name + '">&#x26A0;</span>');
+                                        config.rulesets[applied_rule.ruleset_id].name + '">&#xfe0f;&#x26A0;</span>');
                 } else if(applied_rule.rule.action == "hide_absolutely") {
                     $(node).replaceWith('<span class="gso_killed_kw">' +
                                         '<span class="gso_killed_kw_placeholder gso_serp_description_b">' +

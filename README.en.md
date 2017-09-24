@@ -27,7 +27,7 @@ You can hide search results based on URL forward matching or a regular expressio
 
 ## System Requirements
 * Mozilla Firefox (Version 46+)
-* Greasemonkey (Version 3.8+)
+* Greasemonkey (Version 3.8+, not compatible with Version 4.0 yet.)
 
 or
 

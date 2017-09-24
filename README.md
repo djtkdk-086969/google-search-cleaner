@@ -27,7 +27,7 @@ Google掃除機(仮称)は、Googleの検索結果から特定のページを非
 
 ## システム要件
 * Mozilla Firefox (バージョン46以降)
-* Greasemonkey (バージョン3.8以降)
+* Greasemonkey (バージョン3.8以降、現時点では4.0には対応できていません)
 
 または
 

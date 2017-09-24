@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.305
+// @version        1.4.1.306
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1401,6 +1401,11 @@ var count_totalKWSuggest = 0;
             .append('<button type="button" id="gso_rule_moveup" class="gso_control_buttons">▲</button>')
             .append('<button type="button" id="gso_rule_movedown" class="gso_control_buttons">▼</button> ')
             .append('<span style="display: block; text-align: right"><button type="button" id="gso_rule_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteSelected + '</button></span>')
+            .append(cat[config.config.gso_lang].full.msg.importFromFile)
+            .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>')
+            .append(cat[config.config.gso_lang].full.msg.exportSelected + '<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
+            .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.urlList + '</button>')
+            .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>')
             .append('<hr>')
             .append('<div style="width:100%;"></div>')
             .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addLast + '</button>')
@@ -1490,12 +1495,7 @@ var count_totalKWSuggest = 0;
             .append(cat[config.config.gso_lang].full.msg.friendlyNameForCurrentRuleset + ':<input type="text" id="gso_ruleset_name" name="gso_ruleset_name" placeholder="' + cat[config.config.gso_lang].full.msg.friendlyName + '" style="width: auto;"><br>')
             .append('<button type="button" id="gso_ruleset_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteCurrentRuleset + '</button><br>')
             .append('<input type="text" id="gso_new_ruleset_key" name="gso_new_ruleset_key" placeholder="' + cat[config.config.gso_lang].full.msg.key + '" style="width: 6em;">')
-            .append('<button type="button" id="gso_ruleset_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addRuleset + '</button><hr>')
-            .append(cat[config.config.gso_lang].full.msg.importFromFile)
-            .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>')
-            .append(cat[config.config.gso_lang].full.msg.exportSelected + '<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
-            .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.urlList + '</button>')
-            .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>');
+            .append('<button type="button" id="gso_ruleset_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addRuleset + '</button><hr>');
         cfg_elem.find('ul.gso_config_tabpage > li').eq(1).append(fieldset);
 
         fieldset = $('<fieldset></fieldset>');

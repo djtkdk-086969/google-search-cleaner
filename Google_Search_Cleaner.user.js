@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.306
+// @version        1.4.1.310
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -143,7 +143,8 @@ var cat = {
                 "deleteCurrentRuleset": "現在のルールセットを削除",
                 "key": "キー",
                 "addRuleset": "新規ルールセット追加",
-                "importFromFile": "ファイルからインポートして現在のルールセットに追加",
+                "importFromFile": "ファイルからインポート...",
+                "importFromFileAndAdd": "ファイルからインポートして現在のルールセットに追加",
                 "exportSelected": "選択範囲をエクスポート",
                 "urlList": "URLリスト(不完全)",
                 "clear": "クリア",
@@ -319,7 +320,8 @@ var cat = {
                 "deleteCurrentRuleset": "Delete current ruleset",
                 "key": "Key",
                 "addRuleset": "Add a new ruleset",
-                "importFromFile": "Import rules from file and add them to the current ruleset",
+                "importFromFile": "Import rules from file...",
+                "importFromFileAndAdd": "Import rules from file and add them to the current ruleset",
                 "exportSelected": "Export selection",
                 "urlList": "URL List (Incomplete)",
                 "clear": "Clear",
@@ -1400,16 +1402,19 @@ var count_totalKWSuggest = 0;
             .append(cat[config.config.gso_lang].full.msg.moveSelected)
             .append('<button type="button" id="gso_rule_moveup" class="gso_control_buttons">▲</button>')
             .append('<button type="button" id="gso_rule_movedown" class="gso_control_buttons">▼</button> ')
-            .append('<span style="display: block; text-align: right"><button type="button" id="gso_rule_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteSelected + '</button></span>')
-            .append(cat[config.config.gso_lang].full.msg.importFromFile)
-            .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>')
+            .append('<button type="button" id="gso_rule_remove" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.deleteSelected + '</button><br>')
             .append(cat[config.config.gso_lang].full.msg.exportSelected + '<button type="button" id="gso_ruleset_exportJSON" class="gso_control_buttons">JSON</button>')
             .append('<button type="button" id="gso_ruleset_exportURL" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.urlList + '</button>')
-            .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a>')
+            .append('<a id="gso_ruleset_export_dllink" style="display: none;">.</a> ')
+            .append('<button type="button" id="gso_ruleset_import_menuToggle" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.importFromFile + '</button>')
+            .append('<div id="gso_ruleset_import_menu" style="display: none;"></div>')
             .append('<hr>')
             .append('<div style="width:100%;"></div>')
             .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addLast + '</button>')
             .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.overwrite + '</button>');
+        fieldset.find("#gso_ruleset_import_menu")
+            .append(cat[config.config.gso_lang].full.msg.importFromFileAndAdd)
+            .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>');
         fieldset.find('#gso_ruleset_editor > div:last > table:first')
             .append('<colgroup>' +
                     '<col style="width: 3em; min-width: 3em;">' +
@@ -1738,6 +1743,9 @@ var count_totalKWSuggest = 0;
             dl_link.href = (window.URL || window.webkitURL).createObjectURL(blob);
             dl_link.click();
             dl_link.href = "#";
+        });
+        $("#gso_ruleset_import_menuToggle").click(function () {
+            $("#gso_ruleset_import_menu").slideToggle();
         });
         $("#gso_ruleset_importJSON").change(function (event) {
             var rules_json;

@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.310
+// @version        1.4.1.312
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -150,6 +150,9 @@ var cat = {
                 "clear": "クリア",
                 "pointForDetails": '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。',
                 "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
+                "configPrefsSecApr": "表示設定",
+                "configPrefsSecAdd": "付加機能の設定",
+                "configPrefsSecDbg": "デバッグ用設定",
                 "configLang": "言語",
                 "configMessageLocation": "メッセージの場所",
                 "configQuickBlock": "検索結果にクイックブロックボタンを表示",
@@ -327,6 +330,9 @@ var cat = {
                 "clear": "Clear",
                 "pointForDetails": 'Point <span style="background-color: silver;">…</span> to show details.',
                 "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
+                "configPrefsSecApr": "Appearance",
+                "configPrefsSecAdd": "Additional Features",
+                "configPrefsSecDbg": "Debug",
                 "configLang": "Language",
                 "configMessageLocation": "Message location",
                 "configQuickBlock": "Show Quick Block buttons on the SERP",
@@ -1550,10 +1556,14 @@ var count_totalKWSuggest = 0;
         fieldset = $('<fieldset></fieldset>');
         fieldset.append('<div id="gso_config_misc"></div>');
         fieldset.find('#gso_config_misc')
+            .append('<span style="font-size: large;">' + cat[config.config.gso_lang].full.msg.configPrefsSecApr + '</span><br>')
             .append(cat[config.config.gso_lang].full.msg.configLang +
                     (config.config.gso_lang == 'en' ? '' : ' / Language ') +
                     '<span class="gso_emoji">&#xfe0f;&#x1f30f;</span>: <select id="gso_lang" name="gso_lang"></select><br>')
             .append(cat[config.config.gso_lang].full.msg.configMessageLocation + ': <select id="message_location" name="message_location"></select><br>')
+            .append('<input type="checkbox" value="float">' + cat[config.config.gso_lang].full.msg.configFloat + '<br>')
+            .append('<input type="checkbox" value="animation">' + cat[config.config.gso_lang].full.msg.configAnimation + '<br>')
+            .append('<span style="font-size: large;">' + cat[config.config.gso_lang].full.msg.configPrefsSecAdd + '</span><br>')
             .append('<input type="checkbox" value="quick_block">' + cat[config.config.gso_lang].full.msg.configQuickBlock + '<br>')
             .append('<input type="checkbox" value="check_for_image">' + cat[config.config.gso_lang].full.msg.configCheckForImage + '<br>')
             .append('<input type="checkbox" value="ruleset_name_with_comment">' + cat[config.config.gso_lang].full.msg.configRSNameWithComment + '<br>')
@@ -1561,9 +1571,8 @@ var count_totalKWSuggest = 0;
             .append('<input type="checkbox" value="fix_missing">' + cat[config.config.gso_lang].full.msg.configFixMissing + '<br>')
             .append('<input type="checkbox" value="hide_moshikashite">' + cat[config.config.gso_lang].full.msg.configHideMoshikashite + '<br>')
             .append('<input type="checkbox" value="force_keyword_exclusion_on_suggestion">' + cat[config.config.gso_lang].full.msg.configForceKWExcl + '<br>')
-            .append('<input type="checkbox" value="always_log_checked_entries">' + cat[config.config.gso_lang].full.msg.configAlwaysLog + '<br>')
-            .append('<input type="checkbox" value="float">' + cat[config.config.gso_lang].full.msg.configFloat + '<br>')
-            .append('<input type="checkbox" value="animation">' + cat[config.config.gso_lang].full.msg.configAnimation + '<br>');
+            .append('<span style="font-size: large;">' + cat[config.config.gso_lang].full.msg.configPrefsSecDbg + '</span><br>')
+            .append('<input type="checkbox" value="always_log_checked_entries">' + cat[config.config.gso_lang].full.msg.configAlwaysLog + '<br>');
         Object.keys(cat).forEach(function (k) {
             fieldset.find('#gso_lang').append(
                 '<option value="' + k + '">' +

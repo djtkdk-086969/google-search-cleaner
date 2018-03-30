@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.312
+// @version        1.4.1.313
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2338,7 +2338,7 @@ var count_totalKWSuggest = 0;
             }
             /* ---------- 「未指定：○○○」を処理 ---------- */
             if(config.config.fix_missing) {
-                $(node).find("div._Tib:has(s)").each(function() {
+                $(node).find("div.TXwUJf:has(s)").each(function() {
                     var missing_kw_list = $(this);
                     var missing_kw_list_ar = [];
                     var missing_kw_list_new_html = missing_kw_list.html()

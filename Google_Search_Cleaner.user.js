@@ -1260,9 +1260,9 @@ var count_totalKWSuggest = 0;
         "div._knc:has(h3.r > a.l)," +
         "a._rQb, " +
         "div._lnc > a.top, " +
-        "div.dbsr, " +       /* 2016/11仕様変更 */
+        "div.dbsr, " + /* 2016/11仕様変更 */
         "ul._vio > li._sio, " + /* 同上 */
-        "div._Pcr" + /* 2017/09仕様変更 */
+        "div._Pcr, " + /* 2017/09仕様変更 */
         "div.P94G9b"+ /* 2018/06 仕様変更 (SERPに挿入される動画検索結果) */
         ""; /* dummy */
     /*

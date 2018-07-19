@@ -11,7 +11,8 @@ Google掃除機(仮称)は、Googleの検索結果から特定のページを非
 
 [![Demonstration](https://github.com/djtkdk-086969/google-search-cleaner/wiki/img/demo.thumb.png)](https://github.com/djtkdk-086969/google-search-cleaner/wiki/img/demo.png)
 
-[紹介動画（ニコニコ動画）](http://ext.nicovideo.jp/thumb_watch/sm29461061?thumb_mode=html) ※Ver. 1.1.1.086時点のものであり、現在の仕様とは多少異なる部分がありますのでご注意ください。
+[紹介動画（ニコニコ動画）](http://ext.nicovideo.jp/thumb_watch/sm29461061?thumb_mode=html)
+※Ver. 1.1.1.086時点のものであり、現在の仕様とは多少異なる部分がありますのでご注意ください。
 
 ## 特長
 本スクリプトには以下の機能があります。
@@ -19,7 +20,7 @@ Google掃除機(仮称)は、Googleの検索結果から特定のページを非
 * 条件に合致した検索結果について非表示にする以外の動作(警告の表示など)を行う
 * 条件とそれに合致した検索結果に対する操作を合わせたルールの集まり(ルールセット)の複数作成・管理機能
 * 検索結果からのルール作成機能
-* 検索語句無視(未指定: ~~○○○~~)対策機能
+* 検索語句無視(含まれない: ~~○○○~~)対策機能
 * 2ページ目以降「もしかして:」を隠す機能
 * 「関連する検索キーワード」(サジェスト)への「マイナス検索」の適用機能
 
@@ -27,7 +28,7 @@ Google掃除機(仮称)は、Googleの検索結果から特定のページを非
 
 ## システム要件
 * Mozilla Firefox (バージョン46以降)
-* Greasemonkey (バージョン3.8以降、現時点では4.0には対応できていません)
+* Tampermonkey (最新版)
 
 または
 

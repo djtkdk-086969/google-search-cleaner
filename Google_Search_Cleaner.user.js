@@ -5,7 +5,7 @@
 // @namespace      https://twitter.com/djtkdk_086969
 // @description    Googleの検索結果に出て欲しくないページを、条件を指定して非表示にします。
 // @description:en Blocks websites you don't want to see on Google Search, by customizable rules.
-// @require        https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js
+// @require        https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @include        https://www.google.tld/
 // @include        https://www.google.tld/?*
 // @include        https://www.google.tld/search*
@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.314
+// @version        1.4.1.316
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -175,7 +175,7 @@ var cat = {
                 "initialized": "全ての設定を初期化しました。",
                 "aboutAuthor": "作者",
                 "aboutLicense": "ライセンス",
-                "aboutJQ": 'このスクリプトは<a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
+                "aboutJQ": 'このスクリプトは<a href="https://jquery.com/" target="_blank">jQuery 3.3.1</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
                 "saveChange": "変更を保存",
                 "discardChange": "変更を破棄",
                 "changeNotSaved": "[変更を保存]をクリックするまで設定は保存されません",
@@ -191,7 +191,7 @@ var cat = {
                 "qbDomain": "ドメイン名",
                 "domain": "ドメイン",
                 "excludedKeyword": "マイナス検索による除外",
-                "ctlmsgWndIK": "未指定",
+                "ctlmsgWndIK": "語句無視",
                 "ctlmsgSERP": "検索結果",
                 "ctlmsgIMG": "画像",
                 "ctlmsgKW": "関連語句",
@@ -355,7 +355,7 @@ var cat = {
                 "initialized": "Initialized all configuration.",
                 "aboutAuthor": "Author",
                 "aboutLicense": "License",
-                "aboutJQ": 'This script uses <a href="https://jquery.com/" target="_blank">jQuery 2.2.0</a>.<br>jQuery is provided under MIT License.',
+                "aboutJQ": 'This script uses <a href="https://jquery.com/" target="_blank">jQuery 3.3.1</a>.<br>jQuery is provided under MIT License.',
                 "saveChange": "Save changes",
                 "discardChange": "Discard changes",
                 "changeNotSaved": "The changes are not saved unless you click [Save changes].",
@@ -371,7 +371,7 @@ var cat = {
                 "qbDomain": "Domain Name",
                 "domain": "Domain",
                 "excludedKeyword": "Minus Search Exclusion",
-                "ctlmsgWndIK": "Missing",
+                "ctlmsgWndIK": "Ignored",
                 "ctlmsgSERP": "Results",
                 "ctlmsgIMG": "Images",
                 "ctlmsgKW": "Keywords",
@@ -599,7 +599,7 @@ function gso_rseditor_update_selection() {
     /* ボタンの有効・無効、各入力フィールドの更新を行う
        (ルールセット内のルールの選択状態を変更したら呼び出すこと) */
     var rule = {};
-    var selection_size = $("#gso_ruleset_table table tbody tr.gso_rule_selected").size();
+    var selection_size = $("#gso_ruleset_table table tbody tr.gso_rule_selected").length;
     if(selection_size === 0) {
         $("#gso_rule_add").text(cat[config.config.gso_lang].full.msg.addLast);
         $("#gso_rule_overwrite").prop("disabled", true);
@@ -659,10 +659,10 @@ function gso_rseditor_update_selection() {
 
     }
     if(selection_size === 0) {
-        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").size() +
+        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").length +
                                   " " + cat[config.config.gso_lang].full.msg.rules);
     } else {
-        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").size() +
+        $("#gso_rule_count").text($("#gso_ruleset_table table tbody tr").length +
                                   " " + cat[config.config.gso_lang].full.msg.rules +
                                   " (" + selection_size + " " +
                                   cat[config.config.gso_lang].full.msg.rules_selected + ")");
@@ -686,7 +686,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
     var table = $("#gso_log_table table tbody");
     var row_style = 0;
 
-    if(table.find("tr").size() >= 1) {
+    if(table.find("tr").length >= 1) {
         if(table.find("tr:last").attr("data-last-rule") === undefined) {
             if(table.find("tr:last").hasClass("gso_log_a")){
                 row_style = 0;
@@ -862,13 +862,13 @@ function gso_control_prepare() {
     /* 結果表示画面の作成 */
     var node_added = false;
     if(config.config.message_location == "page") {
-        if($("#gso_control").size() === 0) {
+        if($("#gso_control").length === 0) {
             //console.log("GSC: Results window (page) created.");
             var msg_elem = $('<div id="gso_resultWnd"></div>');
             msg_elem.append('<em>GSC</em> <span id="gso_resultWnd_icon" class="gso_emoji">-</span><span id="gso_resultWnd_count">-</span><span id="gso_resultWnd_IKcount" class="gso_resultWnd_IKcount" style="display: none;">Missing</span>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
             msg_elem.append('<div class="gso_dummy"></div>'); /* dummy */
-            if($("#hdtb").size() > 0) {
+            if($("#hdtb").length > 0) {
                 msg_elem.addClass("gso_control_embedded2");
                 msg_elem.prependTo("#hdtb");
             } else {
@@ -899,7 +899,7 @@ function gso_control_prepare() {
             );
         }
     } else {
-        if($("#gso_config #gso_results_msg_top").size() === 0) {
+        if($("#gso_config #gso_results_msg_top").length === 0) {
             //console.log("GSC: Results window (config) created.");
             $("#gso_config fieldset:first").before('<div id="gso_results_msg_top">' + cat[config.config.gso_lang].full.msg.ctlmsgNoSERP + '</div>');
             $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
@@ -947,7 +947,7 @@ function gso_control_prepare() {
             isIschMode = (location.href.search("&tbm=isch&") >= 0);
 
             if(config.config.float) {
-                if(ctl.parents("#hdtb").size()) {
+                if(ctl.parents("#hdtb").length) {
                     if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
                         ctl.removeClass("gso_control_embedded2");
                         ctl.addClass("gso_float");
@@ -982,7 +982,7 @@ function gso_control_prepare() {
         update_gso_control_msg();
 
         /* #sbtc (Search Box) も #search (SERP) も存在しない場合は結果表示画面を消す */
-        if($("#sbtc").size() > 0 || $("#search").size() > 0) {
+        if($("#sbtc").length > 0 || $("#search").length > 0) {
             $("#gso_resultWnd").show();
         } else {
             $("#gso_resultWnd").hide();
@@ -995,11 +995,11 @@ function update_gso_control_msg() {
     //console.log("update_gso_control_msg()");
     /* 結果表示 */
 
-    var count_totalSERP = $("*.gso_killed_serp").size();
-    var count_totalSERPdesc = $("*.gso_titleonly_serp").size();
-    var count_totalSERPimg = $("*.gso_killed_serpimg").size();
-    var count_totalKW = $("*.gso_killed_kw").size();
-    var count_totalIK = $("span.gso_ignored_kw:visible").size();
+    var count_totalSERP = $("*.gso_killed_serp").length;
+    var count_totalSERPdesc = $("*.gso_titleonly_serp").length;
+    var count_totalSERPimg = $("*.gso_killed_serpimg").length;
+    var count_totalKW = $("*.gso_killed_kw").length;
+    var count_totalIK = $("span.gso_ignored_kw:visible").length;
 
     $("#gso_resultWnd_count").html(count_totalSERP + count_totalSERPdesc + count_totalSERPimg + count_totalKW);
     $("#gso_killed_count_s").html(cat[config.config.gso_lang].full.msg.ctlmsgSERP + ": " + (count_totalSERP + count_totalSERPdesc));
@@ -1187,7 +1187,7 @@ function gso_config_rseditor_init() {
 
     $("#gso_ruleset_select").change();
 
-    $("#gso_ruleset_remove").prop("disabled", $("#gso_ruleset_select option").size() <= 1);
+    $("#gso_ruleset_remove").prop("disabled", $("#gso_ruleset_select option").length <= 1);
     $("#gso_rule_enabled").prop("checked", true);
 }
 
@@ -1221,7 +1221,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("#gso_resultWnd { left: 0px; top: 0px; padding: 2px; z-index: 999; background-color: white; border: 1px solid black; }");
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
-    GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; font-size: x-small;}");
+    GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
     GM_addStyle("*.gso_config_header { background-color: whitesmoke;}");
     GM_addStyle("*.gso_config_footer { background-color: whitesmoke;}");
     GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: none; background-color: lightgray; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
@@ -1370,7 +1370,7 @@ var count_totalKWSuggest = 0;
         return context;
     }
 
-    if($("#gso_config").size() === 0) {
+    if($("#gso_config").length === 0) {
         /* 設定画面 */
         var cfg_elem = $('<form id="gso_config" class="gso_config_embedded" lang="'+
                          config.config.gso_lang + '"></form>');
@@ -1899,7 +1899,7 @@ var count_totalKWSuggest = 0;
         });
         $("#gso_rule_moveup").click(function () {
             var idx;
-            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").size() == 1) {
+            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").length == 1) {
                 idx = Number($("#gso_ruleset_table table tbody tr.gso_rule_selected").attr('data-idx'));
                 if(idx - 1 >= 0) {
                     config.rulesets[$("#gso_ruleset_select").val()].rules.splice(
@@ -1913,7 +1913,7 @@ var count_totalKWSuggest = 0;
         });
         $("#gso_rule_movedown").click(function () {
             var idx;
-            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").size() == 1) {
+            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").length == 1) {
                 idx = Number($("#gso_ruleset_table table tbody tr.gso_rule_selected").attr('data-idx'));
                 if(idx + 1 <= config.rulesets[$("#gso_ruleset_select").val()].rules.length - 1) {
                     config.rulesets[$("#gso_ruleset_select").val()].rules.splice(
@@ -1937,7 +1937,7 @@ var count_totalKWSuggest = 0;
                 "enabled": $("#gso_rule_enabled").prop("checked")
             };
             if(!check_rule(new_rule)) return;
-            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").size() == 1) {
+            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").length == 1) {
                 config.rulesets[$("#gso_ruleset_select").val()].rules.splice(
                     Number($("#gso_ruleset_table table tbody tr.gso_rule_selected:last").attr('data-idx')) + 1,
                     0,
@@ -1950,7 +1950,7 @@ var count_totalKWSuggest = 0;
         $("#gso_rule_overwrite").click(function () {
             /* 入力チェックが必要 */
             var new_rule = null;
-            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").size() == 1) {
+            if($("#gso_ruleset_table table tbody tr.gso_rule_selected").length == 1) {
                 new_rule = {
                     "target": $("#gso_rule_target").val(),
                     "type": $("#gso_rule_type").val(),
@@ -1965,7 +1965,7 @@ var count_totalKWSuggest = 0;
                     .attr('data-idx'));
                 config.rulesets[$("#gso_ruleset_select").val()].rules[index] = new_rule;
                 $("#gso_ruleset_select").change();
-            } else if($("#gso_ruleset_table table tbody tr.gso_rule_selected").size() > 1) {
+            } else if($("#gso_ruleset_table table tbody tr.gso_rule_selected").length > 1) {
                 /* 複数選択 */
                 $("#gso_ruleset_table table tbody tr.gso_rule_selected").each(function() {
                     new_rule = {
@@ -2193,7 +2193,7 @@ var count_totalKWSuggest = 0;
                  "matched_rules": null
                 };
             var link = $(node).find("a:not(._T6c, .top, .ab_button, .fl)");
-            if(link.size() === 0){
+            if(link.length === 0){
                 link = $(node);
             }
             /* 状況記録部分 */
@@ -2343,23 +2343,19 @@ var count_totalKWSuggest = 0;
                 $(node).find("div.TXwUJf:has(s)").each(function() {
                     var missing_kw_list = $(this);
                     var missing_kw_list_ar = [];
-                    var missing_kw_list_new_html = missing_kw_list.html()
-                        .replace(/<span>未指定:<\/span>/gi, cat[config.config.gso_lang].full.msg.ignoredKeywords + ':')
-                        .replace(/<span>Missing:<\/span>/gi, cat[config.config.gso_lang].full.msg.ignoredKeywords + ':')
-                        .replace(/<s>/gi, '<span class="gso_ignored_kw">')
-                        .replace(/<\/s>/gi, "</span>");
-                    missing_kw_list.html(missing_kw_list_new_html);
-
                     var new_url_all = decodeURI_s(location.href.replace(/&start=\d+/, ""));
-                    missing_kw_list.children("span.gso_ignored_kw").each(function () {
-                        var ignored_kw = $(this).text();
-                        var re = new RegExp(escapeRegexp(ignored_kw), "gi");
-                        var new_url = decodeURI_s(location.href)
+                    missing_kw_list.find("span:first-child").text(cat[config.config.gso_lang].full.msg.ignoredKeywords + ':');
+                    missing_kw_list.find("s").each(function() {
+                        let kw = $(this).text();
+                        let re = new RegExp(escapeRegexp(kw), "gi");
+                        let new_url = decodeURI_s(location.href)
                             .replace(/&start=\d+/, "")
-                            .replace(re, '"' + ignored_kw + '"');
-                        new_url_all = new_url_all.replace(re, '"' + ignored_kw + '"');
-                        $(this).html('<a href="' + encodeURI(new_url) + '">' + ignored_kw + '</a>');
-                        missing_kw_list_ar.push(ignored_kw);
+                            .replace(re, '"' + kw + '"');
+                        new_url_all = new_url_all.replace(re, '"' + kw + '"');
+                        $(this).replaceWith(
+                            `<span class="gso_ignored_kw"><a href="${encodeURI(new_url)}">${kw}</a></span>`
+                        );
+                        missing_kw_list_ar.push(kw);
                     });
                     gso_log_append("missing",
                                    null,
@@ -2370,7 +2366,7 @@ var count_totalKWSuggest = 0;
                                    null,
                                    null,
                                    false);
-                    if(missing_kw_list.children("span.gso_ignored_kw").size() > 1) {
+                    if(missing_kw_list.children("span.gso_ignored_kw").length > 1) {
                         missing_kw_list.append(' <a href="' + encodeURI(new_url_all) + '">' +
                                                cat[config.config.gso_lang].full.msg.searchAllIncluded + '</a>');
                     }
@@ -2443,7 +2439,7 @@ var count_totalKWSuggest = 0;
             } else {
                 link = $(node).find("a:first");
             }
-            if(link.size() > 0) {
+            if(link.length > 0) {
                 /* 状況記録部分 */
                 if(link.hasClass("uh_rl")) {
                     /* ***の画像検索結果 */
@@ -2555,7 +2551,7 @@ var count_totalKWSuggest = 0;
                 context.description = null;
                 context.from = null;
             }
-            if(link.size() > 0) {
+            if(link.length > 0) {
                 context.matched_rules_target = check(context.target, context.description, context.title, null, null);
                 context.matched_rules_imgsrc = check(context.imgsrc, null, null, null, null);
                 var matched_rules = context.matched_rules_target.concat(context.matched_rules_imgsrc);
@@ -2798,7 +2794,7 @@ var count_totalKWSuggest = 0;
     }
 
     function hide_moshikashite() {
-        if(config.config.hide_moshikashite && $("p.ssp").size() > 0 && location.href.match("start=") !== null) {
+        if(config.config.hide_moshikashite && $("p.ssp").length > 0 && location.href.match("start=") !== null) {
             $("p.ssp").hide();
         }
     }

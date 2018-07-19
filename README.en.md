@@ -11,9 +11,10 @@ Google Search Cleaner (Tentative Name) is a user script for Greasemonkey / Tampe
 
 [![Demonstration](https://github.com/djtkdk-086969/google-search-cleaner/wiki/img/demo.thumb.png)](https://github.com/djtkdk-086969/google-search-cleaner/wiki/img/demo.png)
 
-[Introduction Movie (Nico Nico Douga)](http://ext.nicovideo.jp/thumb_watch/sm29461061?thumb_mode=html) (Please note that this movie was based on Ver. 1.1.1.086, an older version, and some of its behavior is subject to change.)
+[Introduction Movie (Nico Nico Douga)](http://ext.nicovideo.jp/thumb_watch/sm29461061?thumb_mode=html)
+(Please note that this movie was based on Ver. 1.1.1.086, an older version, and therefore some of its behavior are subject to change.)
 
-## Functions
+## Features
 This script has following functions:
 * Customizable criteria for filtering search results
 * Customizable actions other than hiding results (e.g. show warnings)
@@ -27,7 +28,7 @@ You can hide search results based on URL forward matching or a regular expressio
 
 ## System Requirements
 * Mozilla Firefox (Version 46+)
-* Greasemonkey (Version 3.8+, not compatible with Version 4.0 yet.)
+* Tampermonkey (Latest)
 
 or
 

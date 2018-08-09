@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.317
+// @version        1.4.1.318
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1291,8 +1291,12 @@ var count_totalKWSuggest = 0;
     var selector_IMGLIST =
         "div#isr_mc div.rg_el";
 
-    var selector_KW = "div#trev a, div#brs p._e4b > a";
-    /* 関連する検索キーワード */
+    /* 関連する検索キーワード*/
+    var selector_KW =
+        "div#trev a, " +
+        "div#brs p._e4b > a," +
+        "div.brs_col p.nVcaUb > a" + /* 2018/08仕様変更 */
+        ""; /* dummy */
 
 
     function check(url, description, title, keyword, temp_rulesets) {

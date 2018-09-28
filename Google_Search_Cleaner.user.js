@@ -16,7 +16,7 @@
 // @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.318
+// @version        1.4.1.319
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1251,13 +1251,16 @@ var count_totalKWSuggest = 0;
 
     var selector_SERP =
         "div.rc:has(h3.r > a)," +
+        "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */
         "li.g:has(a._Dk)," +
         "div.g:has(a._Dk)," +
         "div._lnc div._cnc," +
         "div._lnc div._hnc," +
         "div._lnc div._Xmc," +
         "div.sld:has(h3.r > a.l)," +
+        "div.sld:has(div.r > a.l)," + /* 2018/09仕様変更 */
         "div._knc:has(h3.r > a.l)," +
+        "div._knc:has(div.r > a.l)," + /* 2018/09仕様変更 */
         "a._rQb, " +
         "div._lnc > a.top, " +
         "div.dbsr, " + /* 2016/11仕様変更 */

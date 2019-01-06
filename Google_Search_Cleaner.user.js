@@ -10,14 +10,13 @@
 // @include        https://www.google.tld/?*
 // @include        https://www.google.tld/search*
 // @include        https://www.google.tld/webhp?*
-// @include        https://www.google.tld/imghp?*
 // @include        http://www.google.tld/
 // @include        http://www.google.tld/?*
 // @include        http://www.google.tld/search*
-// @include        http://www.google.tld/imghp?*
+// @include        http://www.google.tld/webhp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.320
+// @version        1.4.1.319
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -869,20 +868,11 @@ function gso_control_prepare() {
             msg_elem.append('<em>GSC</em> <span id="gso_resultWnd_icon" class="gso_emoji">-</span><span id="gso_resultWnd_count">-</span><span id="gso_resultWnd_IKcount" class="gso_resultWnd_IKcount" style="display: none;">Missing</span>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
             msg_elem.append('<div class="gso_dummy"></div>'); /* dummy */
-            msg_elem.addClass("gso_semitr"); /* ホバーされていない時は常時半透明表示 */
             if($("#hdtb").length > 0) {
-                if(config.config.float) {
-                    msg_elem.addClass("gso_float");
-                } else {
-                    msg_elem.addClass("gso_control_embedded_hdtb");
-                }
+                msg_elem.addClass("gso_control_embedded2");
                 msg_elem.prependTo("#hdtb");
             } else {
-                if(config.config.float) {
-                    msg_elem.addClass("gso_float");
-                } else {
-                    msg_elem.addClass("gso_control_embedded_body");
-                }
+                msg_elem.addClass("gso_control_embedded");
                 msg_elem.prependTo("body");
             }
             var ctl_elem = $('<div id="gso_control" class="gso_control_msg" style="position: absolute; display: none;" lang="' +
@@ -951,43 +941,39 @@ function gso_control_prepare() {
         });
         $(window).scroll(function () {
             /* 表示を追従させる */
-            
             var ctl = $("#gso_resultWnd");
             var minimum_top_ctl = 60;
             var isIschMode = false;
             isIschMode = (location.href.search("&tbm=isch&") >= 0);
 
             if(config.config.float) {
-                ctl.removeClass("gso_control_embedded_body");
-                ctl.removeClass("gso_control_embedded_hdtb");
-                ctl.addClass("gso_float");
-                /*
                 if(ctl.parents("#hdtb").length) {
-                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded_hdtb")) {
-                        ctl.removeClass("gso_control_embedded_hdtb");
+                    if($(window).scrollTop() > $("#hdtb").offset().top && ctl.hasClass("gso_control_embedded2")) {
+                        ctl.removeClass("gso_control_embedded2");
                         ctl.addClass("gso_float");
                     } else if($(window).scrollTop() <= $("#hdtb").offset().top && ctl.hasClass("gso_float")) {
                         ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded_hdtb");
+                        ctl.addClass("gso_control_embedded2");
                     }
                 } else {
-                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded_body")) {
-                        ctl.removeClass("gso_control_embedded_body");
+                    if($(window).scrollTop() > minimum_top_ctl && ctl.hasClass("gso_control_embedded")) {
+                        ctl.removeClass("gso_control_embedded");
                         ctl.addClass("gso_float");
                     } else if($(window).scrollTop() <= minimum_top_ctl && ctl.hasClass("gso_float")) {
                         ctl.removeClass("gso_float");
-                        ctl.addClass("gso_control_embedded_body");
+                        ctl.addClass("gso_control_embedded");
                     }
                 }
-                */
+                /* 画像検索 かつ 左上に固定(gso_float)のとき半透明にする */
+                if(ctl.hasClass("gso_float") && isIschMode) {
+                    ctl.addClass("gso_semitr");
+                } else {
+                    ctl.removeClass("gso_semitr");
+                }
             } else {
                 if(ctl.hasClass("gso_float")) {
                     ctl.removeClass("gso_float");
-                }
-                if(ctl.parents("#hdtb").length) {
-                    ctl.addClass("gso_control_embedded_hdtb");
-                } else {
-                    ctl.addClass("gso_control_embedded_body");
+                    ctl.addClass("gso_control_embedded");
                 }
             }
         });
@@ -1232,8 +1218,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
     GM_addStyle("#gso_control { left: -3px; z-index: 999; width: 128px; padding: 3px; background-color: white; border: 1px solid black; }");
-    GM_addStyle("#gso_resultWnd.gso_float #gso_control { bottom: 20px; }");
-    GM_addStyle("#gso_resultWnd { left: 0px; padding: 2px; z-index: 999; background-color: white; border: 1px solid black; }");
+    GM_addStyle("#gso_resultWnd { left: 0px; top: 0px; padding: 2px; z-index: 999; background-color: white; border: 1px solid black; }");
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
@@ -1249,11 +1234,10 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_quick_block_b ul {list-style: none;} *.gso_quick_block_b ul li label {float: left; width: 100px;}");
     GM_addStyle("*.gso_quick_block_b ul li input {width: 400px;} *.gso_quick_block_b ul li select {max-width: 400px;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
-    GM_addStyle("#gso_resultWnd.gso_float { position: fixed; bottom: 0px;}");
-    GM_addStyle("#gso_config.gso_float { position: fixed; top: 0px;}");
+    GM_addStyle("*.gso_float { position: fixed; top: 0px;}");
     GM_addStyle("*.gso_semitr { opacity: 0.5;} *.gso_semitr:hover {opacity: 1;}");
-    GM_addStyle("*.gso_control_embedded_body { position: absolute; top: 60px; }");
-    GM_addStyle("*.gso_control_embedded_hdtb { position: absolute; top: 0px; }");
+    GM_addStyle("*.gso_control_embedded { position: absolute; top: 60px; }");
+    GM_addStyle("*.gso_control_embedded2 { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_serp_description_info { display: block; background: lightgray; }");
     GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
@@ -2073,8 +2057,7 @@ var count_totalKWSuggest = 0;
         new MutationObserver(function(mutationEventList){
             mutationEventList.forEach(function(mutationEvent) {
                 var target = mutationEvent.target;
-                if(target.className == "sbl1") {
-                    //console.log(mutationEvent);
+                if(target.id == "lst-ib" || target.id == "sbtc") {
                     check_autocomplete();
                 }
             });
@@ -2198,13 +2181,11 @@ var count_totalKWSuggest = 0;
     $(document).ready(check_elem_first());
 
     /* div#searchの挿入を監視 */
-    console.log("mo_serp.observe");
     mo_serp.observe(document.body, {childList: true, subtree: true});
 
     /* オートコンプリートの監視 */
-    console.log("mo_autocomplete.observe");
-    mo_autocomplete.observe(document.getElementById("searchform"),
-                            {attributes: false, childList: true, characterData: false, subtree: true});
+    mo_autocomplete.observe(document.getElementById("sbtc"),
+                            {attributes: true, childList: true, characterData: true, subtree: false});
 
     function check_elem_serp(node) {
         /* ---------- 検索結果 ---------- */
@@ -2776,12 +2757,12 @@ var count_totalKWSuggest = 0;
     function check_autocomplete() {
         /* 検索語句入力欄のオートコンプリートをチェック
            (関連語句のみ) */
-        console.log("check_autocomplete()");
         mo_autocomplete.disconnect();
-        $("ul.erkvQe li.sbct").each(function() {
+        $("#sbtc li.gsfs").each(function() {
+
             var context =
                 {
-                    "autocomplete" : $(this).find("div.sbl1").text(),
+                    "autocomplete" : $(this).find("div.sbqs_c").text(),
                     "matched_rules": null
                 };
             context.matched_rules = check(null, null, null, context.autocomplete, null);
@@ -2815,8 +2796,8 @@ var count_totalKWSuggest = 0;
         });
         gso_log_setBoundary();
 
-        mo_autocomplete.observe(document.getElementById("searchform"),
-                                {attributes: false, childList: true, characterData: false, subtree: true});
+        mo_autocomplete.observe(document.getElementById("sbtc"),
+                                {attributes: true, childList: true, characterData: true, subtree: true});
 
     }
 

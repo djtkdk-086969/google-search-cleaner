@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.320
+// @version        1.4.1.321
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2226,11 +2226,19 @@ var count_totalKWSuggest = 0;
             /* 状況記録部分 */
             /* ページのタイトル
                (実際のものからGoogleにより改竄される場合あり) */
-            context.title = link.text();
+            try {
+                /* 2019年仕様変更への対応 */
+                context.title = link.find("h3.LC20lb").text();
+            }
+            catch (e) {
+                if (e instanceof TypeError) {
+                    context.title = link.text();
+                }
+            }
             /* ページのURL */
             context.target = link.attr("href");
 
-            /* ページの説明文または煽り文句 */
+            /* ページの抜粋または説明文(meta description) */
             try {
                 context.description = $(node).find("span.st, div.st").text();
             }
@@ -2859,6 +2867,4 @@ var count_totalKWSuggest = 0;
         }
         hide_moshikashite();
     }
-
-
 })();

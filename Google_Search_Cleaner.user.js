@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.321
+// @version        1.4.1.324
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -29,6 +29,8 @@
 // @compatible     firefox
 // @compatible     chrome
 // ==/UserScript==
+
+/* jshint esversion: 6 */
 
 /* 翻訳用メッセージカタログ(?) */
 var cat = {
@@ -1237,6 +1239,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
     GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
+    GM_addStyle("#gso_config ul {padding: 0px;}");
     GM_addStyle("*.gso_config_header { background-color: whitesmoke;}");
     GM_addStyle("*.gso_config_footer { background-color: whitesmoke;}");
     GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: none; background-color: lightgray; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
@@ -1303,12 +1306,18 @@ var count_totalKWSuggest = 0;
         "div.img-brk li.rg_el, " +
         "div.img-brk div.rg_el";
     /*
+      「すべて」の結果内に現れる画像のセレクタ
       画像検索結果(旧): div.img-brk li.rg_el
       画像検索結果: div.img-brk div.rg_el
     */
 
     var selector_IMGLIST =
-        "div#isr_mc div.rg_el";
+        "div#isr_mc div.rg_el, "+
+        "div#islrg div.isv-r";
+    /*
+      「画像」の検索結果に現れる画像のセレクタ
+      画像検索結果(2020/01仕様変更): div#islrg div.isv-r
+    */
 
     /* 関連する検索キーワード*/
     var selector_KW =
@@ -2085,10 +2094,12 @@ var count_totalKWSuggest = 0;
         mutations.forEach(function(mutation) {
             /* ノードが追加されたか？ */
             if (mutation.addedNodes && (mutation.addedNodes.length > 0)) {
+                //console.log(mutation.target);
                 /* その中に 'div#search'があるか？ */
                 var node_search = mutation.target.querySelector("div#search");
-                if (!node_search) node_search = mutation.target.querySelector("div#rhs");
-                /* 右側「他の人はこちらを検索」とか */
+                if (!node_search) node_search = mutation.target.querySelector("div#rhs");   /* 右側「他の人はこちらを検索」とか */
+                if (!node_search) node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 仕様変更
+
                 if (node_search) {
                     /* 'div#search' が挿入された */
                     mo_serp.disconnect();
@@ -2203,8 +2214,20 @@ var count_totalKWSuggest = 0;
 
     /* オートコンプリートの監視 */
     console.log("mo_autocomplete.observe");
-    mo_autocomplete.observe(document.getElementById("searchform"),
-                            {attributes: false, childList: true, characterData: false, subtree: true});
+    if (!["searchform", "sf"].some( (id) => {
+        try {
+            mo_autocomplete.observe(document.getElementById(id),
+                {attributes: false, childList: true, characterData: false, subtree: true});
+            return true;
+        }
+        catch (e) {
+            if (e instanceof TypeError) {
+                return false;
+            }
+        }
+    })) {
+        console.log("FATAL: Unable to observe mo_autocomplete.");
+    }
 
     function check_elem_serp(node) {
         /* ---------- 検索結果 ---------- */
@@ -2566,25 +2589,38 @@ var count_totalKWSuggest = 0;
                  "matched_rules_imgsrc": null
                 };
             /* 状況記録部分 */
-            var link = $(node).find("a.rg_l");
+            var link = $(node).find('a.rg_l, a.kGQAp, a[href^="http"]');
             /* console.log($(node).find("a.rg_l")[0].href)
                では、なぜか undefined が返される */
             var metadata = null;
             /* $(SELECTOR_IMGLIST) 直下の div.rg_meta (非表示)に
-               画像のメタデータがJSON形式で格納されている */
-            try {
-                metadata = JSON.parse($(node).find("div.rg_meta").text());
-                context.title = metadata.pt;
-                context.description = metadata.s;
-                context.from = metadata.isu;
-                context.target = metadata.ru;
-                context.imgsrc = metadata.ou;
+               画像のメタデータがJSON形式で格納されていた */
+            let rg_meta = $(node).find("div.rg_meta");
+            if (rg_meta.length === 0) {
+                /* rg_meta が存在しない。リンク先をhrefから取得する */
+                context.target = link.attr("href");
+                try {
+                    context.title = link.find("div.WGvvNb").text();
+                }
+                catch (e) {
+                    context.title = link.text();
+                }
             }
-            catch (e) {
-                /* bad metadata */
-                context.title = null;
-                context.description = null;
-                context.from = null;
+            else {
+                try {
+                    metadata = JSON.parse($(node).find("div.rg_meta").text());
+                    context.title = metadata.pt;
+                    context.description = metadata.s;
+                    context.from = metadata.isu;
+                    context.target = metadata.ru;
+                    context.imgsrc = metadata.ou;
+                }
+                catch (e) {
+                    /* bad metadata */
+                    context.title = null;
+                    context.description = null;
+                    context.from = null;
+                }
             }
             if(link.length > 0) {
                 context.matched_rules_target = check(context.target, context.description, context.title, null, null);

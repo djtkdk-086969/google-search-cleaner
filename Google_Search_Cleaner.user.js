@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.324
+// @version        1.4.1.325
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -998,7 +998,7 @@ function gso_control_prepare() {
         update_gso_control_msg();
 
         /* #sbtc (Search Box) も #search (SERP) も存在しない場合は結果表示画面を消す */
-        if($("#sbtc").length > 0 || $("#search").length > 0) {
+        if($("#sbtc").length > 0 || $("#search").length > 0 || ("#sf").length > 0) {
             $("#gso_resultWnd").show();
         } else {
             $("#gso_resultWnd").hide();

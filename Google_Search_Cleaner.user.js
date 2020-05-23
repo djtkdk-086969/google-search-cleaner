@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.329
+// @version        1.4.1.330
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2280,7 +2280,6 @@ var count_totalKWSuggest = 0;
             }
             /* ルールに合致しているかチェック */
             context.matched_rules = check(context.target, context.description, context.title, null, null);
-            console.log(context);
             if(context.matched_rules.length > 0) {
                 var applied_rule = get_most_significant_rule(context.matched_rules);
                 var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;

@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.327
+// @version        1.4.1.329
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -733,7 +733,7 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         }
         if(ruleset !== null) {
             let elemRuleset = table.find("tr:last td:eq(5)")
-                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+                .append("<div class='gso_log_pointicon'></div>");
             elemRuleset.attr("title", "[" + ruleset + "]" + config.rulesets[ruleset].name);
         }
         if(action !== null) {
@@ -748,19 +748,19 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         if(matched !== null) {
             table.find("tr:last td:eq(2)").text(matched);
         }
-        if(title !== null) {
+        if(title !== null && String(title).length > 0) {
             let elemTitle = table.find("tr:last td:eq(3)")
-                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+                .append("<div class='gso_log_pointicon'></div>");
             elemTitle.attr("title", title);
         }
         if(url !== null) {
             let elemUrl = table.find("tr:last td:eq(4)")
-                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+                .append("<div class='gso_log_pointicon'></div>");
             elemUrl.attr("title", url);
         }
         if(ruleset !== null) {
             let elemRuleset = table.find("tr:last td:eq(5)")
-                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+                .append("<div class='gso_log_pointicon'></div>");
             elemRuleset.attr("title", "[" + ruleset + "]" + config.rulesets[ruleset].name);
         }
         if(action !== null) {
@@ -1267,6 +1267,8 @@ var count_totalKWSuggest = 0;
     GM_addStyle("tr.gso_log_a {background-color: inherit;}");
     GM_addStyle("tr.gso_log_b {background-color: whitesmoke;}");
     GM_addStyle("*.gso_log_overridden {text-decoration: line-through; color: silver;}");
+    GM_addStyle("*.gso_log_pointicon {width: 100%; color: black; background-color: silver; text-align: center;}");
+    GM_addStyle("*.gso_log_pointicon::before {content: '…';}");
     GM_addStyle("div.gso_dummy {position: relative;}");
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 

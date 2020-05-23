@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.325
+// @version        1.4.1.327
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -726,19 +726,19 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
     }
     if(action_effective == "hide_absolutely") {
         if(ruleset !== null) {
-            table.find("tr:last td:eq(2)")
-                .append("<div style='width: 100%; color: silver;' title='"+
-                        cat[config.config.gso_lang].full.msg.hidAbsolutely +"'>" +
-                        cat[config.config.gso_lang].full.msg.hidAbsolutelyB + "</div>");
+            let elemMatched = table.find("tr:last td:eq(2)")
+                .append("<div style='width: 100%; color: silver;'></div>");
+            elemMatched.attr("title", cat[config.config.gso_lang].full.msg.hidAbsolutely);
+            elemMatched.text(cat[config.config.gso_lang].full.msg.hidAbsolutelyB);
         }
         if(ruleset !== null) {
-            table.find("tr:last td:eq(5)")
-                .append("<div title='[" + ruleset + "]" + config.rulesets[ruleset].name +
-                        "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            let elemRuleset = table.find("tr:last td:eq(5)")
+                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            elemRuleset.attr("title", "[" + ruleset + "]" + config.rulesets[ruleset].name);
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("&gt;&gt; " + cat[config.config.gso_lang].full.action[action]);
+                .text(">> " + cat[config.config.gso_lang].full.action[action]);
         }
         table.find("tr:last td:eq(4)").remove();
         table.find("tr:last td:eq(3)").remove();
@@ -749,21 +749,23 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
             table.find("tr:last td:eq(2)").text(matched);
         }
         if(title !== null) {
-            table.find("tr:last td:eq(3)")
-                .append("<div title='" + title + "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            let elemTitle = table.find("tr:last td:eq(3)")
+                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            elemTitle.attr("title", title);
         }
         if(url !== null) {
-            table.find("tr:last td:eq(4)")
-                .append("<div title='" + decodeURI_s(url) + "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            let elemUrl = table.find("tr:last td:eq(4)")
+                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            elemUrl.attr("title", url);
         }
         if(ruleset !== null) {
-            table.find("tr:last td:eq(5)")
-                .append("<div title='[" + ruleset + "]" + config.rulesets[ruleset].name +
-                        "' style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            let elemRuleset = table.find("tr:last td:eq(5)")
+                .append("<div style='width: 100%; background-color: silver; text-align: center;'>…</div>");
+            elemRuleset.attr("title", "[" + ruleset + "]" + config.rulesets[ruleset].name);
         }
         if(action !== null) {
             table.find("tr:last td:eq(6)")
-                .append("&gt;&gt; " + cat[config.config.gso_lang].full.action[action]);
+                .text(">> " + cat[config.config.gso_lang].full.action[action]);
         }
     }
 
@@ -2246,6 +2248,10 @@ var count_totalKWSuggest = 0;
             if(link.length === 0){
                 link = $(node);
             }
+            if(!link.is("a")) {
+                /* リンクを示す要素だが<a>ではない場合はまだチェックしない */
+                return;
+            }
             /* 状況記録部分 */
             /* ページのタイトル
                (実際のものからGoogleにより改竄される場合あり) */
@@ -2272,6 +2278,7 @@ var count_totalKWSuggest = 0;
             }
             /* ルールに合致しているかチェック */
             context.matched_rules = check(context.target, context.description, context.title, null, null);
+            console.log(context);
             if(context.matched_rules.length > 0) {
                 var applied_rule = get_most_significant_rule(context.matched_rules);
                 var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;

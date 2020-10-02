@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.330
+// @version        1.4.1.331
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -955,7 +955,7 @@ function gso_control_prepare() {
         });
         $(window).scroll(function () {
             /* 表示を追従させる */
-            
+
             var ctl = $("#gso_resultWnd");
             var minimum_top_ctl = 60;
             var isIschMode = false;
@@ -1273,6 +1273,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
     var selector_SERP =
+        "div.rc:has(div.yuRUbf > a)," + /* 2020/10仕様変更 */
         "div.rc:has(h3.r > a)," +
         "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */
         "li.g:has(a._Dk)," +
@@ -2239,6 +2240,7 @@ var count_totalKWSuggest = 0;
             /* ここでは検索して状況を記録するのみ
                書式の変更はまだ行わない */
             /* 各SERP(node)の状況を格納するオブジェクト */
+            const SELECTOR_DESCRIPTION = "span.st, div.st, div.IsZvec";
             var context =
                 {"element": $(node),
                  "title": null,
@@ -2271,7 +2273,7 @@ var count_totalKWSuggest = 0;
 
             /* ページの抜粋または説明文(meta description) */
             try {
-                context.description = $(node).find("span.st, div.st").text();
+                context.description = $(node).find(SELECTOR_DESCRIPTION).text();
             }
             catch (e) {
                 if (e instanceof TypeError) {
@@ -2283,7 +2285,7 @@ var count_totalKWSuggest = 0;
             if(context.matched_rules.length > 0) {
                 var applied_rule = get_most_significant_rule(context.matched_rules);
                 var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;
-                var original_desc = $(node).find("span.st, div.st");
+                var original_desc = $(node).find(SELECTOR_DESCRIPTION);
                 var new_desc = original_desc.clone();
                 var msg = "";
 

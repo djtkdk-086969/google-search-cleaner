@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.332
+// @version        1.4.1.334
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1273,6 +1273,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
     var selector_SERP =
+        "div.gT5me, " +
         "div.rc:has(div.yuRUbf > a)," + /* 2020/10仕様変更 */
         "div.rc:has(h3.r > a)," +
         "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */
@@ -1309,7 +1310,8 @@ var count_totalKWSuggest = 0;
 
     var selector_IMG =
         "div.img-brk li.rg_el, " +
-        "div.img-brk div.rg_el";
+        "div.img-brk div.rg_el, " +
+        "#iur div.ivg-i";
     /*
       「すべて」の結果内に現れる画像のセレクタ
       画像検索結果(旧): div.img-brk li.rg_el
@@ -2520,7 +2522,7 @@ var count_totalKWSuggest = 0;
             }
             if(link.length > 0) {
                 /* 状況記録部分 */
-                if(link.hasClass("uh_rl")) {
+                if(link.hasClass("uh_rl") || node.classList.contains("ivg-i")) {
                     /* ***の画像検索結果 */
                     // ページのURL
                     context.target = link.find("img:first").attr("title");

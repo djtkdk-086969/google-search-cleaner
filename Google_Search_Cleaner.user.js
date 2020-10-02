@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.331
+// @version        1.4.1.332
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2412,19 +2412,17 @@ var count_totalKWSuggest = 0;
                     var missing_kw_list = $(this);
                     var missing_kw_list_ar = [];
                     var new_url_all = decodeURI_s(location.href.replace(/&start=\d+/, ""));
-                    missing_kw_list.find("span:first-child").text(cat[config.config.gso_lang].full.msg.ignoredKeywords + ':');
-                    missing_kw_list.find("s").each(function() {
-                        let kw = $(this).text();
+                    [].slice.call(this.getElementsByTagName("s")).forEach((e) => {
+                        let kw = e.innerText;
                         let re = new RegExp(escapeRegexp(kw), "gi");
-                        let new_url = decodeURI_s(location.href)
+                        let newUrl = decodeURI_s(location.href)
                             .replace(/&start=\d+/, "")
                             .replace(re, '"' + kw + '"');
                         new_url_all = new_url_all.replace(re, '"' + kw + '"');
-                        $(this).replaceWith(
-                            `<span class="gso_ignored_kw"><a href="${encodeURI(new_url)}">${kw}</a></span>`
-                        );
+                        e.outerHTML = `<span class="gso_ignored_kw"><a href="${encodeURI(newUrl)}">${kw}</a></span>`;
                         missing_kw_list_ar.push(kw);
                     });
+                    missing_kw_list.find("> span:first-child").text(cat[config.config.gso_lang].full.msg.ignoredKeywords + ':');
                     gso_log_append("missing",
                                    null,
                                    missing_kw_list_ar.join(" "),
@@ -2434,9 +2432,22 @@ var count_totalKWSuggest = 0;
                                    null,
                                    null,
                                    false);
-                    if(missing_kw_list.children("span.gso_ignored_kw").length > 1) {
+                    /* 検索語句を全て含ませるリンクの追加
+                     元々「含めて検索:」がある場合はそれを尊重する(ただし文言は書き換える)*/
+                    if(this.querySelectorAll("span.gso_ignored_kw").length > 1) {
                         missing_kw_list.append(' <a href="' + encodeURI(new_url_all) + '">' +
                                                cat[config.config.gso_lang].full.msg.searchAllIncluded + '</a>');
+                    }
+                    else if(this.querySelectorAll("span.gso_ignored_kw").length == 1) {
+                        /* 無視された語句が1個のみの場合、後続の「含めて検索」を隠す */
+                        this.childNodes.forEach((e) => {
+                            if(e.nodeName == "#text" && (e.textContent.search("含めて検索:") >= 0 || e.textContent.search("Must include:") >= 0)) {
+                                e.remove();
+                            }
+                        });
+                        this.querySelectorAll("a.fl").forEach((e) => {
+                            e.remove();
+                        });
                     }
                 });
             }

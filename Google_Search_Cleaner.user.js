@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.334
+// @version        1.4.1.335
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1274,6 +1274,7 @@ var count_totalKWSuggest = 0;
 
     var selector_SERP =
         "div.gT5me, " +
+        "div.g:has(div.yuRUbf > a)," + /* 2021/01仕様変更 */
         "div.rc:has(div.yuRUbf > a)," + /* 2020/10仕様変更 */
         "div.rc:has(h3.r > a)," +
         "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */

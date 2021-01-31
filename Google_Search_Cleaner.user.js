@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.335
+// @version        1.4.1.336
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1250,7 +1250,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("#gso_about_header {text-align: center;}");
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
-    GM_addStyle("*.gso_quick_block_wnd {position: absolute; background-color: lightgray; border-radius: 3px/3px; padding: 3px; top: 100%; z-index: 999;}");
+    GM_addStyle("*.gso_quick_block_wnd {position: absolute; background-color: lightgray; border-radius: 3px/3px; padding: 3px; z-index: 999;}");
     GM_addStyle("*.gso_quick_block_b ul {list-style: none;} *.gso_quick_block_b ul li label {float: left; width: 100px;}");
     GM_addStyle("*.gso_quick_block_b ul li input {width: 400px;} *.gso_quick_block_b ul li select {max-width: 400px;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");

@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.336
+// @version        1.4.1.337
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1331,7 +1331,8 @@ var count_totalKWSuggest = 0;
     var selector_KW =
         "div#trev a, " +
         "div#brs p._e4b > a," +
-        "div.brs_col p.nVcaUb > a" + /* 2018/08仕様変更 */
+        "div.brs_col p.nVcaUb > a," + /* 2018/08仕様変更 */
+        "#bres a.k8XOCe" + /* 2021/02仕様変更 */
         ""; /* dummy */
 
 

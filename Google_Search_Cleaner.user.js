@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.337
+// @version        1.4.1.340
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1273,13 +1273,15 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
     var selector_SERP =
-        "div.gT5me, " +
+        "div.gT5me," +
+        "div.qLyARd.e3SnQ > div," + /* 2023/02 recipe */
         "div.g:has(div.yuRUbf > a)," + /* 2021/01仕様変更 */
         "div.rc:has(div.yuRUbf > a)," + /* 2020/10仕様変更 */
         "div.rc:has(h3.r > a)," +
         "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */
         "li.g:has(a._Dk)," +
         "div.g:has(a._Dk)," +
+        "div.g:has(h3.LC20lb)," +
         "div._lnc div._cnc," +
         "div._lnc div._hnc," +
         "div._lnc div._Xmc," +
@@ -2244,7 +2246,7 @@ var count_totalKWSuggest = 0;
             /* ここでは検索して状況を記録するのみ
                書式の変更はまだ行わない */
             /* 各SERP(node)の状況を格納するオブジェクト */
-            const SELECTOR_DESCRIPTION = "span.st, div.st, div.IsZvec";
+            const SELECTOR_DESCRIPTION = "span.st, div.st, div.IsZvec, div[data-content-feature='1']";
             var context =
                 {"element": $(node),
                  "title": null,
@@ -2528,71 +2530,75 @@ var count_totalKWSuggest = 0;
                     /* ***の画像検索結果 */
                     // ページのURL
                     context.target = link.find("img:first").attr("title");
+                    console.log(context.target);
                     // 代替テキスト
                     context.description = link.find("img:first").attr("alt");
                 }
-                context.matched_rules = check(context.target, context.description, null, null, null);
+            } else {
+                // <a> が存在しない (現在の仕様)
+                context.target = node.attributes["data-lpage"].textContent;
+                // description にあたるものは存在しない
+            }
+            context.matched_rules = check(context.target, context.description, null, null, null);
+            if(context.matched_rules.length > 0) {
+                var applied_rule = get_most_significant_rule(context.matched_rules);
+                var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;
 
-                if(context.matched_rules.length > 0) {
-                    var applied_rule = get_most_significant_rule(context.matched_rules);
-                    var ruleset_name = config.rulesets[applied_rule.ruleset_id].name;
+                var msg = "";
 
-                    var msg = "";
-
-                    context.matched_rules.forEach(function(element, index, array) {
-                        element.forEach(function (e) {
-                            gso_log_append("img",
-                                           e.rule.target,
-                                           e.matched,
-                                           null,
-                                           context.target,
-                                           e.ruleset_id,
-                                           e.rule.action,
-                                           applied_rule.rule.action,
-                                           !(e.effective !== undefined && e.effective));
-                        });
+                context.matched_rules.forEach(function(element, index, array) {
+                    element.forEach(function (e) {
+                        gso_log_append("img",
+                                       e.rule.target,
+                                       e.matched,
+                                       null,
+                                       context.target,
+                                       e.ruleset_id,
+                                       e.rule.action,
+                                       applied_rule.rule.action,
+                                       !(e.effective !== undefined && e.effective));
                     });
+                });
 
 
-                    if(applied_rule.rule.comment !== "" &&
-                       !applied_rule.rule.comment.startsWith("#") &&
-                       config.config.ruleset_name_with_comment) {
-                        msg = ruleset_name + " [" + applied_rule.rule.comment + "]";
-                    } else {
-                        msg = ruleset_name;
-                    }
-
-                    if(applied_rule.rule.action != "allow" &&
-                       applied_rule.rule.action != "hide_description" &&
-                       applied_rule.rule.action != "info") {
-                        $(node).addClass("gso_killed_serpimg");
-                        $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp"></div>');
-                        if(applied_rule.rule.action == "hide") {
-                            $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
-                            $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp gso_serp_description_a"></div>');
-                        }
-                        if(applied_rule.rule.action == "hide_description_warn" ||
-                           applied_rule.rule.action == "warn") {
-                            $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
-                            $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
-                            $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
-                        }
-                        if(applied_rule.rule.action == "hide_absolutely") {
-                            $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
-                        }
-                    }
-                } else if(config.config.always_log_checked_entries) {
-                    gso_log_append("img",
-                                   null,
-                                   null,
-                                   null,
-                                   context.target,
-                                   null,
-                                   "allow",
-                                   "allow",
-                                   true);
+                if(applied_rule.rule.comment !== "" &&
+                   !applied_rule.rule.comment.startsWith("#") &&
+                   config.config.ruleset_name_with_comment) {
+                    msg = ruleset_name + " [" + applied_rule.rule.comment + "]";
+                } else {
+                    msg = ruleset_name;
                 }
+
+                if(applied_rule.rule.action != "allow" &&
+                   applied_rule.rule.action != "hide_description" &&
+                   applied_rule.rule.action != "info") {
+                    $(node).addClass("gso_killed_serpimg");
+                    $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp"></div>');
+                    if(applied_rule.rule.action == "hide") {
+                        $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
+                        $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
+                        $(node).append('<div class="gso_killed_serpimg_warn gso_killed_img_mask_serp gso_serp_description_a"></div>');
+                    }
+                    if(applied_rule.rule.action == "hide_description_warn" ||
+                       applied_rule.rule.action == "warn") {
+                        $(node).find("*.gso_killed_serpimg_warn").addClass("gso_serp_description_a");
+                        $(node).find("*.gso_killed_serpimg_warn").css("opacity", "0.8");
+                        $(node).find("*.gso_killed_serpimg_warn").html("<span class='gso_emoji'>&#xfe0f;&#x26A0;</span> " + msg);
+                    }
+                    if(applied_rule.rule.action == "hide_absolutely") {
+                        $(node).find("*.gso_killed_serpimg_warn").css("opacity", "1");
+                    }
+                }
+            } else if(config.config.always_log_checked_entries) {
+                gso_log_append("img",
+                               null,
+                               null,
+                               null,
+                               context.target,
+                               null,
+                               "allow",
+                               "allow",
+                               true);
             }
             $(node).addClass("gso_checked");
             gso_log_setBoundary();

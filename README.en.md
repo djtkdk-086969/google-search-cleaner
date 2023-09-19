@@ -41,4 +41,7 @@ Google Chrome is supported starting at Ver. 1.1.0.078.
 [GPL v3](http://www.gnu.org/copyleft/gpl.html)
 
 ## Author
-[たかだか。(TakaDaka.)](https://twitter.com/djtkdk_086969)
+たかだか。(TKDK.)
+* [Misskey.io](https://misskey.io/@tkdk_bemusic)
+* [X (Twitter)](https://twitter.com/djtkdk_086969)
+* [mstdn.jp(予備)](https://mstdn.jp/@djtkdk_086969)

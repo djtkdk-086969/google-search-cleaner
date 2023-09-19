@@ -1,5 +1,5 @@
 // ==UserScript==
-// @author         たかだか。(TakaDaka.)
+// @author         たかだか。/TKDK.
 // @name           Google掃除機(仮称)
 // @name:en        Google Search Cleaner (Tentative Title)
 // @namespace      https://twitter.com/djtkdk_086969
@@ -17,14 +17,14 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.1.340
+// @version        1.4.2.350
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
 // @grant          GM_addStyle
 // @grant          GM_registerMenuCommand
 // @license        GPL v3; http://www.gnu.org/copyleft/gpl.html
-// @homepage       https://twitter.com/djtkdk_086969
+// @homepage       https://misskey.io/@tkdk_bemusic
 // @supportURL     https://github.com/djtkdk-086969/google-search-cleaner
 // @compatible     firefox
 // @compatible     chrome
@@ -151,7 +151,7 @@ var cat = {
                 "exportSelected": "選択範囲をエクスポート",
                 "urlList": "URLリスト(不完全)",
                 "clear": "クリア",
-                "pointForDetails": '<span style="background-color: silver;">…</span> をポイントすると詳細が表示されます。',
+                "pointForDetails": '<span class="gso_log_pointicon"></span> をポイントすると詳細が表示されます。',
                 "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
                 "configPrefsSecApr": "表示設定",
                 "configPrefsSecAdd": "付加機能の設定",
@@ -174,7 +174,7 @@ var cat = {
                 "restoreAll": "全設定をファイルから復元",
                 "init": "全設定を初期化(元に戻せません!)",
                 "initButton": "初期化",
-                "initConfirm": "後悔しませんね?",
+                "initConfirm": "この操作は元に戻せません。本当によろしいですか?",
                 "initialized": "全ての設定を初期化しました。",
                 "aboutAuthor": "作者",
                 "aboutLicense": "ライセンス",
@@ -331,7 +331,7 @@ var cat = {
                 "exportSelected": "Export selection",
                 "urlList": "URL List (Incomplete)",
                 "clear": "Clear",
-                "pointForDetails": 'Point <span style="background-color: silver;">…</span> to show details.',
+                "pointForDetails": 'Point <span class="gso_log_pointicon"></span> to show details.',
                 "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
                 "configPrefsSecApr": "Appearance",
                 "configPrefsSecAdd": "Additional Features",
@@ -573,7 +573,7 @@ function check_config(config_json) {
     if(valid) {
         Object.keys(config_default.config).forEach(function (k) {
             if (config_json.config[k] === null || config_json.config[k] === undefined) {
-                console.log('config_json.' + k + ' defaults to ' + config_default.config[k]);
+                console.warn('GSC: config_json.' + k + ' defaults to ' + config_default.config[k]);
                 config_json.config[k] = config_default.config[k];
             }
         });
@@ -869,7 +869,7 @@ function gso_control_prepare() {
     if(config.config.message_location == "page") {
         if($("#gso_control").length === 0) {
             //console.log("GSC: Results window (page) created.");
-            var msg_elem = $('<div id="gso_resultWnd"></div>');
+            var msg_elem = $('<div id="gso_resultWnd" class="gso_ui_root"></div>');
             msg_elem.append('<em>GSC</em> <span id="gso_resultWnd_icon" class="gso_emoji">-</span><span id="gso_resultWnd_count">-</span><span id="gso_resultWnd_IKcount" class="gso_resultWnd_IKcount" style="display: none;">Missing</span>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
             msg_elem.append('<div class="gso_dummy"></div>'); /* dummy */
@@ -889,7 +889,7 @@ function gso_control_prepare() {
                 }
                 msg_elem.prependTo("body");
             }
-            var ctl_elem = $('<div id="gso_control" class="gso_control_msg" style="position: absolute; display: none;" lang="' +
+            var ctl_elem = $('<div id="gso_control" class="gso_ui_root gso_control_msg" style="position: absolute; display: none;" lang="' +
                              config.config.gso_lang + '"></div>');
             ctl_elem.append('<div id="gso_results_msg_top">' + cat[config.config.gso_lang].full.msg.ctlmsgNoSERP + '</div>');
             ctl_elem.append('<ul style="list-style-type: none;"></ul>');
@@ -1010,7 +1010,7 @@ function gso_control_prepare() {
 }
 
 function update_gso_control_msg() {
-    //console.log("update_gso_control_msg()");
+    //console.log("GSC: update_gso_control_msg()");
     /* 結果表示 */
 
     var count_totalSERP = $("*.gso_killed_serp").length;
@@ -1140,14 +1140,14 @@ function gso_save() {
     GM_setValue("version", GM_info.script.version);
 
     GM_setValue("rulesets", JSON.stringify(config.rulesets));
-    console.log("saved configuration");
+    console.log("GSC: The configuration has been saved.");
     console.log(JSON.parse(GM_getValue("rulesets")));
 }
 
 function gso_load() {
     /* GM_getValue で設定を読み込む
        値が設定されていなかったらデフォルト値を読み込む */
-    console.log("loading configuration");
+    console.log("GSC: Loading configuration");
     config = {};
     config.config = {};
     config.rulesets = {};
@@ -1157,7 +1157,7 @@ function gso_load() {
     });
 
     config.rulesets = JSON.parse(GM_getValue("rulesets", '{"default":{"name":"既定のルールセット","enabled":true,"rules":[{"action":"hide","comment":"","criteria":"example.com","enabled":false,"level":0,"target":"url","type":"domain"}]}}'));
-    console.log("loaded configuration");
+    console.log("GSC: loaded configuration");
     console.log(config);
 
     jQuery.fx.off = !config.config.animation;
@@ -1178,16 +1178,16 @@ function gso_import_ruleset(rules, key) {
             }
         });
         if (imported_count == rules.length) {
-            console.log("imported:", imported_count);
+            console.log("GSC: imported rules:", imported_count);
         } else if(imported_count == rules.length - 1) {
-            console.log("imported:", imported_count);
-            console.log("malformed:", JSON.stringify(malformed_entry));
+            console.log("GSC: imported rules:", imported_count);
+            console.log("GSC: malformed rules:", JSON.stringify(malformed_entry));
         } else {
-            console.log("imported:", imported_count);
-            console.log("malformed:", JSON.stringify(malformed_entry));
+            console.log("GSC: imported rules:", imported_count);
+            console.log("GSC: malformed rules:", JSON.stringify(malformed_entry));
         }
     } else {
-        console.log("import failed (invalid format)");
+        console.warn("GSC: import failed (invalid format)");
     }
 }
 
@@ -1223,34 +1223,63 @@ function gso_config_init() {
 var count_totalKWSuggest = 0;
 
 (function() {
-    console.log("Google Search Cleaner " + GM_info.script.version + " started.");
+    console.info("Google Search Cleaner " + GM_info.script.version + " started.");
     gso_load(); /* 設定を読み込む */
 
     GM_registerMenuCommand(cat[config.config.gso_lang].full.msg.GscConfigMenu, gso_rseditor_toggle);
-    GM_addStyle("span.gso_killed_serp_msg { color: silver; margin: 0 0; }");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_ui_root { background-color: #404040; color: silver; border: 1px solid silver; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_ui_root { background-color: white; color: #404040; border: 1px solid black; }}");
+
+    GM_addStyle("span.gso_killed_serp_msg {margin: 0 0; }");
+    GM_addStyle("@media(prefers-color-scheme: dark) { span.gso_killed_serp_msg  { color: silver; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { span.gso_killed_serp_msg  { color: #404040; }}");
+
     GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: small; top: 0px; left: 0px;}");
-    GM_addStyle("*.gso_killed_img_mask_serp {background-color: #ffffff;}");
-    GM_addStyle("*.gso_killed_img_mask_isch {background-color: #f1f1f1;}");
+	
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_killed_img_mask_serp { background-color: #000000; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_killed_img_mask_serp { background-color: #ffffff; }}");
+
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_killed_img_mask_isch { background-color: #000000; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_killed_img_mask_isch { background-color: #f1f1f1; }}");
+
     GM_addStyle("span.gso_killed_kw_bad {text-decoration: line-through; white-space: nowrap;}");
-    GM_addStyle("span.gso_killed_kw_placeholder {color: white; background-color: darkgray; white-space: nowrap; border-radius: 3px/3px; padding: 1px;}");
+    GM_addStyle("span.gso_killed_kw_placeholder {white-space: nowrap; border-radius: 3px/3px; padding: 1px;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { span.gso_killed_kw_placeholder { color: #404040; background-color: silver; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { span.gso_killed_kw_placeholder { color: silver; background-color: #404040; }}");
+
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
-    GM_addStyle("#gso_control { left: -3px; z-index: 999; width: 128px; padding: 3px; background-color: white; border: 1px solid black; }");
+    GM_addStyle("#gso_control { left: -3px; z-index: 999; width: 128px; padding: 3px; }");
     GM_addStyle("#gso_resultWnd.gso_float #gso_control { bottom: 20px; }");
-    GM_addStyle("#gso_resultWnd { left: 0px; padding: 2px; z-index: 999; background-color: white; border: 1px solid black; }");
+    GM_addStyle("#gso_resultWnd { left: 0px; padding: 2px; z-index: 999; }");
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
-    GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; background-color: white; border: 1px solid black; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
+    GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
     GM_addStyle("#gso_config ul {padding: 0px;}");
-    GM_addStyle("*.gso_config_header { background-color: whitesmoke;}");
-    GM_addStyle("*.gso_config_footer { background-color: whitesmoke;}");
-    GM_addStyle("ul.gso_config_tab {list-style-type: none;} ul.gso_config_tab li {display: inline-block; border: none; background-color: lightgray; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
-    GM_addStyle("ul.gso_config_tab li.gso_config_selected {background-color: white;}");
+    GM_addStyle("*.gso_config_header, *.gso_config_footer { background-color: whitesmoke;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_config_header, *.gso_config_footer { background-color: #606060; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_config_header, *.gso_config_footer { background-color: whitesmoke; }}");
+
+    GM_addStyle("ul.gso_config_tab {list-style-type: none;}");
+    GM_addStyle("ul.gso_config_tab li {display: inline-block; border: none; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { ul.gso_config_tab li { background-color: #404040; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { ul.gso_config_tab li { background-color: lightgray; }}");
+	
+    GM_addStyle("@media(prefers-color-scheme: dark) { ul.gso_config_tab li.gso_config_selected { background-color: darkred; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { ul.gso_config_tab li.gso_config_selected { background-color: pink; }}");
+
     GM_addStyle("ul.gso_config_tabpage {list-style-type: none;} ul.gso_config_tabpage fieldset {border: none;}");
     GM_addStyle("#gso_about_header {text-align: center;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { #gso_config thead tr { background-color: #606060; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { #gso_config thead tr { background-color: lightgray; }}");
+
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
-    GM_addStyle("*.gso_quick_block_wnd {position: absolute; background-color: lightgray; border-radius: 3px/3px; padding: 3px; z-index: 999;}");
+
+    GM_addStyle("*.gso_quick_block_wnd {position: absolute; border-radius: 3px/3px; padding: 3px; z-index: 999;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_quick_block_wnd { background-color: #404040; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_quick_block_wnd { background-color: lightgray; }}");
+
     GM_addStyle("*.gso_quick_block_b ul {list-style: none;} *.gso_quick_block_b ul li label {float: left; width: 100px;}");
     GM_addStyle("*.gso_quick_block_b ul li input {width: 400px;} *.gso_quick_block_b ul li select {max-width: 400px;}");
     GM_addStyle("span.gso_ignored_kw { font-weight: bold; }");
@@ -1260,14 +1289,30 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_control_embedded_body { position: absolute; top: 60px; }");
     GM_addStyle("*.gso_control_embedded_hdtb { position: absolute; top: 0px; }");
     GM_addStyle("*.gso_config_embedded { position: absolute; top: 0px; }");
-    GM_addStyle("*.gso_serp_description_info { display: block; background: lightgray; }");
-    GM_addStyle("*.gso_serp_description_warning { display: block; color: darkred;}");
-    GM_addStyle("tr.gso_rule_selected {background-color: pink;}");
+    GM_addStyle("*.gso_serp_description_info { display: block; }");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_serp_description_info { background: #404040; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_serp_description_info { background: lightgray; }}");
+	
+    GM_addStyle("*.gso_serp_description_warning { display: block;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_serp_description_warning { color: pink !important; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_serp_description_warning { color: darkred !important; }}");
+
+    GM_addStyle("@media(prefers-color-scheme: dark) { tr.gso_rule_selected { background-color: darkred; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { tr.gso_rule_selected { background-color: pink; }}");
+
     GM_addStyle("tr.gso_rule_disabled {text-decoration: line-through;}");
     GM_addStyle("tr.gso_log_a {background-color: inherit;}");
-    GM_addStyle("tr.gso_log_b {background-color: whitesmoke;}");
-    GM_addStyle("*.gso_log_overridden {text-decoration: line-through; color: silver;}");
-    GM_addStyle("*.gso_log_pointicon {width: 100%; color: black; background-color: silver; text-align: center;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { tr.gso_log_b { background-color: #484848; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { tr.gso_log_b { background-color: whitesmoke; }}");
+
+    GM_addStyle("*.gso_log_overridden {text-decoration: line-through;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_log_overridden { color: #606060; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_log_overridden { color: silver; }}");
+
+    GM_addStyle("td *.gso_log_pointicon {width: 100%; text-align: center;}");
+    GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_log_pointicon { color: silver; background-color: #606060; }}");
+    GM_addStyle("@media(prefers-color-scheme: light) { *.gso_log_pointicon { color: #404040; background-color: silver; }}");
+	
     GM_addStyle("*.gso_log_pointicon::before {content: '…';}");
     GM_addStyle("div.gso_dummy {position: relative;}");
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
@@ -1416,7 +1461,7 @@ var count_totalKWSuggest = 0;
 
     if($("#gso_config").length === 0) {
         /* 設定画面 */
-        var cfg_elem = $('<form id="gso_config" class="gso_config_embedded" lang="'+
+        var cfg_elem = $('<form id="gso_config" class="gso_config_embedded gso_ui_root" lang="'+
                          config.config.gso_lang + '"></form>');
         cfg_elem.append('<div id="gso_config_header" class="gso_config_header" style="width: 100%;"></div>');
         cfg_elem.find("#gso_config_header")
@@ -1476,7 +1521,7 @@ var count_totalKWSuggest = 0;
                     '<col style="width: 248px;">' +
                     '<col style="width: 1em; min-width: 1em;">' +
                     '</colgroup>')
-            .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
+            .append('<thead><tr style="font-weight: bold;">' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.target + '</td>' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.type + '</td>' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.action + '</td>' +
@@ -1575,7 +1620,7 @@ var count_totalKWSuggest = 0;
                     '<col style="width: 3em; min-width: 3em;">' +
                     '<col style="width: 11em; min-width: 11em;">' +
                     '</colgroup>')
-            .append('<thead><tr style="font-weight: bold; background-color: lightgray;">' +
+            .append('<thead><tr style="font-weight: bold;">' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.contentType + '</td>' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.target + '</td>' +
                     '<td>' + cat[config.config.gso_lang].abbrev.table.matchedString + '</td>' +
@@ -1650,7 +1695,16 @@ var count_totalKWSuggest = 0;
         fieldset.find("#gso_about_header")
             .append('<span style="font-size: x-large">Google掃除機(仮称)<br>(Google Search Cleaner)</span><br>Version ' + GM_info.script.version + '<br>');
         fieldset.find("#gso_about")
-            .append(cat[config.config.gso_lang].full.msg.aboutAuthor + ': たかだか。(TakaDaka.) <a href="https://twitter.com/djtkdk_086969" target="_blank">Twitter</a> <a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a> <a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a><br>')
+            .append(cat[config.config.gso_lang].full.msg.aboutAuthor +
+                    ': たかだか。(TKDK.) ' +
+                    '<ul>' +
+                    '<li><a href="https://misskey.io/@tkdk_bemusic" target="_blank">Misskey.io (Recommended)</a></li>' +
+                    '<li><a href="https://mstdn.jp/@djtkdk_086969" target="_blank">mstdn.jp</a></li>' +
+                    '<li><a href="https://twitter.com/djtkdk_086969" target="_blank">X (former Twitter)</a></li>' +
+                    '<li><a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a></li>' +
+                    '<li><a href="https://github.com/djtkdk-086969" target="_blank">GitHub</a></li>' +
+                    '</ul>'
+                   )
             .append(cat[config.config.gso_lang].full.msg.aboutLicense + ': GPL v3<br>')
             .append(cat[config.config.gso_lang].full.msg.aboutJQ);
         cfg_elem.find('ul.gso_config_tabpage > li').eq(5).append(fieldset);
@@ -1823,7 +1877,7 @@ var count_totalKWSuggest = 0;
                         catch (e) {
                             if (e instanceof SyntaxError) {
                                 /* JSONの構文が正しくない 単純リスト形式でのインポートを試みる */
-                                console.log("Invalid JSON syntax. Attempting to read as a simple list.");
+                                console.info("GSC: Invalid JSON syntax. Attempting to read as a simple list.");
                                 var text = evt.target.result.split(/\r\n|\r|\n/);
                                 rules_json = [];
                                 text.forEach(function(element) {
@@ -2027,7 +2081,6 @@ var count_totalKWSuggest = 0;
                             new_rule[k] = rule[k];
                         }
                     });
-                    console.log(new_rule);
                     if(check_rule(new_rule)) {
                         config.rulesets[$("#gso_ruleset_select").val()].rules[Number($(this).attr('data-idx'))] = new_rule;
                     }
@@ -2062,6 +2115,9 @@ var count_totalKWSuggest = 0;
             gso_load();
             gso_config_init();
         });
+        $("#gso_log_clear").click(function () {
+			$("#gso_log_table tr").remove();
+		});
         $(window).scroll(function () {
             /* 表示を追従させる */
             var cfg = $("#gso_config");
@@ -2093,7 +2149,8 @@ var count_totalKWSuggest = 0;
         new MutationObserver(function(mutationEventList){
             mutationEventList.forEach(function(mutationEvent) {
                 var target = mutationEvent.target;
-                if(target.className == "sbl1") {
+                //console.log("mo_autocomplete MutationEvent", target);
+                if(target.getElementsByClassName("sbct").length > 0) {
                     //console.log(mutationEvent);
                     check_autocomplete();
                 }
@@ -2107,10 +2164,16 @@ var count_totalKWSuggest = 0;
             if (mutation.addedNodes && (mutation.addedNodes.length > 0)) {
                 //console.log(mutation.target);
                 /* その中に 'div#search'があるか？ */
-                var node_search = mutation.target.querySelector("div#search");
-                if (!node_search) node_search = mutation.target.querySelector("div#rhs");   /* 右側「他の人はこちらを検索」とか */
-                if (!node_search) node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 仕様変更
-
+                var node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 仕様変更
+                if (!node_search) {
+                    node_search = mutation.target.querySelector("div#rhs"); /* 右側「他の人はこちらを検索」とか */
+                }
+                if (!node_search) {
+                    node_search = mutation.target.querySelector("#botstuff");/* 2ページ目以降(手動および自動, 2022仕様変更) */
+                }
+                if (!node_search) {
+                    node_search = mutation.target;
+                }
                 if (node_search) {
                     /* 'div#search' が挿入された */
                     mo_serp.disconnect();
@@ -2165,7 +2228,6 @@ var count_totalKWSuggest = 0;
                     mo_link.observe(node_taw, {childList: true, subtree: true});
                     mo_serp.observe(document.body, {childList: true, subtree: true});
                 }
-
                 /* その中に 'div#extrares'があるか？ */
                 var node_extrares = mutation.target.querySelector("div#extrares");
                 if (node_extrares) {
@@ -2220,11 +2282,11 @@ var count_totalKWSuggest = 0;
     $(document).ready(check_elem_first());
 
     /* div#searchの挿入を監視 */
-    console.log("mo_serp.observe");
+    console.log("GSC: mo_serp.observe");
     mo_serp.observe(document.body, {childList: true, subtree: true});
 
     /* オートコンプリートの監視 */
-    console.log("mo_autocomplete.observe");
+    console.log("GSC: mo_autocomplete.observe");
     if (!["searchform", "sf"].some( (id) => {
         try {
             mo_autocomplete.observe(document.getElementById(id),
@@ -2237,7 +2299,7 @@ var count_totalKWSuggest = 0;
             }
         }
     })) {
-        console.log("FATAL: Unable to observe mo_autocomplete.");
+        console.warn("GSC: Unable to observe mo_autocomplete. Autocomplete not checked.");
     }
 
     function check_elem_serp(node) {
@@ -2246,7 +2308,12 @@ var count_totalKWSuggest = 0;
             /* ここでは検索して状況を記録するのみ
                書式の変更はまだ行わない */
             /* 各SERP(node)の状況を格納するオブジェクト */
-            const SELECTOR_DESCRIPTION = "span.st, div.st, div.IsZvec, div[data-content-feature='1']";
+            const SELECTOR_DESCRIPTION =
+				"span.st, " +
+				"div.st, " +
+				"div.IsZvec, " +
+				"div[data-content-feature='1'], " +
+				"div.VwiC3b"; /* 2023/09仕様変更 */
             var context =
                 {"element": $(node),
                  "title": null,
@@ -2445,9 +2512,9 @@ var count_totalKWSuggest = 0;
                                                cat[config.config.gso_lang].full.msg.searchAllIncluded + '</a>');
                     }
                     else if(this.querySelectorAll("span.gso_ignored_kw").length == 1) {
-                        /* 無視された語句が1個のみの場合、後続の「含めて検索」を隠す */
+                        /* 無視された語句が1個のみの場合、後続の「必須にする」または「含めて検索」を隠す */
                         this.childNodes.forEach((e) => {
-                            if(e.nodeName == "#text" && (e.textContent.search("含めて検索:") >= 0 || e.textContent.search("Must include:") >= 0)) {
+                            if(e.nodeName == "#text" && (e.textContent.search("必須にする:") >= 0 || e.textContent.search("含めて検索:") >= 0 || e.textContent.search("Must include:") >= 0)) {
                                 e.remove();
                             }
                         });
@@ -2530,7 +2597,6 @@ var count_totalKWSuggest = 0;
                     /* ***の画像検索結果 */
                     // ページのURL
                     context.target = link.find("img:first").attr("title");
-                    console.log(context.target);
                     // 代替テキスト
                     context.description = link.find("img:first").attr("alt");
                 }
@@ -2851,12 +2917,12 @@ var count_totalKWSuggest = 0;
     function check_autocomplete() {
         /* 検索語句入力欄のオートコンプリートをチェック
            (関連語句のみ) */
-        console.log("check_autocomplete()");
+        console.log("GSC: check_autocomplete()");
         mo_autocomplete.disconnect();
-        $("ul.erkvQe li.sbct").each(function() {
+        $("*.erkvQe li.sbct").each(function() {
             var context =
                 {
-                    "autocomplete" : $(this).find("div.sbl1").text(),
+                    "autocomplete" : $(this).find("*.lnnVSe").text(), // this class name might be changed
                     "matched_rules": null
                 };
             context.matched_rules = check(null, null, null, context.autocomplete, null);

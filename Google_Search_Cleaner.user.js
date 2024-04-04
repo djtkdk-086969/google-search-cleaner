@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.350
+// @version        1.4.2.351
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1317,34 +1317,33 @@ var count_totalKWSuggest = 0;
     GM_addStyle("div.gso_dummy {position: relative;}");
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
+    /* 「すべて」の結果内に現れる検索結果のセレクタ */
     var selector_SERP =
         "div.gT5me," +
         "div.qLyARd.e3SnQ > div," + /* 2023/02 recipe */
-        "div.g:has(div.yuRUbf > a)," + /* 2021/01仕様変更 */
-        "div.rc:has(div.yuRUbf > a)," + /* 2020/10仕様変更 */
-        "div.rc:has(h3.r > a)," +
-        "div.rc:has(div.r > a)," + /* 2018/09仕様変更 */
-        "li.g:has(a._Dk)," +
-        "div.g:has(a._Dk)," +
+        "div.g:has(div.yuRUbf > a)," + /* 2021/01 G側の仕様変更 */
+        "div.rc:has(div.yuRUbf > a)," + /* 2020/10 G側の仕様変更 */
+        "div.rc:has(h3.r > a)," + /* サイト内検索 */
+        "div.rc:has(div.r > a)," + /* 2018/09 G側の仕様変更 */
+        "li.g:has(a._Dk)," + /* ニューストピック */
+        "div.g:has(a._Dk)," + /* ニューストピック */
         "div.g:has(h3.LC20lb)," +
         "div._lnc div._cnc," +
         "div._lnc div._hnc," +
         "div._lnc div._Xmc," +
         "div.sld:has(h3.r > a.l)," +
-        "div.sld:has(div.r > a.l)," + /* 2018/09仕様変更 */
+        "div.sld:has(div.r > a.l)," + /* 2018/09 G側の仕様変更 */
         "div._knc:has(h3.r > a.l)," +
-        "div._knc:has(div.r > a.l)," + /* 2018/09仕様変更 */
+        "div._knc:has(div.r > a.l)," + /* 2018/09 G側の仕様変更 */
         "a._rQb, " +
         "div._lnc > a.top, " +
-        "div.dbsr, " + /* 2016/11仕様変更 */
+        "div.dbsr, " + /* 2016/11 G側の仕様変更 */
         "ul._vio > li._sio, " + /* 同上 */
-        "div._Pcr, " + /* 2017/09仕様変更 */
-        "div.P94G9b, " + /* 2018/06 仕様変更 (SERPに挿入される動画検索結果) */
-        "div.So9e7d" + /* 2018/07 仕様変更 (トップニュース) */
+        "div._Pcr, " + /* 2017/09 G側の仕様変更 */
+        "div.P94G9b, " + /* 2018/06 G側の仕様変更 (SERPに挿入される動画検索結果) */
+        "div.So9e7d" + /* 2018/07 G側の仕様変更 (トップニュース) */
         ""; /* dummy */
     /*
-      サイト内検索: div.rc:has(h3.r > a)
-      ニューストピック: li.g:has(a._Dk), div.g:has(a._Dk)
       トップニュース(2016/11): (div._NId div._Bfp) div.dbsr
       > a (URL)
       > div._qlp cite._NCp (From)
@@ -1356,30 +1355,26 @@ var count_totalKWSuggest = 0;
       p._NRj._ORj.f._xRj > cite (from)
     */
 
+    /* 「すべて」の結果内に現れる画像のセレクタ */
     var selector_IMG =
-        "div.img-brk li.rg_el, " +
-        "div.img-brk div.rg_el, " +
-        "#iur div.ivg-i";
-    /*
-      「すべて」の結果内に現れる画像のセレクタ
-      画像検索結果(旧): div.img-brk li.rg_el
-      画像検索結果: div.img-brk div.rg_el
-    */
+        "div.img-brk li.rg_el, " + /* 画像検索結果(旧) */
+        "div.img-brk div.rg_el, " + /* 画像検索結果 */
+        "#iur div.ivg-i" +
+		""; /* dummy */
 
+    /* 「画像」の検索結果に現れる画像のセレクタ */
     var selector_IMGLIST =
         "div#isr_mc div.rg_el, "+
-        "div#islrg div.isv-r";
-    /*
-      「画像」の検索結果に現れる画像のセレクタ
-      画像検索結果(2020/01仕様変更): div#islrg div.isv-r
-    */
+        "div#islrg div.isv-r, " + /* 2020/01 G側の仕様変更 */
+		"#rso div.ivg-i" + /* 2024/04 G側の仕様変更 */
+		""; /* dummy */
 
     /* 関連する検索キーワード*/
     var selector_KW =
         "div#trev a, " +
         "div#brs p._e4b > a," +
-        "div.brs_col p.nVcaUb > a," + /* 2018/08仕様変更 */
-        "#bres a.k8XOCe" + /* 2021/02仕様変更 */
+        "div.brs_col p.nVcaUb > a," + /* 2018/08 G側の仕様変更 */
+        "#bres a.k8XOCe" + /* 2021/02 G側の仕様変更 */
         ""; /* dummy */
 
 
@@ -2164,12 +2159,12 @@ var count_totalKWSuggest = 0;
             if (mutation.addedNodes && (mutation.addedNodes.length > 0)) {
                 //console.log(mutation.target);
                 /* その中に 'div#search'があるか？ */
-                var node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 仕様変更
+                var node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 G側の仕様変更
                 if (!node_search) {
                     node_search = mutation.target.querySelector("div#rhs"); /* 右側「他の人はこちらを検索」とか */
                 }
                 if (!node_search) {
-                    node_search = mutation.target.querySelector("#botstuff");/* 2ページ目以降(手動および自動, 2022仕様変更) */
+                    node_search = mutation.target.querySelector("#botstuff");/* 2ページ目以降(手動および自動, 2022 G側の仕様変更) */
                 }
                 if (!node_search) {
                     node_search = mutation.target;
@@ -2190,7 +2185,13 @@ var count_totalKWSuggest = 0;
                             check_elem_img(this);
                         });
                     }
-                    if(location.href.search("&tbm=isch&") >= 0 && config.config.check_for_image){
+                    if(config.config.check_for_image){
+                        /*
+                            2024/04 G側の仕様変更
+                            location.href.search("&tbm=isch&") >= 0
+                            で「画像検索」を検知できなくなった、かつこれに相当する
+                            パラメータが不明であるため、当面の間この条件分岐は無効とする
+                        */
                         $(selector_IMGLIST).not("*.gso_checked").each(function() {
                             check_elem_imglist(this);
                         });
@@ -2313,7 +2314,7 @@ var count_totalKWSuggest = 0;
 				"div.st, " +
 				"div.IsZvec, " +
 				"div[data-content-feature='1'], " +
-				"div.VwiC3b"; /* 2023/09仕様変更 */
+				"div.VwiC3b"; /* 2023/09 G側の仕様変更 */
             var context =
                 {"element": $(node),
                  "title": null,
@@ -2333,7 +2334,7 @@ var count_totalKWSuggest = 0;
             /* ページのタイトル
                (実際のものからGoogleにより改竄される場合あり) */
             try {
-                /* 2019年仕様変更への対応 */
+                /* 2019 G側の仕様変更への対応 */
                 context.title = link.find("h3.LC20lb").text();
             }
             catch (e) {

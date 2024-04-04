@@ -42,6 +42,7 @@ Google Chrome is supported starting at Ver. 1.1.0.078.
 
 ## Author
 たかだか。(TKDK.)
-* [Misskey.io](https://misskey.io/@tkdk_bemusic)
-* [X (Twitter)](https://twitter.com/djtkdk_086969)
-* [mstdn.jp(予備)](https://mstdn.jp/@djtkdk_086969)
+* [Misskey.io (recommended)](https://misskey.io/@tkdk_bemusic)
+* [Bluesky](https://bsky.app/profile/tkdk-bemusic.bsky.social)
+* [mstdn.jp](https://mstdn.jp/@djtkdk_086969)
+* [X (former Twitter)](https://twitter.com/djtkdk_086969)

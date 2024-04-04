@@ -179,6 +179,7 @@ var cat = {
                 "aboutAuthor": "作者",
                 "aboutLicense": "ライセンス",
                 "aboutJQ": 'このスクリプトは<a href="https://jquery.com/" target="_blank">jQuery 3.3.1</a>を利用しています。<br>jQueryはMIT Licenseのもとで提供されています。',
+                "aboutDisclaimer": "免責事項: 作者はこのスクリプトが永続的に使用可能であることを保証しません。Google側の仕様変更が原因で、このスクリプトが正常に動作しなくなる場合があります。",
                 "saveChange": "変更を保存",
                 "discardChange": "変更を破棄",
                 "changeNotSaved": "[変更を保存]をクリックするまで設定は保存されません",
@@ -359,6 +360,7 @@ var cat = {
                 "aboutAuthor": "Author",
                 "aboutLicense": "License",
                 "aboutJQ": 'This script uses <a href="https://jquery.com/" target="_blank">jQuery 3.3.1</a>.<br>jQuery is provided under MIT License.',
+                "aboutDisclaimer": "DISCLAIMER: The author does NOT guarantee that this script will be permanently functional. Google might change the behavior of its service, which might cause this script to stop working properly.",
                 "saveChange": "Save changes",
                 "discardChange": "Discard changes",
                 "changeNotSaved": "The changes are not saved unless you click [Save changes].",
@@ -1694,6 +1696,7 @@ var count_totalKWSuggest = 0;
                     ': たかだか。(TKDK.) ' +
                     '<ul>' +
                     '<li><a href="https://misskey.io/@tkdk_bemusic" target="_blank">Misskey.io (Recommended)</a></li>' +
+                    '<li><a href="https://bsky.app/profile/tkdk-bemusic.bsky.social" target="_blank">Bluesky</a></li>' +
                     '<li><a href="https://mstdn.jp/@djtkdk_086969" target="_blank">mstdn.jp</a></li>' +
                     '<li><a href="https://twitter.com/djtkdk_086969" target="_blank">X (former Twitter)</a></li>' +
                     '<li><a href="https://greasyfork.org/users/29445" target="_blank">Greasy Fork</a></li>' +
@@ -1701,7 +1704,8 @@ var count_totalKWSuggest = 0;
                     '</ul>'
                    )
             .append(cat[config.config.gso_lang].full.msg.aboutLicense + ': GPL v3<br>')
-            .append(cat[config.config.gso_lang].full.msg.aboutJQ);
+            .append(cat[config.config.gso_lang].full.msg.aboutJQ + '<br>')
+            .append(cat[config.config.gso_lang].full.msg.aboutDisclaimer + '<br>');
         cfg_elem.find('ul.gso_config_tabpage > li').eq(5).append(fieldset);
 
         cfg_elem.append('<div id="gso_config_footer" class="gso_config_footer" style="width: 100%;"></div>');

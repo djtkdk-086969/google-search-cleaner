@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.351
+// @version        1.4.2.352
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1251,12 +1251,12 @@ var count_totalKWSuggest = 0;
 
     GM_addStyle("li.gso_killed_kw_autocomplete { display: none !important;}");
     GM_addStyle("span.gso_killed_url { font-size: 0.60em; text-decoration:line-through;}");
-    GM_addStyle("#gso_control { left: -3px; z-index: 999; width: 128px; padding: 3px; }");
+    GM_addStyle("#gso_control { left: -3px; z-index: 9999; width: 128px; padding: 3px; }");
     GM_addStyle("#gso_resultWnd.gso_float #gso_control { bottom: 20px; }");
-    GM_addStyle("#gso_resultWnd { left: 0px; padding: 2px; z-index: 999; }");
+    GM_addStyle("#gso_resultWnd { left: 0px; padding: 2px; z-index: 9999; }");
     GM_addStyle("#gso_results_msg_eff { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: pink; display: none; }");
     GM_addStyle("*.gso_resultWnd_IKcount { background-color: darkred; color: white; border-radius: 2px/2px; padding: 2px; margin: 0px 0px 0px 5px; }");
-    GM_addStyle("#gso_config { right: 0px; z-index: 999; width: 480px; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
+    GM_addStyle("#gso_config { right: 0px; z-index: 9999; width: 480px; display: none; -moz-user-select: none; -webkit-user-select: none; font-size: x-small;}");
     GM_addStyle("#gso_config ul {padding: 0px;}");
     GM_addStyle("*.gso_config_header, *.gso_config_footer { background-color: whitesmoke;}");
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_config_header, *.gso_config_footer { background-color: #606060; }}");
@@ -1278,7 +1278,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_control_msg {font-size: 0.80em;}");
     GM_addStyle("*.gso_control_buttons {font-size: inherit;}");
 
-    GM_addStyle("*.gso_quick_block_wnd {position: absolute; border-radius: 3px/3px; padding: 3px; z-index: 999;}");
+    GM_addStyle("*.gso_quick_block_wnd {position: absolute; border-radius: 3px/3px; padding: 3px; z-index: 9999;}");
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_quick_block_wnd { background-color: #404040; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_quick_block_wnd { background-color: lightgray; }}");
 

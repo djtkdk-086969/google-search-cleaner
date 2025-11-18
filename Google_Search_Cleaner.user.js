@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.352
+// @version        1.4.2.359
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -199,12 +199,12 @@ var cat = {
                 "ctlmsgSERP": "検索結果",
                 "ctlmsgIMG": "画像",
                 "ctlmsgKW": "関連語句",
-                "ctlmsgMIS": "検索語句無視が %1 件発生しています",
+                "ctlmsgMIS": "%1 個の検索語句が無視されています（「含まれない」）",
                 "ctlmsgSuggest": "%1 件の自動補完をブロックしました",
                 "ctlmsgVerbatim": "完全一致で再検索",
                 "ctlmsgNoSERP": "検索結果が表示されていません",
-                "ctlmsgGood": "処理対象となった検索結果はありません",
-                "ctlmsgBad": "次の要素がルールセットに合致し処理されました",
+                "ctlmsgGood": "ルールセットに合致した検索結果はありません",
+                "ctlmsgBad": "ルールセットに合致した次の要素を処理しました",
                 "ctlmsgBadB": "(クリックで切替)",
                 "qbCreateNewRule": "新規ルールを作成します",
                 "qbAddTo": "追加先",
@@ -363,9 +363,9 @@ var cat = {
                 "aboutDisclaimer": "DISCLAIMER: The author does NOT guarantee that this script will be permanently functional. Google might change the behavior of its service, which might cause this script to stop working properly.",
                 "saveChange": "Save changes",
                 "discardChange": "Discard changes",
-                "changeNotSaved": "The changes are not saved unless you click [Save changes].",
+                "changeNotSaved": "Your changes are not saved unless you click [Save changes].",
                 "reloadToTakeEffect": "Please reload the page to take effects.",
-                "lastRulesetCannotBeDeleted": "The last ruleset cannot be deleted.",
+                "lastRulesetCannotBeDeleted": "You cannot delete the last ruleset.",
                 "untitled": "(Untitled)",
                 "invalidJSON": "Import failed because the given file is not a valid JSON. See the console for details.",
                 "invalidConfig": "Invalid configuration file. See the console for details.",
@@ -380,12 +380,12 @@ var cat = {
                 "ctlmsgSERP": "Results",
                 "ctlmsgIMG": "Images",
                 "ctlmsgKW": "Keywords",
-                "ctlmsgMIS": "%1 keyword ignoring (Missing) occurred.",
+                "ctlmsgMIS": "%1 keyword(s) ignored (\"Missing\").",
                 "ctlmsgSuggest": "Blocked %1 autocomplete(s).",
                 "ctlmsgVerbatim": "Search Verbatim",
                 "ctlmsgNoSERP": "No search results displayed.",
-                "ctlmsgGood": "No search results processed.",
-                "ctlmsgBad": "The following elements matched with the rulesets and have been processed.",
+                "ctlmsgGood": "No search results matched with your rulesets.",
+                "ctlmsgBad": "Actions have been taken for the following elements matched with your rulesets.",
                 "ctlmsgBadB": "(Click to toggle)",
                 "qbCreateNewRule": "Creating a New Rule",
                 "qbAddTo": "Add to",
@@ -961,7 +961,7 @@ function gso_control_prepare() {
             var ctl = $("#gso_resultWnd");
             var minimum_top_ctl = 60;
             var isIschMode = false;
-            isIschMode = (location.href.search("&tbm=isch&") >= 0);
+            isIschMode = (location.href.search("&tbm=isch&") >= 0 || location.href.search("&udm=2&") >= 0);
 
             if(config.config.float) {
                 ctl.removeClass("gso_control_embedded_body");
@@ -1321,6 +1321,13 @@ var count_totalKWSuggest = 0;
 
     /* 「すべて」の結果内に現れる検索結果のセレクタ */
     var selector_SERP =
+        'div.tF2Cxc,' +
+        'div.fy7gGf,' +
+        'div.e2BEnf,' +
+        'div[jscontroller="SC7lYd"],' +
+        'div[jscontroller="Um3BXb"],' +
+        'div.sHEJob,' + /* 2025/05 検索結果に現れる動画 */
+        'div[jscontroller="rTuANe"],' + /* 同上 */
         "div.gT5me," +
         "div.qLyARd.e3SnQ > div," + /* 2023/02 recipe */
         "div.g:has(div.yuRUbf > a)," + /* 2021/01 G側の仕様変更 */
@@ -1376,7 +1383,8 @@ var count_totalKWSuggest = 0;
         "div#trev a, " +
         "div#brs p._e4b > a," +
         "div.brs_col p.nVcaUb > a," + /* 2018/08 G側の仕様変更 */
-        "#bres a.k8XOCe" + /* 2021/02 G側の仕様変更 */
+        "#bres a.k8XOCe," + /* 2021/02 G側の仕様変更 */
+        "#bres div.b2Rnsc" + /* 2025/01 G側の仕様変更 */
         ""; /* dummy */
 
 
@@ -2181,7 +2189,7 @@ var count_totalKWSuggest = 0;
                     $(node_search).find(selector_KW).not("*.gso_checked").each( function() {
                         check_elem_kw(this);
                     });
-                    if(location.href.search("&tbm=isch&") == -1){
+                    if(location.href.search("&tbm=isch&") == -1 && location.href.search("&udm=2&") == -1){
                         $(node_search).find(selector_SERP).not("*.gso_checked").each( function() {
                             check_elem_serp(this);
                         });
@@ -2189,12 +2197,13 @@ var count_totalKWSuggest = 0;
                             check_elem_img(this);
                         });
                     }
-                    if(config.config.check_for_image){
+                    if(config.config.check_for_image && (location.href.search("&tbm=isch&") >= 0 || location.href.search("&udm=2&") >= 0)){
                         /*
                             2024/04 G側の仕様変更
                             location.href.search("&tbm=isch&") >= 0
                             で「画像検索」を検知できなくなった、かつこれに相当する
                             パラメータが不明であるため、当面の間この条件分岐は無効とする
+                            2025/09 udm=2 が画像検索に相当する
                         */
                         $(selector_IMGLIST).not("*.gso_checked").each(function() {
                             check_elem_imglist(this);
@@ -2264,7 +2273,7 @@ var count_totalKWSuggest = 0;
                         check_elem_kw(this);
                     });
                     /* SERPを探して処理 */
-                    if(location.href.search("&tbm=isch&") == -1){
+                    if(location.href.search("&tbm=isch&") == -1 && location.href.search("&udm=2&") == -1){
                         $(node).find(selector_SERP).not("*.gso_checked").each(function() {
                             check_elem_serp(this);
                         });
@@ -2272,7 +2281,7 @@ var count_totalKWSuggest = 0;
                             check_elem_img(this);
                         });
                     }
-                    if(location.href.search("&tbm=isch&") >= 0 && config.config.check_for_image){
+                    if((location.href.search("&tbm=isch&") >= 0 || location.href.search("&udm=2&") >= 0) && config.config.check_for_image){
                         $(selector_IMGLIST).not("*.gso_checked").each(function() {
                             check_elem_imglist(this);
                         });
@@ -2500,6 +2509,7 @@ var count_totalKWSuggest = 0;
                         e.outerHTML = `<span class="gso_ignored_kw"><a href="${encodeURI(newUrl)}">${kw}</a></span>`;
                         missing_kw_list_ar.push(kw);
                     });
+                    /* "含まれない:" 置換 */
                     missing_kw_list.find("> span:first-child").text(cat[config.config.gso_lang].full.msg.ignoredKeywords + ':');
                     gso_log_append("missing",
                                    null,
@@ -2517,13 +2527,16 @@ var count_totalKWSuggest = 0;
                                                cat[config.config.gso_lang].full.msg.searchAllIncluded + '</a>');
                     }
                     else if(this.querySelectorAll("span.gso_ignored_kw").length == 1) {
-                        /* 無視された語句が1個のみの場合、後続の「必須にする」または「含めて検索」を隠す */
+                        /*
+                            無視された語句が1個のみの場合、後続の「必須にする」または「含めて検索」
+                            およびその後の検索語句リストを削除（重複回避のため）
+                        */
                         this.childNodes.forEach((e) => {
                             if(e.nodeName == "#text" && (e.textContent.search("必須にする:") >= 0 || e.textContent.search("含めて検索:") >= 0 || e.textContent.search("Must include:") >= 0)) {
                                 e.remove();
                             }
                         });
-                        this.querySelectorAll("a.fl").forEach((e) => {
+                        this.querySelectorAll("span.gso_ignored_kw ~ a").forEach((e) => {
                             e.remove();
                         });
                     }
@@ -2927,7 +2940,7 @@ var count_totalKWSuggest = 0;
         $("*.erkvQe li.sbct").each(function() {
             var context =
                 {
-                    "autocomplete" : $(this).find("*.lnnVSe").text(), // this class name might be changed
+                    "autocomplete" : this.querySelectorAll('*[role="option"]')[0].textContent, // this selector name might be changed
                     "matched_rules": null
                 };
             context.matched_rules = check(null, null, null, context.autocomplete, null);
@@ -2976,7 +2989,7 @@ var count_totalKWSuggest = 0;
     }
 
     function check_elem_all() {
-        if(location.href.search("&tbm=isch&") == -1){
+        if(location.href.search("&tbm=isch&") == -1 && location.href.search("&udm=2&") == -1){
             $(selector_SERP).not("*.gso_checked").each(function () {
                 check_elem_serp(this);
             });
@@ -2998,7 +3011,7 @@ var count_totalKWSuggest = 0;
         });
 
         /* ---------- [画像]モードの検索結果 ---------- */
-        if(location.href.search("&tbm=isch&") >= 0 && config.config.check_for_image){
+        if(config.config.check_for_image && (location.href.search("&tbm=isch&") >= 0 || location.href.search("&udm=2&") >= 0)){
             $(selector_IMGLIST).not("*.gso_checked").each(function() {
                 check_elem_imglist(this);
             });

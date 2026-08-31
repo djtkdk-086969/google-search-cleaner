@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.359
+// @version        1.4.2.360
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -1160,7 +1160,6 @@ function gso_load() {
 
     config.rulesets = JSON.parse(GM_getValue("rulesets", '{"default":{"name":"既定のルールセット","enabled":true,"rules":[{"action":"hide","comment":"","criteria":"example.com","enabled":false,"level":0,"target":"url","type":"domain"}]}}'));
     console.log("GSC: loaded configuration");
-    console.log(config);
 
     jQuery.fx.off = !config.config.animation;
 }
@@ -1237,7 +1236,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("@media(prefers-color-scheme: light) { span.gso_killed_serp_msg  { color: #404040; }}");
 
     GM_addStyle("*.gso_killed_serpimg_warn { display: block; position: absolute; width: 100%; height: 100%; z-index: 100; font-size: small; top: 0px; left: 0px;}");
-	
+    
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_killed_img_mask_serp { background-color: #000000; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_killed_img_mask_serp { background-color: #ffffff; }}");
 
@@ -1266,7 +1265,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("ul.gso_config_tab li {display: inline-block; border: none; margin-left: 4px; border-radius: 4px 4px 0px 0px / 4px 4px 0px 0px; padding: 4px 4px 2px 4px;}");
     GM_addStyle("@media(prefers-color-scheme: dark) { ul.gso_config_tab li { background-color: #404040; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { ul.gso_config_tab li { background-color: lightgray; }}");
-	
+    
     GM_addStyle("@media(prefers-color-scheme: dark) { ul.gso_config_tab li.gso_config_selected { background-color: darkred; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { ul.gso_config_tab li.gso_config_selected { background-color: pink; }}");
 
@@ -1294,7 +1293,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("*.gso_serp_description_info { display: block; }");
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_serp_description_info { background: #404040; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_serp_description_info { background: lightgray; }}");
-	
+    
     GM_addStyle("*.gso_serp_description_warning { display: block;}");
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_serp_description_warning { color: pink !important; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_serp_description_warning { color: darkred !important; }}");
@@ -1314,7 +1313,7 @@ var count_totalKWSuggest = 0;
     GM_addStyle("td *.gso_log_pointicon {width: 100%; text-align: center;}");
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_log_pointicon { color: silver; background-color: #606060; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_log_pointicon { color: #404040; background-color: silver; }}");
-	
+    
     GM_addStyle("*.gso_log_pointicon::before {content: '…';}");
     GM_addStyle("div.gso_dummy {position: relative;}");
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
@@ -1369,14 +1368,14 @@ var count_totalKWSuggest = 0;
         "div.img-brk li.rg_el, " + /* 画像検索結果(旧) */
         "div.img-brk div.rg_el, " + /* 画像検索結果 */
         "#iur div.ivg-i" +
-		""; /* dummy */
+        ""; /* dummy */
 
     /* 「画像」の検索結果に現れる画像のセレクタ */
     var selector_IMGLIST =
         "div#isr_mc div.rg_el, "+
         "div#islrg div.isv-r, " + /* 2020/01 G側の仕様変更 */
-		"#rso div.ivg-i" + /* 2024/04 G側の仕様変更 */
-		""; /* dummy */
+        "#rso div.ivg-i" + /* 2024/04 G側の仕様変更 */
+        ""; /* dummy */
 
     /* 関連する検索キーワード*/
     var selector_KW =
@@ -2123,8 +2122,8 @@ var count_totalKWSuggest = 0;
             gso_config_init();
         });
         $("#gso_log_clear").click(function () {
-			$("#gso_log_table tr").remove();
-		});
+            $("#gso_log_table tr").remove();
+        });
         $(window).scroll(function () {
             /* 表示を追従させる */
             var cfg = $("#gso_config");
@@ -2323,11 +2322,11 @@ var count_totalKWSuggest = 0;
                書式の変更はまだ行わない */
             /* 各SERP(node)の状況を格納するオブジェクト */
             const SELECTOR_DESCRIPTION =
-				"span.st, " +
-				"div.st, " +
-				"div.IsZvec, " +
-				"div[data-content-feature='1'], " +
-				"div.VwiC3b"; /* 2023/09 G側の仕様変更 */
+                "span.st, " +
+                "div.st, " +
+                "div.IsZvec, " +
+                "div[data-content-feature='1'], " +
+                "div.VwiC3b"; /* 2023/09 G側の仕様変更 */
             var context =
                 {"element": $(node),
                  "title": null,
@@ -2357,7 +2356,40 @@ var count_totalKWSuggest = 0;
             }
             /* ページのURL */
             context.target = link.attr("href");
-
+            /*
+                2026/08 仕様変更
+                リンク先URLが google.com/goto?(hash化されたURL) となり、元のURLを確認できない。
+                内部データから元のURLを確認可能。
+                参考: https://greasyfork.org/ja/scripts/591392-google-search-direct-links-bypass-goto
+                内部データから元URLを確認できない場合、ページに部分的に表示されるURLを元にチェックを試みるが、
+                URLが表示されていないケースもあり
+            */
+            if (link.attr("href").startsWith("/goto?")) {
+                try {
+                    /* window には直接アクセスできないが、window.evalで可能 */
+                    let g = window.eval("window.google");
+                    let keyPrefix = g.kEI;
+                    let key = $(node).find('*[jsdata*="' + keyPrefix + '"]').attr("jsdata").split(";").filter( (e) => {
+                        return e.startsWith(keyPrefix);
+                    });
+                    
+                    let internalData = window.eval("window.W_jd");
+                    let internalContextArray = internalData[key[0]][32][3];
+                    context.target = internalContextArray[0];
+                }
+                catch (e) {
+                    context.target = link.attr("href");
+                }
+            }
+            if (link.attr("href").startsWith("/goto?")) {
+                try {
+                    /* 内部データ参照不能、ページに部分的に表示されるURLを使用 */
+                    let partialUrl = $(node).find('cite').text().replaceAll(" › ", "/");
+                }
+                catch (e) {
+                    context.target = link.attr("href");
+                }
+            }
             /* ページの抜粋または説明文(meta description) */
             try {
                 context.description = $(node).find(SELECTOR_DESCRIPTION).text();

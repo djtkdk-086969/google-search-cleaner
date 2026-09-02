@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.360
+// @version        1.4.2.361
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -2736,7 +2736,7 @@ var count_totalKWSuggest = 0;
                  "matched_rules_imgsrc": null
                 };
             /* 状況記録部分 */
-            var link = $(node).find('a.rg_l, a.kGQAp, a[href^="http"]');
+            var link = $(node).find('a.rg_l, a.kGQAp, a[href^="http"], a[href^="/goto?"]');
             /* console.log($(node).find("a.rg_l")[0].href)
                では、なぜか undefined が返される */
             var metadata = null;
@@ -2769,6 +2769,55 @@ var count_totalKWSuggest = 0;
                     context.from = null;
                 }
             }
+            if(context.target.startsWith("/goto?")) {
+                try {
+                    /* window には直接アクセスできないが、window.evalで可能 */
+                    let g = window.eval("window.google");
+                    let keyPrefix = g.kEI;
+                    let keys = [];
+                    let jsd = $(node).attr("jsdata");
+                    if (jsd) {
+                        jsd.split(/[; ]/).forEach( (e) => {
+                            if (e.startsWith(keyPrefix)) {
+                                keys.push(e);
+                            }
+                        });
+                    }
+                    $(node).find('*[jsdata*="' + keyPrefix + '"]').attr("jsdata").split(/[; ]/).forEach( (e) => {
+                        if (e.startsWith(keyPrefix)) {
+                            keys.push(e);
+                        }
+                    });
+                    let internalData = window.eval("window.W_jd");
+                    for (const e of keys) {
+                        let target = "";
+                        let from = "";
+                        let imgsrc = "";
+                        try {
+                            if (internalData[e][1][9][2003][2].startsWith("http")) {
+                                target = internalData[e][1][9][2003][2];
+                                from = internalData[e][1][9][2003][12];
+                                imgsrc = internalData[e][1][3][0];
+                            }
+                            if (internalData[e][9][2003][2].startsWith("http")) {
+                                target = internalData[e][9][2003][2];
+                                from = internalData[e][9][2003][12];
+                                imgsrc = internalData[e][3][0];
+                            }
+                        }
+                        catch (err) {
+                        }
+                        if (target.startsWith("http")) {
+                            context.target = target;
+                            context.from = from;
+                            context.imgsrc = imgsrc;
+                            break;
+                        }
+                    }
+                }
+                catch (e) {
+                    context.target = link.attr("href");
+                }            }
             if(link.length > 0) {
                 context.matched_rules_target = check(context.target, context.description, context.title, null, null);
                 context.matched_rules_imgsrc = check(context.imgsrc, null, null, null, null);

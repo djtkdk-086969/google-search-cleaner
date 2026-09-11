@@ -14,7 +14,7 @@ Google Search Cleaner (Tentative Name) is a user script for Greasemonkey / Tampe
 [Introduction Movie (Nico Nico Douga)](http://ext.nicovideo.jp/thumb_watch/sm29461061?thumb_mode=html)
 (Please note that this movie was based on Ver. 1.1.1.086, an older version, and therefore some of its behavior are subject to change.)
 
-**CAUTION: This script has limitations on processing results according to their URLs when you are not logged in to Google. Refer to [Limitations](https://github.com/djtkdk-086969/google-search-cleaner/wiki/Limitations) for more information.**
+**CAUTION: This script has limitations on processing results according to their URLs when you are not logged in to Google. Refer to [Limitations](https://github.com/djtkdk-086969/google-search-cleaner/wiki/Limitations#完全urlの隠蔽-2026年夏仕様変更) for more information.**
 
 ## Features
 This script has following functions:

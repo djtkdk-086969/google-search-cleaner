@@ -17,7 +17,7 @@
 // @include        http://www.google.tld/imghp?*
 // @exclude        *tbm=shop*
 // @exclude        *tbm=vid*
-// @version        1.4.2.361
+// @version        1.4.2.362
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_deleteValue
@@ -141,6 +141,8 @@ var cat = {
                 "criteria": "条件文字列",
                 "level": "レベル",
                 "comment": "コメント",
+                "rseditMsgGoogleAntiScrapingCaution": "<em>注意:</em> Googleにログインしていない状態では、ページの完全なURLに基づく処理を行うことはできません。" +
+                    "詳細については <a href='https://github.com/djtkdk-086969/google-search-cleaner/wiki/Limitations#%E5%AE%8C%E5%85%A8url%E3%81%AE%E9%9A%A0%E8%94%BD-2026%E5%B9%B4%E5%A4%8F%E4%BB%95%E6%A7%98%E5%A4%89%E6%9B%B4' target='_blank'>Wiki/Limitations#完全urlの隠蔽-2026年夏仕様変更</a> をご参照ください。",
                 "friendlyNameForCurrentRuleset": "現在のルールセットの表示名",
                 "friendlyName": "表示名",
                 "deleteCurrentRuleset": "現在のルールセットを削除",
@@ -152,7 +154,8 @@ var cat = {
                 "urlList": "URLリスト(不完全)",
                 "clear": "クリア",
                 "pointForDetails": '<span class="gso_log_pointicon"></span> をポイントすると詳細が表示されます。',
-                "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>',
+                "indicateOverride": '<span class="gso_log_overridden">この表示</span>は他のルールにより動作が上書きされたことを表します。<br>' +
+                    'URLの欄に <span class="gso_log_pointicon_warn"></span> と表示された場合、取得されたURLが不完全なものであるか、URLの取得に失敗しています。',
                 "configPrefsSecApr": "表示設定",
                 "configPrefsSecAdd": "付加機能の設定",
                 "configPrefsSecDbg": "デバッグ用設定",
@@ -211,7 +214,8 @@ var cat = {
                 "qbAdd": "追加",
                 "qbSendTo": "ルールセット編集画面に送る",
                 "qbAdded": "ルールを追加しました。ページを再読み込みすると変更が反映されます。",
-                "qbHeadURL": "URL(先頭一致)"
+                "qbHeadURL": "URL(先頭一致)",
+                "logMsgInaccurateUrl": "(不正確なURLです)"
             }
         }
     },
@@ -322,6 +326,8 @@ var cat = {
                 "criteria": "Criteria",
                 "level": "Level",
                 "comment": "Comment",
+                "rseditMsgGoogleAntiScrapingCaution": "<em>Caution:</em> It is impossible to process search results according to full URLs when you are not logged in to Google. " +
+                    "See <a href='https://github.com/djtkdk-086969/google-search-cleaner/wiki/Limitations#%E5%AE%8C%E5%85%A8url%E3%81%AE%E9%9A%A0%E8%94%BD-2026%E5%B9%B4%E5%A4%8F%E4%BB%95%E6%A7%98%E5%A4%89%E6%9B%B4' target='_blank'>Wiki/Limitations#完全urlの隠蔽-2026年夏仕様変更</a> for more information.",
                 "friendlyNameForCurrentRuleset": "Friendly name for current ruleset",
                 "friendlyName": "Friendly name",
                 "deleteCurrentRuleset": "Delete current ruleset",
@@ -333,7 +339,8 @@ var cat = {
                 "urlList": "URL List (Incomplete)",
                 "clear": "Clear",
                 "pointForDetails": 'Point <span class="gso_log_pointicon"></span> to show details.',
-                "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>',
+                "indicateOverride": '<span class="gso_log_overridden">This style</span> indicates that the action of the rule has been overridden by another rule.<br>' +
+                    '<span class="gso_log_pointicon_warn"></span> on URL column indicates either that the URL this script has retrieved is not a full one or that URL retrieval has failed.',
                 "configPrefsSecApr": "Appearance",
                 "configPrefsSecAdd": "Additional Features",
                 "configPrefsSecDbg": "Debug",
@@ -392,7 +399,8 @@ var cat = {
                 "qbAdd": "Add",
                 "qbSendTo": "Send to the Ruleset Editor",
                 "qbAdded": "The rule has been added. Reload the page to take effects.",
-                "qbHeadURL": "URL (Forward Match)"
+                "qbHeadURL": "URL (Forward Match)",
+                "logMsgInaccurateUrl": "(Inaccurate URL)"
             }
         }
     }
@@ -686,7 +694,7 @@ function gso_rseditor_rslist_str(key, name, enabled) {
     return name + ' [' + key + ']' + (enabled ? '' : '[' + cat[config.config.gso_lang].full.msg.disabled + ']');
 }
 
-function gso_log_append(type, target, matched, title, url, ruleset, action, action_effective, override) {
+function gso_log_append(type, target, matched, title, url, ruleset, action, action_effective, override, accurate_url) {
     /* ログに表示 */
     var table = $("#gso_log_table table tbody");
     var row_style = 0;
@@ -758,7 +766,12 @@ function gso_log_append(type, target, matched, title, url, ruleset, action, acti
         if(url !== null) {
             let elemUrl = table.find("tr:last td:eq(4)")
                 .append("<div class='gso_log_pointicon'></div>");
-            elemUrl.attr("title", url);
+            if (accurate_url) {
+                elemUrl.attr("title", url);
+            } else {
+                elemUrl.find("*.gso_log_pointicon").addClass("gso_log_pointicon_warn");
+                elemUrl.attr("title", url + " " + cat[config.config.gso_lang].full.msg.logMsgInaccurateUrl);
+            }
         }
         if(ruleset !== null) {
             let elemRuleset = table.find("tr:last td:eq(5)")
@@ -870,7 +883,6 @@ function gso_control_prepare() {
     var node_added = false;
     if(config.config.message_location == "page") {
         if($("#gso_control").length === 0) {
-            //console.log("GSC: Results window (page) created.");
             var msg_elem = $('<div id="gso_resultWnd" class="gso_ui_root"></div>');
             msg_elem.append('<em>GSC</em> <span id="gso_resultWnd_icon" class="gso_emoji">-</span><span id="gso_resultWnd_count">-</span><span id="gso_resultWnd_IKcount" class="gso_resultWnd_IKcount" style="display: none;">Missing</span>');
             msg_elem.append('<div id="gso_results_msg_eff"></div>');
@@ -916,7 +928,6 @@ function gso_control_prepare() {
         }
     } else {
         if($("#gso_config #gso_results_msg_top").length === 0) {
-            //console.log("GSC: Results window (config) created.");
             $("#gso_config fieldset:first").before('<div id="gso_results_msg_top">' + cat[config.config.gso_lang].full.msg.ctlmsgNoSERP + '</div>');
             $("#gso_results_msg_top").after('<ul style="list-style-type: none; display: inline-flex;"></ul>');
             $("#gso_results_msg_top + ul")
@@ -1012,7 +1023,6 @@ function gso_control_prepare() {
 }
 
 function update_gso_control_msg() {
-    //console.log("GSC: update_gso_control_msg()");
     /* 結果表示 */
 
     var count_totalSERP = $("*.gso_killed_serp").length;
@@ -1314,7 +1324,8 @@ var count_totalKWSuggest = 0;
     GM_addStyle("@media(prefers-color-scheme: dark) { *.gso_log_pointicon { color: silver; background-color: #606060; }}");
     GM_addStyle("@media(prefers-color-scheme: light) { *.gso_log_pointicon { color: #404040; background-color: silver; }}");
     
-    GM_addStyle("*.gso_log_pointicon::before {content: '…';}");
+    GM_addStyle("*.gso_log_pointicon:not(*.gso_log_pointicon_warn)::before {content: '…';}");
+    GM_addStyle("*.gso_log_pointicon_warn::after {content: '⚠';}");
     GM_addStyle("div.gso_dummy {position: relative;}");
     GM_addStyle("*.gso_emoji {font-family: 'Twitter Color Emoji','EmojiOne Color','Apple カラー絵文字','Apple Color Emoji','Gecko Emoji','Noto Emoji','Noto Color Emoji','Segoe UI Emoji',OpenSansEmoji,EmojiSymbols,DFPEmoji,'Segoe UI Symbol 8','Segoe UI Symbol','Noto Sans Symbols',Symbola,Quivira,'和田研中丸ゴシック2004絵文字',WadaLabChuMaruGo2004Emoji,'和田研細丸ゴシック2004絵文字',WadaLabMaruGo2004Emoji,'DejaVu Sans','VL Pゴシック',YOzFont,'Nishiki-teki','Android Emoji','Sun-ExtA',symbols,places,people,objects,nature,fantasy; }");
 
@@ -1512,7 +1523,8 @@ var count_totalKWSuggest = 0;
             .append('<hr>')
             .append('<div style="width:100%;"></div>')
             .append('<button type="button" id="gso_rule_add" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.addLast + '</button>')
-            .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.overwrite + '</button>');
+            .append('<button type="button" id="gso_rule_overwrite" class="gso_control_buttons">' + cat[config.config.gso_lang].full.msg.overwrite + '</button>')
+            .append('<p>' + cat[config.config.gso_lang].full.msg.rseditMsgGoogleAntiScrapingCaution + '</p>');
         fieldset.find("#gso_ruleset_import_menu")
             .append(cat[config.config.gso_lang].full.msg.importFromFileAndAdd)
             .append('<input type="file" id="gso_ruleset_importJSON" name="rulesetJSON[]"><br>');
@@ -2155,9 +2167,7 @@ var count_totalKWSuggest = 0;
         new MutationObserver(function(mutationEventList){
             mutationEventList.forEach(function(mutationEvent) {
                 var target = mutationEvent.target;
-                //console.log("mo_autocomplete MutationEvent", target);
                 if(target.getElementsByClassName("sbct").length > 0) {
-                    //console.log(mutationEvent);
                     check_autocomplete();
                 }
             });
@@ -2168,7 +2178,6 @@ var count_totalKWSuggest = 0;
         mutations.forEach(function(mutation) {
             /* ノードが追加されたか？ */
             if (mutation.addedNodes && (mutation.addedNodes.length > 0)) {
-                //console.log(mutation.target);
                 /* その中に 'div#search'があるか？ */
                 var node_search = mutation.target.querySelector("div.islrc"); //画像検索結果 2020/02 G側の仕様変更
                 if (!node_search) {
@@ -2332,7 +2341,8 @@ var count_totalKWSuggest = 0;
                  "title": null,
                  "target": null,
                  "description": null,
-                 "matched_rules": null
+                 "matched_rules": null,
+                 "accurate_target": true
                 };
             var link = $(node).find("a:not(._T6c, .top, .ab_button, .fl)");
             if(link.length === 0){
@@ -2358,36 +2368,35 @@ var count_totalKWSuggest = 0;
             context.target = link.attr("href");
             /*
                 2026/08 仕様変更
-                リンク先URLが google.com/goto?(hash化されたURL) となり、元のURLを確認できない。
-                内部データから元のURLを確認可能。
+                未ログイン状態において リンク先URLが google.com/goto?(hash化されたURL) となり、元のURLを確認できない。
+                内部データから元のURLを確認できる可能性があったが、この手法は封じられた。
                 参考: https://greasyfork.org/ja/scripts/591392-google-search-direct-links-bypass-goto
-                内部データから元URLを確認できない場合、ページに部分的に表示されるURLを元にチェックを試みるが、
-                URLが表示されていないケースもあり
+                元URLを確認できない場合、ページに部分的に表示されるURLを元にチェックを試みるが、
+                ドメイン単位より細かいルールに対しては信頼性に欠ける。
+                また、一部のサイトではURLが表示されないためこの手法は使えない。
             */
             if (link.attr("href").startsWith("/goto?")) {
-                try {
-                    /* window には直接アクセスできないが、window.evalで可能 */
-                    let g = window.eval("window.google");
-                    let keyPrefix = g.kEI;
-                    let key = $(node).find('*[jsdata*="' + keyPrefix + '"]').attr("jsdata").split(";").filter( (e) => {
-                        return e.startsWith(keyPrefix);
-                    });
-                    
-                    let internalData = window.eval("window.W_jd");
-                    let internalContextArray = internalData[key[0]][32][3];
-                    context.target = internalContextArray[0];
-                }
-                catch (e) {
-                    context.target = link.attr("href");
-                }
-            }
-            if (link.attr("href").startsWith("/goto?")) {
-                try {
-                    /* 内部データ参照不能、ページに部分的に表示されるURLを使用 */
-                    let partialUrl = $(node).find('cite').text().replaceAll(" › ", "/");
-                }
-                catch (e) {
-                    context.target = link.attr("href");
+                context.accurate_target = false;
+                if (!context.accurate_target) {
+                    try {
+                        /* 内部データ参照不能、ページに部分的に表示されるURLを使用 */
+                        let cites = $(node).find('cite');
+                        let partialUrl = "";
+                        for (const cite of cites) {
+                            if (cite.textContent.startsWith("http")) {
+                                partialUrl = cite.textContent.replaceAll(" › ", "/");
+                                break;
+                            }
+                        }
+                        if (partialUrl.startsWith("http")) {
+                            context.target = partialUrl;
+                        } else {
+                            context.target = "";
+                        }
+                    }
+                    catch (e) {
+                        context.target = link.attr("href");
+                    }
                 }
             }
             /* ページの抜粋または説明文(meta description) */
@@ -2418,7 +2427,8 @@ var count_totalKWSuggest = 0;
                                        e.ruleset_id,
                                        e.rule.action,
                                        applied_rule.rule.action,
-                                       !(e.effective !== undefined && e.effective));
+                                       !(e.effective !== undefined && e.effective),
+                                       context.accurate_target);
                     });
                 });
                 if(applied_rule.rule.action == "hide") {
@@ -2523,7 +2533,8 @@ var count_totalKWSuggest = 0;
                                null,
                                "allow",
                                "allow",
-                               true);
+                               true,
+                               context.accurate_target);
             }
             /* ---------- 「未指定：○○○」を処理 ---------- */
             if(config.config.fix_missing) {
@@ -2551,7 +2562,8 @@ var count_totalKWSuggest = 0;
                                    null,
                                    null,
                                    null,
-                                   false);
+                                   false,
+                                   true);
                     /* 検索語句を全て含ませるリンクの追加
                      元々「含めて検索:」がある場合はそれを尊重する(ただし文言は書き換える)*/
                     if(this.querySelectorAll("span.gso_ignored_kw").length > 1) {
@@ -2672,7 +2684,8 @@ var count_totalKWSuggest = 0;
                                        e.ruleset_id,
                                        e.rule.action,
                                        applied_rule.rule.action,
-                                       !(e.effective !== undefined && e.effective));
+                                       !(e.effective !== undefined && e.effective),
+                                       true);
                     });
                 });
 
@@ -2714,6 +2727,7 @@ var count_totalKWSuggest = 0;
                                null,
                                "allow",
                                "allow",
+                               true,
                                true);
             }
             $(node).addClass("gso_checked");
@@ -2733,7 +2747,8 @@ var count_totalKWSuggest = 0;
                  "description": null,
                  "from": null,
                  "matched_rules_target": null,
-                 "matched_rules_imgsrc": null
+                 "matched_rules_imgsrc": null,
+                 "accurate_target": true
                 };
             /* 状況記録部分 */
             var link = $(node).find('a.rg_l, a.kGQAp, a[href^="http"], a[href^="/goto?"]');
@@ -2769,55 +2784,19 @@ var count_totalKWSuggest = 0;
                     context.from = null;
                 }
             }
+            if (node.hasAttribute("data-lpage") && node.getAttribute("data-lpage").startsWith("http")) {
+                context.target = node.getAttribute("data-lpage");
+                context.accurate_target = true;
+            }
             if(context.target.startsWith("/goto?")) {
-                try {
-                    /* window には直接アクセスできないが、window.evalで可能 */
-                    let g = window.eval("window.google");
-                    let keyPrefix = g.kEI;
-                    let keys = [];
-                    let jsd = $(node).attr("jsdata");
-                    if (jsd) {
-                        jsd.split(/[; ]/).forEach( (e) => {
-                            if (e.startsWith(keyPrefix)) {
-                                keys.push(e);
-                            }
-                        });
-                    }
-                    $(node).find('*[jsdata*="' + keyPrefix + '"]').attr("jsdata").split(/[; ]/).forEach( (e) => {
-                        if (e.startsWith(keyPrefix)) {
-                            keys.push(e);
-                        }
-                    });
-                    let internalData = window.eval("window.W_jd");
-                    for (const e of keys) {
-                        let target = "";
-                        let from = "";
-                        let imgsrc = "";
-                        try {
-                            if (internalData[e][1][9][2003][2].startsWith("http")) {
-                                target = internalData[e][1][9][2003][2];
-                                from = internalData[e][1][9][2003][12];
-                                imgsrc = internalData[e][1][3][0];
-                            }
-                            if (internalData[e][9][2003][2].startsWith("http")) {
-                                target = internalData[e][9][2003][2];
-                                from = internalData[e][9][2003][12];
-                                imgsrc = internalData[e][3][0];
-                            }
-                        }
-                        catch (err) {
-                        }
-                        if (target.startsWith("http")) {
-                            context.target = target;
-                            context.from = from;
-                            context.imgsrc = imgsrc;
-                            break;
-                        }
-                    }
+                for (const l of $(node).find("*[data-lpage^='http']")) {
+                    context.target = l.getAttribute("data-lpage");
+                    context.accurate_target = true;
                 }
-                catch (e) {
-                    context.target = link.attr("href");
-                }            }
+            }
+            if(context.target.startsWith("/goto?")) {
+                context.accurate_target = false;
+            }
             if(link.length > 0) {
                 context.matched_rules_target = check(context.target, context.description, context.title, null, null);
                 context.matched_rules_imgsrc = check(context.imgsrc, null, null, null, null);
@@ -2838,7 +2817,8 @@ var count_totalKWSuggest = 0;
                                            e.ruleset_id,
                                            e.rule.action,
                                            applied_rule.rule.action,
-                                           !(e.effective !== undefined && e.effective));
+                                           !(e.effective !== undefined && e.effective),
+                                           context.accurate_target);
                         });
 
                     });
@@ -2883,7 +2863,8 @@ var count_totalKWSuggest = 0;
                                    null,
                                    "allow",
                                    "allow",
-                                   true);
+                                   true,
+                                   context.accurate_target);
                 }
             }
             $(node).addClass("gso_checked");
@@ -2914,7 +2895,8 @@ var count_totalKWSuggest = 0;
                                        e.ruleset_id,
                                        e.rule.action,
                                        applied_rule.rule.action,
-                                       !(e.effective !== undefined && e.effective));
+                                       !(e.effective !== undefined && e.effective),
+                                       true);
                     });
                 });
                 if(applied_rule.rule.action == "hide") {
@@ -2948,6 +2930,7 @@ var count_totalKWSuggest = 0;
                                null,
                                "allow",
                                "allow",
+                               true,
                                true);
             }
             if(config.config.force_keyword_exclusion_on_suggestion) {
@@ -3000,7 +2983,8 @@ var count_totalKWSuggest = 0;
                                        null,
                                        e.rule.action,
                                        e.rule.action,
-                                       false);
+                                       false,
+                                       true);
                     });
                 });
                 if(matched_rules_exclusion.length > 0) {
@@ -3038,7 +3022,8 @@ var count_totalKWSuggest = 0;
                                        e.ruleset_id,
                                        e.rule.action,
                                        applied_rule.rule.action,
-                                       !(e.effective !== undefined && e.effective));
+                                       !(e.effective !== undefined && e.effective),
+                                       true);
                     });
                 });
                 if(applied_rule.rule.action != "allow") {
